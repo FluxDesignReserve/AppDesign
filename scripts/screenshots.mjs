@@ -171,6 +171,16 @@ for (const vp of VIEWPORTS) {
   )
   if (back !== 'shelf') problems.push(`[interaction] scene state after return = ${back}`)
 
+  // Returning must land the shelf on the book that was open, not scroll position 0 —
+  // otherwise the transition is not visually continuous.
+  const landedOn = await page
+    .locator('[data-shelf-caption] h2')
+    .first()
+    .textContent()
+  if (!/Pieces of the Action/.test(landedOn ?? '')) {
+    problems.push(`[interaction] shelf returned to "${landedOn}", expected the open book`)
+  }
+
   // Fast scroll then immediate reversal — the scene must still converge.
   await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight * 0.6))
   await page.evaluate(() => window.scrollTo(0, 0))

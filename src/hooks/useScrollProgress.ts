@@ -88,6 +88,16 @@ export function useScrollProgress(rangeRef: React.RefObject<HTMLElement | null>)
   return { scroll: scrollState, lenis: lenisRef }
 }
 
+/**
+ * Lenis caches the scrollable limit and only refreshes it from a ResizeObserver,
+ * which fires asynchronously. Immediately after a route change the document height
+ * has changed but that cache has not, so any scrollTo is clamped to the *previous*
+ * page's height. Every imperative scroll therefore resyncs it first.
+ */
+function syncLimit() {
+  lenisInstance?.resize()
+}
+
 function progressToY(rangeEl: HTMLElement, progress: number): number {
   const range = Math.max(rangeEl.offsetHeight - window.innerHeight, 1)
   return rangeEl.offsetTop + range * clamp(progress)
@@ -96,6 +106,7 @@ function progressToY(rangeEl: HTMLElement, progress: number): number {
 /** Imperative scroll used by navigation so selecting a title glides the shelf. */
 export function scrollToProgress(rangeEl: HTMLElement | null, progress: number) {
   if (!rangeEl) return
+  syncLimit()
   const y = progressToY(rangeEl, progress)
   if (lenisInstance) lenisInstance.scrollTo(y)
   else window.scrollTo({ top: y, behavior: 'smooth' })
@@ -108,6 +119,7 @@ export function scrollToProgress(rangeEl: HTMLElement | null, progress: number) 
  */
 export function scrollToElement(el: HTMLElement | null) {
   if (!el) return
+  syncLimit()
   if (lenisInstance) lenisInstance.scrollTo(el, { offset: -24 })
   else el.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
@@ -118,6 +130,7 @@ export function scrollToElement(el: HTMLElement | null) {
  */
 export function jumpToProgress(rangeEl: HTMLElement | null, progress: number) {
   if (!rangeEl) return
+  syncLimit()
   const y = progressToY(rangeEl, progress)
   scrollState.progress = clamp(progress)
   if (lenisInstance) lenisInstance.scrollTo(y, { immediate: true })

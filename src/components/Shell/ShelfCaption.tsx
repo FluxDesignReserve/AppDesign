@@ -16,7 +16,8 @@ export function ShelfCaption({ onSelect, hidden }: Props) {
   return (
     <div className={`${styles.caption} ${hidden ? styles.hidden : ''}`}
       aria-hidden={hidden}
-      inert={hidden ? true : undefined}>
+      inert={hidden ? true : undefined}
+      data-shelf-caption="">
       <div key={book.id} className={styles.stack}>
         <p className={`meta ${styles.position}`}>
           <span className={styles.num}>{String(index + 1).padStart(2, '0')}</span>
