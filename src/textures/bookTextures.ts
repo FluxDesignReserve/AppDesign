@@ -13,6 +13,20 @@ const cache = new Map<string, BookTextures>()
 let sharedPageEdge: THREE.Texture | null = null
 const loader = new THREE.TextureLoader()
 
+/** A flat 1x1 stand-in so a missing 2D context degrades to a plain board, not a crash. */
+function solidTexture(colour: string): THREE.Texture {
+  const data = new Uint8Array(4)
+  const c = new THREE.Color(colour)
+  data[0] = Math.round(c.r * 255)
+  data[1] = Math.round(c.g * 255)
+  data[2] = Math.round(c.b * 255)
+  data[3] = 255
+  const tex = new THREE.DataTexture(data, 1, 1)
+  tex.colorSpace = THREE.SRGBColorSpace
+  tex.needsUpdate = true
+  return tex
+}
+
 function fromCanvas(canvas: HTMLCanvasElement, anisotropy: number): THREE.Texture {
   const tex = new THREE.CanvasTexture(canvas)
   tex.colorSpace = THREE.SRGBColorSpace
@@ -33,11 +47,24 @@ function fromUrl(url: string, anisotropy: number): THREE.Texture {
 /** The page-edge texture is identical for every book, so it is created once. */
 function pageEdgeTexture(anisotropy: number): THREE.Texture {
   if (!sharedPageEdge) {
-    sharedPageEdge = fromCanvas(drawPageEdge(), anisotropy)
+    const drawn = drawPageEdge()
+    sharedPageEdge = drawn ? fromCanvas(drawn, anisotropy) : solidTexture('#e8e2d8')
     sharedPageEdge.wrapS = THREE.RepeatWrapping
     sharedPageEdge.repeat.set(1, 1)
   }
   return sharedPageEdge
+}
+
+/** Use the artwork URL if there is one, else the generated canvas, else a flat colour. */
+function resolveTexture(
+  url: string | undefined,
+  draw: () => HTMLCanvasElement | null,
+  fallbackColour: string,
+  anisotropy: number,
+): THREE.Texture {
+  if (url) return fromUrl(url, anisotropy)
+  const drawn = draw()
+  return drawn ? fromCanvas(drawn, anisotropy) : solidTexture(fallbackColour)
 }
 
 /**
@@ -48,28 +75,15 @@ export function getBookTextures(book: Book, anisotropy = 4): BookTextures {
   const existing = cache.get(book.id)
   if (existing) return existing
 
+  const spineColour = book.palette.spine ?? book.palette.base
   const textures: BookTextures = {
-    cover: book.cover ? fromUrl(book.cover, anisotropy) : fromCanvas(drawCover(book), anisotropy),
-    spine: book.spine ? fromUrl(book.spine, anisotropy) : fromCanvas(drawSpine(book), anisotropy),
-    back: book.back ? fromUrl(book.back, anisotropy) : fromCanvas(drawBack(book), anisotropy),
+    cover: resolveTexture(book.cover, () => drawCover(book), book.palette.base, anisotropy),
+    spine: resolveTexture(book.spine, () => drawSpine(book), spineColour, anisotropy),
+    back: resolveTexture(book.back, () => drawBack(book), spineColour, anisotropy),
     pageEdge: pageEdgeTexture(anisotropy),
   }
   cache.set(book.id, textures)
   return textures
-}
-
-/** Data-URL versions for the non-WebGL fallback and for <img> use. */
-const imageCache = new Map<string, { cover: string; spine: string }>()
-
-export function getBookImages(book: Book): { cover: string; spine: string } {
-  const existing = imageCache.get(book.id)
-  if (existing) return existing
-  const images = {
-    cover: book.cover ?? drawCover(book).toDataURL('image/png'),
-    spine: book.spine ?? drawSpine(book).toDataURL('image/png'),
-  }
-  imageCache.set(book.id, images)
-  return images
 }
 
 /** Release every GPU resource this module owns. Called on app teardown. */

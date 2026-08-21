@@ -32,19 +32,40 @@ export function Home({ rangeRef, onSelectBook, webglEnabled }: Props) {
     }
   }, [rangeRef])
 
-  // Reveal the caption once the hero has been scrolled past.
+  /**
+   * The caption belongs to the shelf, so it appears once the hero is scrolled past
+   * and leaves again as the shelf range ends — otherwise it would stay pinned over
+   * the editorial sections and footer.
+   */
   useLayoutEffect(() => {
-    const onScroll = () => setCaptionHidden(window.scrollY < window.innerHeight * 0.5)
+    const onScroll = () => {
+      const el = rangeRef.current
+      const beforeShelf = window.scrollY < window.innerHeight * 0.5
+      const pastShelf = el
+        ? window.scrollY + window.innerHeight >
+          el.offsetTop + el.offsetHeight - window.innerHeight * 0.25
+        : false
+      setCaptionHidden(beforeShelf || pastShelf)
+      useSceneStore.getState().setOverContent(pastShelf)
+    }
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
+    window.addEventListener('resize', onScroll, { passive: true })
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+      useSceneStore.getState().setOverContent(false)
+    }
+  }, [rangeRef])
 
   return (
     <>
+      {/* Without WebGL there is no shelf to travel along, so the scroll range
+          collapses to the hero and the static shelf follows immediately —
+          otherwise the viewport would open on a screen of empty space. */}
       <div
         ref={rangeRef}
-        className={styles.range}
+        className={`${styles.range} ${webglEnabled ? '' : styles.rangeStatic}`}
         style={{ ['--book-count' as string]: books.length }}
       >
         <section className={styles.hero} aria-labelledby="hero-heading">

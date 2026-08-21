@@ -25,6 +25,7 @@ export function Navigation({ onSelectBook, onJumpToSection, activeSlug, focusedI
 
   useEffect(() => {
     if (!open) return
+    panelRef.current?.querySelector<HTMLElement>('button')?.focus()
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setOpen(false)
@@ -70,13 +71,33 @@ export function Navigation({ onSelectBook, onJumpToSection, activeSlug, focusedI
         </span>
       </button>
 
+      {/* Backdrop: clicking away closes the index, as a sheet should. */}
+      <div
+        className={`${styles.backdrop} ${open ? styles.backdropOpen : ''}`}
+        onClick={() => setOpen(false)}
+        aria-hidden="true"
+      />
+
       <div
         id="book-index"
         ref={panelRef}
         className={`${styles.panel} ${open ? styles.panelOpen : ''}`}
-        hidden={!open}
+        /* `inert` rather than `hidden` so the sheet can actually slide in, while
+           still being unreachable by keyboard and assistive tech when closed. */
+        inert={!open ? true : undefined}
       >
-        <p className={`eyebrow ${styles.panelTitle}`}>All books</p>
+        <div className={styles.panelHead}>
+          <p className={`eyebrow ${styles.panelTitle}`}>All books</p>
+          <button
+            className={styles.close}
+            onClick={() => {
+              setOpen(false)
+              toggleRef.current?.focus()
+            }}
+          >
+            Close
+          </button>
+        </div>
         <ul className={styles.list}>
           {books.map((book) => (
             <li key={book.id}>

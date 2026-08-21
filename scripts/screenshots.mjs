@@ -9,7 +9,7 @@
 import { chromium } from 'playwright'
 import { mkdir } from 'node:fs/promises'
 
-const BASE = process.argv[2] ?? 'http://127.0.0.1:5173'
+const BASE = process.argv[2] ?? process.env.QA_BASE ?? 'http://127.0.0.1:5173'
 const OUT = 'qa/shots'
 
 const VIEWPORTS = [
@@ -220,8 +220,11 @@ for (const vp of VIEWPORTS) {
   page.setDefaultTimeout(120_000)
   watch(page, 'no-webgl')
   await page.addInitScript(() => {
-    HTMLCanvasElement.prototype.getContext = function () {
-      return null
+    const original = HTMLCanvasElement.prototype.getContext
+    // Refuse only WebGL; 2D stays available, which is the realistic failure mode.
+    HTMLCanvasElement.prototype.getContext = function (type, ...rest) {
+      if (typeof type === 'string' && type.includes('webgl')) return null
+      return original.call(this, type, ...rest)
     }
   })
   await page.goto(BASE, { waitUntil: 'networkidle' })
@@ -232,6 +235,9 @@ for (const vp of VIEWPORTS) {
 
   const covers = await page.locator('img[alt^="Cover of"]').count()
   if (covers === 0) problems.push('[no-webgl] fallback rendered no covers')
+  if (covers && !(await page.locator('img[alt^="Cover of"]').first().isVisible())) {
+    problems.push('[no-webgl] covers rendered but not visible')
+  }
   await context.close()
 }
 

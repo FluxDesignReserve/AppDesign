@@ -28,11 +28,17 @@ function hash(str: string): number {
   return (h >>> 0) / 4294967295
 }
 
+/**
+ * Returns null when a 2D context cannot be obtained — some hardened or
+ * memory-starved environments refuse one. Callers degrade to a plain colour tile
+ * rather than throwing, so the page is never blank.
+ */
 function makeCanvas(w: number, h: number) {
   const canvas = document.createElement('canvas')
   canvas.width = w
   canvas.height = h
-  const ctx = canvas.getContext('2d')!
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return null
   ctx.textBaseline = 'alphabetic'
   return { canvas, ctx }
 }
@@ -152,8 +158,10 @@ function drawMark(
   ctx.restore()
 }
 
-export function drawCover(book: Book): HTMLCanvasElement {
-  const { canvas, ctx } = makeCanvas(COVER_W, COVER_H)
+export function drawCover(book: Book): HTMLCanvasElement | null {
+  const surface = makeCanvas(COVER_W, COVER_H)
+  if (!surface) return null
+  const { canvas, ctx } = surface
   const p = book.palette
   const seed = hash(book.id)
 
@@ -226,8 +234,10 @@ export function drawCover(book: Book): HTMLCanvasElement {
   return canvas
 }
 
-export function drawSpine(book: Book): HTMLCanvasElement {
-  const { canvas, ctx } = makeCanvas(SPINE_W, COVER_H)
+export function drawSpine(book: Book): HTMLCanvasElement | null {
+  const surface = makeCanvas(SPINE_W, COVER_H)
+  if (!surface) return null
+  const { canvas, ctx } = surface
   const p = book.palette
 
   ctx.fillStyle = p.spine ?? p.base
@@ -276,8 +286,10 @@ export function drawSpine(book: Book): HTMLCanvasElement {
   return canvas
 }
 
-export function drawBack(book: Book): HTMLCanvasElement {
-  const { canvas, ctx } = makeCanvas(COVER_W, COVER_H)
+export function drawBack(book: Book): HTMLCanvasElement | null {
+  const surface = makeCanvas(COVER_W, COVER_H)
+  if (!surface) return null
+  const { canvas, ctx } = surface
   const p = book.palette
   const margin = COVER_W * 0.13
 
@@ -311,8 +323,10 @@ export function drawBack(book: Book): HTMLCanvasElement {
 }
 
 /** Fore-edge / head / tail leaf lines. */
-export function drawPageEdge(): HTMLCanvasElement {
-  const { canvas, ctx } = makeCanvas(PAGE_W, 128)
+export function drawPageEdge(): HTMLCanvasElement | null {
+  const surface = makeCanvas(PAGE_W, 128)
+  if (!surface) return null
+  const { canvas, ctx } = surface
   ctx.fillStyle = '#e8e2d8'
   ctx.fillRect(0, 0, PAGE_W, 128)
 

@@ -53,6 +53,17 @@
   font-variant-numeric: tabular-nums;
 }
 
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 35;
+  background: rgba(12, 8, 8, 0.5);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--dur-base) var(--ease-out), visibility var(--dur-base);
+}
+.backdropOpen { opacity: 1; visibility: visible; }
+
 .panel {
   position: fixed;
   top: 0; right: 0;
@@ -64,11 +75,28 @@
   overflow-y: auto;
   z-index: 40;
   transform: translateX(100%);
-  transition: transform var(--dur-slow) var(--ease-out);
+  visibility: hidden;
+  transition: transform var(--dur-slow) var(--ease-out), visibility var(--dur-slow);
 }
-.panelOpen { transform: translateX(0); }
+.panelOpen { transform: translateX(0); visibility: visible; }
 
-.panelTitle { margin-bottom: var(--s-4); }
+.panelHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-4);
+  margin-bottom: var(--s-4);
+}
+
+.panelTitle { margin: 0; }
+
+.close {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--fg-secondary);
+  transition: color var(--dur-base) var(--ease-out);
+}
+.close:hover { color: var(--fg); }
 
 .list {
   list-style: none;

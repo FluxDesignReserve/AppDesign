@@ -17,15 +17,26 @@ export function FilmSection() {
           {films.map((film) => (
             <li key={film.id} className={styles.item}>
               <a className={styles.link} href={film.href} target="_blank" rel="noreferrer noopener">
+                {/* Flat colour field, not a gradient: an honest placeholder for a
+                    still we cannot reproduce, with the frame and ratio preserved. */}
                 <div
                   className={styles.still}
-                  style={{
-                    background: `linear-gradient(155deg, ${film.palette.base} 0%, ${film.palette.accent}22 100%)`,
-                  }}
+                  style={{ background: film.palette.base }}
                   aria-hidden="true"
                 >
-                  <span className={styles.stillMark} style={{ color: film.palette.ink }}>
-                    {film.title}
+                  <svg
+                    className={styles.play}
+                    viewBox="0 0 44 44"
+                    width="44"
+                    height="44"
+                    style={{ color: film.palette.ink }}
+                    focusable="false"
+                  >
+                    <circle cx="22" cy="22" r="21" fill="none" stroke="currentColor" strokeWidth="1" />
+                    <path d="M18 14.5 30.5 22 18 29.5z" fill="currentColor" />
+                  </svg>
+                  <span className={styles.stillNote} style={{ color: film.palette.ink }}>
+                    Placeholder still
                   </span>
                 </div>
                 <div className={styles.meta}>

@@ -1,7 +1,11 @@
 import { useFrame } from '@react-three/fiber'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import type * as THREE from 'three'
-import { resolveBookTransform, type BookTransform } from '../../animations/bookAnimations'
+import {
+  emptyTransform,
+  resolveBookTransform,
+  type BookTransform,
+} from '../../animations/bookAnimations'
 import { books } from '../../data/books'
 import { clamp, damp, dampSettle, lerp } from '../../lib/math'
 import type { SceneConfig } from '../../lib/sceneConfig'
@@ -31,20 +35,11 @@ export function BookStack({ config, onSelect, reducedMotion, anisotropy }: Props
   const hoverAmounts = useRef<number[]>(books.map(() => 0))
   const focusRef = useRef(0)
 
-  // Stable, mutable target per book. Book3D reads these in its own useFrame.
+  // Stable, mutable target per book. Book3D reads these in its own useFrame, and
+  // they are written in place so the hot path allocates nothing.
   const targets = useMemo(
     () =>
-      books.map(
-        () =>
-          ({
-            current: {
-              position: [0, 0, 0],
-              rotation: [0, 0, 0],
-              scale: 1,
-              opacity: 1,
-            } as BookTransform,
-          }) as React.RefObject<BookTransform>,
-      ),
+      books.map(() => ({ current: emptyTransform() }) as React.RefObject<BookTransform>),
     [],
   )
 
@@ -111,23 +106,20 @@ export function BookStack({ config, onSelect, reducedMotion, anisotropy }: Props
         ? hoverTarget
         : damp(hoverAmounts.current[i], hoverTarget, 9, dt)
 
-      const next = resolveBookTransform({
-        index: i,
-        focusIndex: focus,
-        progress: p,
-        isActive,
-        config,
-        hover: hoverAmounts.current[i],
-      })
+      const t = resolveBookTransform(
+        {
+          index: i,
+          focusIndex: focus,
+          progress: p,
+          isActive,
+          config,
+          hover: hoverAmounts.current[i],
+        },
+        targets[i].current,
+      )
 
       // Cull far books, but never the selected one.
-      if (!isActive && Math.abs(i - focus) > config.visibleRadius) next.opacity = 0
-
-      const t = targets[i].current
-      t.position = next.position
-      t.rotation = next.rotation
-      t.scale = next.scale
-      t.opacity = next.opacity
+      if (!isActive && Math.abs(i - focus) > config.visibleRadius) t.opacity = 0
     }
   }, -1)
 

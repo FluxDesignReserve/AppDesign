@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { books } from '../../data/books'
-import { getBookImages } from '../../textures/bookTextures'
+import { getBookImages } from '../../textures/bookImages'
 import styles from './NoWebGLShelf.module.css'
 
 /**
@@ -27,14 +27,24 @@ export function NoWebGLShelf() {
             return (
               <li key={book.id} className={styles.item}>
                 <Link className={styles.link} to={`/${book.slug}`}>
-                  <img
-                    className={styles.cover}
-                    src={images.cover}
-                    alt={`Cover of ${book.title} by ${book.author}`}
-                    loading="lazy"
-                    width={512}
-                    height={776}
-                  />
+                  {images.cover ? (
+                    <img
+                      className={styles.cover}
+                      src={images.cover}
+                      alt={`Cover of ${book.title} by ${book.author}`}
+                      loading="lazy"
+                      width={512}
+                      height={776}
+                    />
+                  ) : (
+                    /* Last-resort tile: no canvas, no artwork — still never blank. */
+                    <span
+                      className={`${styles.cover} ${styles.tile}`}
+                      style={{ background: book.palette.base, color: book.palette.ink }}
+                    >
+                      <span className={styles.tileTitle}>{book.title}</span>
+                    </span>
+                  )}
                   <span className={styles.title}>{book.title}</span>
                   <span className={styles.author}>{book.author}</span>
                 </Link>

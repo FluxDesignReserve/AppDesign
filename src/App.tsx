@@ -1,15 +1,22 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { Route, Routes, useLocation } from 'react-router-dom'
+import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react'
+import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { Brand } from './components/Brand/Brand'
 import { Navigation } from './components/Navigation/Navigation'
-import { BookScene } from './components/Scene/BookScene'
+/**
+ * The 3D stack (three + fiber + drei) is by far the largest dependency, and nothing
+ * above the fold needs it. Loading it lazily lets the type, layout and navigation
+ * paint immediately, and means a browser without WebGL never downloads it at all.
+ */
+const BookScene = lazy(() =>
+  import('./components/Scene/BookScene').then((m) => ({ default: m.BookScene })),
+)
 import { books, bookIndex, neighbours } from './data/books'
 import { useBookTransition } from './hooks/useBookTransition'
 import { useFocusedBook } from './hooks/useFocusedBook'
 import { useReducedMotion } from './hooks/useReducedMotion'
 import { useResponsiveScene } from './hooks/useResponsiveScene'
 import { useSceneFade } from './hooks/useSceneFade'
-import { scrollToProgress, useScrollProgress } from './hooks/useScrollProgress'
+import { scrollToElement, scrollToProgress, useScrollProgress } from './hooks/useScrollProgress'
 import { useSceneStore } from './lib/store'
 import { hasWebGL } from './lib/webgl'
 import { BookPage } from './routes/BookPage'
@@ -20,6 +27,7 @@ const LAST = books.length - 1
 
 export function App() {
   const location = useLocation()
+  const navigate = useNavigate()
   const rangeRef = useRef<HTMLDivElement>(null)
   const reducedMotion = useReducedMotion()
   const { config } = useResponsiveScene()
@@ -30,6 +38,7 @@ export function App() {
   const contextAlive = useSceneStore((s) => s.webglEnabled)
   const activeSlug = useSceneStore((s) => s.activeSlug)
   const sceneState = useSceneStore((s) => s.sceneState)
+  const overContent = useSceneStore((s) => s.overContent)
   const webglEnabled = supported && contextAlive
 
   const isHome = location.pathname === '/'
@@ -45,9 +54,20 @@ export function App() {
     [openBook],
   )
 
-  const jumpToSection = useCallback((id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  }, [])
+  const jumpToSection = useCallback(
+    (id: string) => {
+      // Sections only exist on the shelf route, so navigate there first.
+      if (!isHome) {
+        navigate('/')
+        requestAnimationFrame(() =>
+          requestAnimationFrame(() => scrollToElement(document.getElementById(id))),
+        )
+        return
+      }
+      scrollToElement(document.getElementById(id))
+    },
+    [isHome, navigate],
+  )
 
   /** Keyboard model: arrows travel the shelf or the catalogue, Escape returns. */
   useEffect(() => {
@@ -100,10 +120,12 @@ export function App() {
       </a>
 
       {webglEnabled && (
-        <BookScene config={config} onSelect={selectBook} reducedMotion={reducedMotion} />
+        <Suspense fallback={null}>
+          <BookScene config={config} onSelect={selectBook} reducedMotion={reducedMotion} />
+        </Suspense>
       )}
 
-      <header className={styles.header}>
+      <header className={`${styles.header} ${overContent ? styles.headerSolid : ''}`}>
         <div className={`container ${styles.headerInner}`}>
           <Brand compact={!isHome} />
           <Navigation
@@ -116,7 +138,7 @@ export function App() {
       </header>
 
       <main id="main" className={styles.main}>
-        <h2 className="visually-hidden">Stripe Press books</h2>
+        {/* Not a heading: it must not precede the route's own h1 in the outline. */}
         <p className="visually-hidden">
           The shelf is rendered in 3D. Every book is also reachable from the Index in the
           navigation, and each has its own page.

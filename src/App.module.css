@@ -10,8 +10,20 @@
   right: 0;
   z-index: 30;
   padding-block: var(--s-5);
-  /* Chrome stays out of the way: no bar, no blur, just type over the scene. */
+  /* Chrome stays out of the way over the scene: no bar, no blur, just type. */
   pointer-events: none;
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  transition:
+    background var(--dur-base) var(--ease-out),
+    border-color var(--dur-base) var(--ease-out);
+}
+
+/* Once the shelf is behind us the header sits over running text, so it takes a
+   solid ground and a hairline rule — no blur, no translucency. */
+.headerSolid {
+  background: var(--bg);
+  border-bottom-color: var(--divider);
 }
 
 .headerInner {

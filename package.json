@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
-    "preview": "vite preview",
-    "typecheck": "tsc -b --noEmit false --emitDeclarationOnly false --pretty",
-    "shots": "node scripts/screenshots.mjs"
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host 127.0.0.1 --port 4173",
+    "typecheck": "tsc --noEmit",
+    "shots": "node scripts/screenshots.mjs http://127.0.0.1:4173",
+    "quickshots": "node scripts/quickshot.mjs http://127.0.0.1:4173"
   },
   "dependencies": {
     "@fontsource-variable/newsreader": "^5.3.0",

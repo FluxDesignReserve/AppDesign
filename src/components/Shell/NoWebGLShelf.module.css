@@ -22,6 +22,19 @@
 }
 .link:hover .cover { transform: translateY(-5px); }
 
+.tile {
+  aspect-ratio: 512 / 776;
+  display: flex;
+  align-items: flex-end;
+  padding: var(--s-4);
+}
+
+.tileTitle {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  line-height: 1.2;
+}
+
 .title {
   display: block;
   margin-top: var(--s-4);

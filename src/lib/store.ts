@@ -41,12 +41,15 @@ type Store = {
   focusIndex: number
   reducedMotion: boolean
   webglEnabled: boolean
+  /** True once the shelf is behind us and the header sits over running text. */
+  overContent: boolean
 
   setSceneState: (s: SceneState) => void
   setActive: (slug: string | null) => void
   setFocusIndex: (i: number) => void
   setReducedMotion: (v: boolean) => void
   setWebglEnabled: (v: boolean) => void
+  setOverContent: (v: boolean) => void
 }
 
 export const useSceneStore = create<Store>((set, get) => ({
@@ -56,6 +59,7 @@ export const useSceneStore = create<Store>((set, get) => ({
   focusIndex: 0,
   reducedMotion: false,
   webglEnabled: true,
+  overContent: false,
 
   setSceneState: (s) => {
     if (get().sceneState !== s) set({ sceneState: s })
@@ -70,6 +74,9 @@ export const useSceneStore = create<Store>((set, get) => ({
   },
   setReducedMotion: (v) => set({ reducedMotion: v }),
   setWebglEnabled: (v) => set({ webglEnabled: v }),
+  setOverContent: (v) => {
+    if (get().overContent !== v) set({ overContent: v })
+  },
 }))
 
 /** Imperative read for use inside useFrame (no subscription, no re-render). */

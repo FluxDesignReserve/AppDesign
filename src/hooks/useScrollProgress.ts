@@ -96,6 +96,17 @@ export function scrollToProgress(rangeEl: HTMLElement | null, progress: number) 
 }
 
 /**
+ * Scroll to a section. This must go through Lenis when it is running: Lenis owns the
+ * scroll position, so a native `scrollIntoView` is immediately overridden and the
+ * page appears not to move at all.
+ */
+export function scrollToElement(el: HTMLElement | null) {
+  if (!el) return
+  if (lenisInstance) lenisInstance.scrollTo(el, { offset: -24 })
+  else el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
+
+/**
  * Instant reposition, used when returning from a book so the shelf is already at
  * that book's position and the return transition stays visually continuous.
  */

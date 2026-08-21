@@ -105,7 +105,7 @@
 }
 
 @media (max-width: 1023px) {
-  .detail { padding-top: 62vh; }
+  .detail { padding-top: 68vh; }
   .panel { width: min(100%, 620px); margin-inline: auto; padding-inline: var(--gutter); }
 }
 @media (max-width: 767px) {
