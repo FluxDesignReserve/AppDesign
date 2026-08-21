@@ -15,7 +15,11 @@ import { scrollState, useSceneStore } from '../lib/store'
  *  fighting it with a raw window.scrollTo. */
 let lenisInstance: Lenis | null = null
 
-export function useScrollProgress(rangeRef: React.RefObject<HTMLElement | null>) {
+export function useScrollProgress(rangeRef: React.RefObject<HTMLElement | null>): {
+  /** Live, non-reactive signal: { scrollY, progress, velocity, direction }. */
+  scroll: typeof scrollState
+  lenis: React.RefObject<Lenis | null>
+} {
   const lenisRef = useRef<Lenis | null>(null)
   const reduced = useSceneStore((s) => s.reducedMotion)
 
@@ -79,7 +83,9 @@ export function useScrollProgress(rangeRef: React.RefObject<HTMLElement | null>)
     }
   }, [rangeRef])
 
-  return lenisRef
+  // Returned by reference, not by value: reading it inside useFrame must not
+  // require a React render.
+  return { scroll: scrollState, lenis: lenisRef }
 }
 
 function progressToY(rangeEl: HTMLElement, progress: number): number {

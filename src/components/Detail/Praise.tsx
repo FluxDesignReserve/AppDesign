@@ -1,7 +1,13 @@
 import type { Praise as PraiseType } from '../../data/books'
 import styles from './Detail.module.css'
 
-export function Praise({ items }: { items?: PraiseType[] }) {
+export function Praise({
+  items,
+  isPlaceholder,
+}: {
+  items?: PraiseType[]
+  isPlaceholder?: boolean
+}) {
   if (!items?.length) return null
   return (
     <section className={styles.block} aria-labelledby="praise-heading">
@@ -19,6 +25,11 @@ export function Praise({ items }: { items?: PraiseType[] }) {
           </li>
         ))}
       </ul>
+      {isPlaceholder && (
+        <p className={styles.placeholder}>
+          Placeholder endorsements — no quote here is attributed to a real reviewer.
+        </p>
+      )}
     </section>
   )
 }

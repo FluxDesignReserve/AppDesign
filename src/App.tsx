@@ -2,14 +2,6 @@ import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react'
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { Brand } from './components/Brand/Brand'
 import { Navigation } from './components/Navigation/Navigation'
-/**
- * The 3D stack (three + fiber + drei) is by far the largest dependency, and nothing
- * above the fold needs it. Loading it lazily lets the type, layout and navigation
- * paint immediately, and means a browser without WebGL never downloads it at all.
- */
-const BookScene = lazy(() =>
-  import('./components/Scene/BookScene').then((m) => ({ default: m.BookScene })),
-)
 import { books, bookIndex, neighbours } from './data/books'
 import { useBookTransition } from './hooks/useBookTransition'
 import { useFocusedBook } from './hooks/useFocusedBook'
@@ -22,6 +14,15 @@ import { hasWebGL } from './lib/webgl'
 import { BookPage } from './routes/BookPage'
 import { Home } from './routes/Home'
 import styles from './App.module.css'
+
+/**
+ * The 3D stack (three + fiber + drei) is by far the largest dependency, and nothing
+ * above the fold needs it. Loading it lazily lets the type, layout and navigation
+ * paint immediately, and means a browser without WebGL never downloads it at all.
+ */
+const BookScene = lazy(() =>
+  import('./components/Scene/BookScene').then((m) => ({ default: m.BookScene })),
+)
 
 const LAST = books.length - 1
 

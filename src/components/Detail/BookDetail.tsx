@@ -49,6 +49,7 @@ export function BookDetail({ book, onReturn }: Props) {
             {book.author}
             {book.year ? ` · ${book.year}` : ''}
             {` · ${book.pageCount} pages`}
+            {book.price ? ` · ${book.price}` : ''}
           </p>
         </header>
 
@@ -83,8 +84,8 @@ export function BookDetail({ book, onReturn }: Props) {
           </section>
         ) : null}
 
-        <Author name={book.author} bio={book.authorBio} />
-        <Praise items={book.praise} />
+        <Author name={book.author} bio={book.authorBio} isPlaceholder={book.isPlaceholder} />
+        <Praise items={book.praise} isPlaceholder={book.isPlaceholder} />
 
         <nav className={styles.pager} aria-label="Books">
           {previous ? (

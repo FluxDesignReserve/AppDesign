@@ -22,9 +22,14 @@ npm run typecheck
 
 ## QA
 
+QA runs against the **production build**, not the dev server — HMR reloads would
+otherwise destroy the page context mid-run.
+
 ```bash
-npm run shots      # full viewport matrix + interaction suite (needs the dev server up)
-node scripts/quickshot.mjs   # fast subset while iterating
+npm run build
+npm run preview     # serves dist on 127.0.0.1:4173
+npm run shots       # full viewport matrix + interaction suite
+npm run quickshots  # fast subset while iterating
 ```
 
 `scripts/screenshots.mjs` captures 1440×900, 1280×720, 1024×768, 768×1024 and 390×844,
@@ -43,6 +48,7 @@ error, page exception or failed assertion.
 | Camera state resolution | `src/animations/cameraAnimations.ts` |
 | State transitions | `src/animations/transitionTimelines.ts` |
 | Catalogue | `src/data/books.ts`, `films.ts`, `podcasts.ts` |
+| Generated artwork | `src/textures/coverArt.ts` |
 
 Re-tuning the look should mean editing the first three files. No timing, easing, colour
 or camera value is written inline in a component.

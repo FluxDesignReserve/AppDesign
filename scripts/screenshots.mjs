@@ -35,8 +35,15 @@ function watch(page, label) {
   })
 }
 
-/** Wait for the WebGL scene to have drawn at least a few frames. */
-async function settle(page, frames = 24) {
+/**
+ * Wait for the scene to converge.
+ *
+ * Counts rendered frames, not wall-clock, because damping advances per frame.
+ * ~22 frames is enough for the slowest damped channel (the camera, lambda 3.4) to
+ * settle given the 0.1s dt cap. Under software rendering each frame is expensive,
+ * so this count is the single biggest lever on suite runtime.
+ */
+async function settle(page, frames = 22) {
   await page.evaluate(
     (n) =>
       new Promise((resolve) => {
@@ -53,7 +60,7 @@ async function scrollToRatio(page, ratio) {
     const max = document.documentElement.scrollHeight - window.innerHeight
     window.scrollTo(0, max * r)
   }, ratio)
-  await settle(page, 40)
+  await settle(page, 22)
 }
 
 async function shot(page, name) {
@@ -96,7 +103,7 @@ for (const vp of VIEWPORTS) {
   watch(page, vp.name)
 
   await page.goto(BASE, { waitUntil: 'networkidle' })
-  await settle(page, 60)
+  await settle(page, 22)
   await shot(page, `${vp.name}-01-hero`)
 
   await scrollToRatio(page, 0.16)
@@ -112,7 +119,7 @@ for (const vp of VIEWPORTS) {
   await shot(page, `${vp.name}-05-editorial`)
 
   await page.goto(`${BASE}/boom`, { waitUntil: 'networkidle' })
-  await settle(page, 70)
+  await settle(page, 22)
   await shot(page, `${vp.name}-06-detail-deeplink`)
 
   await context.close()
@@ -126,13 +133,13 @@ for (const vp of VIEWPORTS) {
   watch(page, 'interaction')
 
   await page.goto(BASE, { waitUntil: 'networkidle' })
-  await settle(page, 50)
+  await settle(page, 22)
 
   // Open a book from the index, then verify the URL and the scene state.
   await page.getByRole('button', { name: /^Index/ }).click()
   await page.getByRole('button', { name: /Scaling People/ }).click()
   await page.waitForURL('**/scaling-people')
-  await settle(page, 70)
+  await settle(page, 22)
   await shot(page, 'interaction-01-detail-from-index')
 
   const state = await page.evaluate(() =>
@@ -142,21 +149,21 @@ for (const vp of VIEWPORTS) {
 
   // Next book, then browser back / forward.
   await page.getByRole('link', { name: /Next/ }).click()
-  await settle(page, 70)
+  await settle(page, 22)
   await shot(page, 'interaction-02-next-book')
 
   await page.goBack()
   await page.waitForURL('**/scaling-people')
-  await settle(page, 60)
+  await settle(page, 22)
 
   await page.goForward()
-  await settle(page, 60)
+  await settle(page, 22)
   await shot(page, 'interaction-03-forward')
 
   // Return to shelf.
   await page.getByRole('button', { name: /Return to shelf/ }).click()
   await page.waitForURL(BASE + '/')
-  await settle(page, 80)
+  await settle(page, 22)
   await shot(page, 'interaction-04-returned')
 
   const back = await page.evaluate(() =>
@@ -167,7 +174,7 @@ for (const vp of VIEWPORTS) {
   // Fast scroll then immediate reversal — the scene must still converge.
   await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight * 0.6))
   await page.evaluate(() => window.scrollTo(0, 0))
-  await settle(page, 90)
+  await settle(page, 22)
   await shot(page, 'interaction-05-fast-scroll-reversal')
 
   // Newsletter: invalid → error → success.
@@ -208,7 +215,7 @@ for (const vp of VIEWPORTS) {
   page.setDefaultTimeout(120_000)
   watch(page, 'reduced-motion')
   await page.goto(`${BASE}/boom`, { waitUntil: 'networkidle' })
-  await settle(page, 40)
+  await settle(page, 22)
   await shot(page, 'reduced-motion-detail')
   await context.close()
 }

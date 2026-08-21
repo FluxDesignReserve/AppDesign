@@ -50,6 +50,8 @@ export type Book = {
   cover?: string
   spine?: string
   back?: string
+  /** Cover price, when known. Left unset rather than guessed. */
+  price?: string
   description: string
   authorBio?: string
   praise?: Praise[]
@@ -61,11 +63,34 @@ export type Book = {
 const PLACEHOLDER =
   'Placeholder description. The reference copy for this title was not retrievable in this environment, so this text stands in at the same length and rhythm to preserve layout and interaction behaviour. Replace via src/data/books.ts.'
 
+/**
+ * Placeholder praise and biography.
+ *
+ * The reference's real quotes and bios were not retrievable, and inventing words
+ * and attributing them to real reviewers or describing real people's lives would
+ * be fabrication. These stand in at the right length so the sections render at
+ * their true dimensions, and are labelled as placeholders in the UI.
+ */
+const placeholderPraise = (title: string): Praise[] => [
+  {
+    quote: `Placeholder endorsement for ${title}, set at roughly the length of a real jacket quote so the block occupies its true dimensions.`,
+    author: 'Placeholder attribution',
+    role: 'Reviewer name pending',
+  },
+  {
+    quote: `A second placeholder endorsement, shorter, to exercise the two-quote rhythm of the praise block.`,
+    author: 'Placeholder attribution',
+  },
+]
+
+const placeholderBio = (author: string) =>
+  `— biography placeholder. The reference biography for ${author} was not retrievable in this environment, so this paragraph stands in at a comparable length. Replace via src/data/books.ts.`
+
 const buy = (slug: string): PurchaseLink[] => [
   { label: 'Stripe Press', href: `https://press.stripe.com/${slug}` },
 ]
 
-export const books: Book[] = [
+const catalogue: Book[] = [
   {
     id: 'poor-charlies-almanack',
     slug: 'poor-charlies-almanack',
@@ -312,6 +337,16 @@ export const books: Book[] = [
     purchaseLinks: buy('high-growth-handbook'),
   },
 ]
+
+/**
+ * Long-form placeholders are attached here rather than repeated 19 times above.
+ * Any record that already carries real copy keeps it.
+ */
+export const books: Book[] = catalogue.map((book) => ({
+  ...book,
+  praise: book.praise ?? placeholderPraise(book.title),
+  authorBio: book.authorBio ?? placeholderBio(book.author),
+}))
 
 export const bookBySlug = (slug: string | undefined): Book | undefined =>
   slug ? books.find((b) => b.slug === slug) : undefined
