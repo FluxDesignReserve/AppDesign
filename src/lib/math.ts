@@ -45,3 +45,23 @@ export const mapRange = (
   outMin: number,
   outMax: number,
 ) => lerp(outMin, outMax, invLerp(inMin, inMax, v))
+
+/**
+ * Reshape a continuous index so it dwells on whole numbers.
+ *
+ * The integer part is untouched and the fractional part is passed through a
+ * symmetric power ease, so the mapping stays continuous and monotonic — items rest
+ * in place without ever snapping. `sharpness` 1 is linear (no dwell); higher values
+ * spend proportionally less of the travel between items and more parked on one.
+ *
+ * At sharpness 4 roughly a quarter of the travel is spent in transition, versus
+ * about seventy per cent when linear.
+ */
+export const dwellOnIntegers = (value: number, sharpness: number) => {
+  if (sharpness <= 1) return value
+  const base = Math.floor(value)
+  const t = value - base
+  const eased =
+    t < 0.5 ? 0.5 * Math.pow(2 * t, sharpness) : 1 - 0.5 * Math.pow(2 * (1 - t), sharpness)
+  return base + eased
+}

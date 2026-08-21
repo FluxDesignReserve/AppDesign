@@ -7,7 +7,7 @@ import {
   type BookTransform,
 } from '../../animations/bookAnimations'
 import { books } from '../../data/books'
-import { clamp, damp, dampSettle, lerp } from '../../lib/math'
+import { clamp, damp, dampSettle, dwellOnIntegers, lerp } from '../../lib/math'
 import type { SceneConfig } from '../../lib/sceneConfig'
 import { focusState, scrollState, transitionState, useSceneStore } from '../../lib/store'
 import { Book3D } from './Book3D'
@@ -64,7 +64,7 @@ export function BookStack({ config, onSelect, reducedMotion, anisotropy }: Props
 
     // Focus blends from the scroll-driven position to the selected book, so
     // committing to a book also glides the shelf onto it.
-    const scrollFocus = scrollState.progress * LAST
+    const scrollFocus = dwellOnIntegers(scrollState.progress * LAST, config.focusEase)
     const activeIndex = store.activeSlug
       ? books.findIndex((b) => b.slug === store.activeSlug)
       : -1

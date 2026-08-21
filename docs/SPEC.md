@@ -106,7 +106,14 @@ the cover material so they read at the same value as the covers.
   for the reference's look.
 - Fill `pointLight` 0.35 below-front to keep the page block from going muddy.
 
-Shadow maps are limited to the key light only; contact shadows are a single soft plane.
+Shadow maps are limited to the key light only. There is deliberately **no ground
+plane**: the camera sits almost coplanar with the books' base, so a contact shadow
+would cost a render target every frame and be invisible. The books shadow each other
+from the key light instead.
+
+Specular response comes from a procedurally painted equirectangular environment,
+pre-filtered on the GPU (`src/components/Scene/Environment.tsx`) — no HDR fetch, a
+few KB of VRAM, and the reflection matches the light rig by construction.
 
 ### Textures [D, legal]
 
@@ -130,12 +137,32 @@ past it — each book yawed toward the viewer so the spine faces you and the fro
 foreshortened. Scroll moves *along* the shelf; the book nearest the camera centre is the
 "active" one and rotates open toward cover-forward as it passes.
 
-Layout [D]: books are laid out on the X axis with `spacing 0.92`, a shallow Z sine so the
-row breathes rather than sitting on a rail, and a small per-book Y bob. Rotation
-interpolates from spine-forward `y = -1.12rad` to cover-forward `y = -0.18rad` as a book
-approaches focus, driven by its signed distance from focus — not by a timeline. That
-distance-driven formulation is what makes the choreography reverse correctly on upscroll
-for free.
+Layout [D]: books are laid out on the X axis with `spacing 0.78` (desktop), a shallow Z
+sine so the row breathes rather than sitting on a rail, and a small per-book Y bob.
+
+Yaw runs from cover-forward `y = +0.16rad` at focus to spine-forward `y = +1.18rad` by
+1.5 book-widths away. **The sign matters**: the spine is the −x face, and only a
+*positive* rotation about Y swings it toward a camera at +z. A negative yaw brings the
+fore-edge forward instead — which reads as plausible in a thumbnail and is the wrong
+face of the book. The turn is symmetric in `|distance|`, as a real shelf is: each book
+sits spine-out, swings to cover-out at the middle, and swings back. Mirroring the yaw
+by side would show half the row its wrong face.
+
+Because every value is driven by signed distance from focus rather than by a timeline,
+the choreography reverses correctly on upscroll for free.
+
+**Focus dwell.** A linear scroll→focus mapping spends as much travel halfway between
+two books as it does parked on one, so an arbitrary scroll position is as likely to show
+two half-books as one centred book. The fractional part of the focus index is therefore
+passed through a symmetric power ease (`focusEase`, per breakpoint): continuous and
+monotonic, so nothing ever snaps, but books rest centred and cross the gaps quickly. At
+the mobile setting roughly a quarter of the travel is transitional, versus about seventy
+per cent when linear. It matters most where only one book is in frame, so mobile leans
+on it hardest [D].
+
+While the hero is on screen the whole shelf group holds a per-breakpoint offset
+(`heroOffset`) so the books never sit under the hero type, easing back to the origin as
+the hero scrolls away and cancelling entirely once a book is opened.
 
 ### Scroll engine
 
@@ -195,8 +222,13 @@ the geometry to hinge from.
 (`shelf`, `detail`, plus per-viewport variants) each declare `position`, `target`, `fov`.
 The controller damps position and target independently and re-derives `lookAt` each frame.
 
-Desktop: `fov 32`, camera at `(0, 0.15, 4.6)` [D] — a long lens keeps perspective
+Desktop: `fov 32`, camera at `(0, 0.12, 3.95)` [D] — a long lens keeps perspective
 distortion restrained and editorial rather than fisheyed.
+
+In the detail state the camera stays **on axis** and the book is placed to the right in
+world space, rather than the camera targeting the book. Pointing the camera at the book
+centres it on screen, which puts it straight on top of the text column at every
+breakpoint. Mobile and tablet keep the same principle with the book above the copy.
 
 ---
 
@@ -214,7 +246,23 @@ the scene pre-seeded to that book's focus index (no visible fly-through on cold 
 Back/forward is driven by React Router; the store subscribes to route changes so browser
 navigation animates the scene rather than remounting it.
 
-## 6. Fallback & accessibility
+## 6. Performance
+
+- The 3D stack (three + fiber + drei, ~900 kB) is a **dynamic import**. Nothing above
+  the fold needs it, so type and layout paint first — and a browser without WebGL never
+  downloads it at all. The fallback's artwork path is deliberately kept in its own
+  module that imports only the 2D canvas, never three.
+- The per-frame transform path is **allocation-free**: transforms are written into
+  pre-allocated objects rather than returned, which removes ~100 short-lived arrays per
+  frame at 19 books.
+- Scroll, pointer and transition progress live in non-reactive singletons read inside
+  `useFrame`. React re-renders only when the *focused book* changes.
+- Textures are generated once per book, cached, shared where identical (the page edge is
+  one texture for the whole shelf), and released on teardown. Materials are per-book and
+  disposed with the book.
+- DPR is clamped per breakpoint and shadows drop on mobile and low-power devices.
+
+## 7. Fallback & accessibility
 
 - WebGL absent/failed → `NoWebGLShelf` renders the same generated cover art as static
   images with the full IA, links and detail content preserved. Never a blank canvas.
@@ -225,7 +273,7 @@ navigation animates the scene rather than remounting it.
   timeline collapsed to opacity-only, scroll-linked rotation frozen at focus values.
 - Visible focus rings, semantic landmarks, contrast-checked text pairs.
 
-## 7. Editorial sections
+## 8. Editorial sections
 
 Below the shelf, in reference order [K]: film (*We Are As Gods*, *Beneath the Surface*),
 podcast, newsletter signup, footer with Stripe Press description, legal/company links and
@@ -233,9 +281,33 @@ copyright.
 
 Newsletter implements all six visible states [B]: `default · focused · invalid ·
 submitting · error · success`, with the reference's copy. Submission is mocked
-(`src/lib/newsletter.ts`) — no real backend is contacted.
+(`src/lib/newsletter.ts`) — no real backend is contacted. An address on `@error.`
+reaches the network-error state.
 
-## 8. Content integrity
+Film stills are **flat colour fields**, not gradients: an honest placeholder for a
+still that cannot be reproduced, with frame and aspect ratio preserved.
+
+## 9. Known defects found by QA (and fixed)
+
+Recorded because they are the failure modes this architecture is prone to, and worth
+re-checking after any change:
+
+- **Yaw sign** — books showed their fore-edge instead of their spine (see §3).
+- **Detail camera** — targeting the book centres it over the text column (see §3).
+- **Lenis owns the scroll position.** Two separate bugs came from forgetting this:
+  native `scrollIntoView` was silently overridden (nav section links did nothing), and
+  Lenis's cached scroll limit is stale immediately after a route change, so
+  return-to-shelf was clamped to the previous page's height and landed on the wrong
+  book. Every imperative scroll must go through Lenis *and* resync its limit first.
+- **Two sources of focus** — the caption read raw scroll while the scene read a damped
+  value, so they could name different books. They now share one signal.
+- **Fallback blankness** — the tall shelf scroll range remained with no scene behind it,
+  giving a full screen of nothing. It collapses when WebGL is absent.
+- **dt clamping starves damping** — a 1/30s cap made the scene lag scroll on slow
+  frames. Exponential damping is unconditionally stable; the cap only needs to survive a
+  backgrounded tab.
+
+## 10. Content integrity
 
 The 19-title catalog and the two films come from the brief. Descriptions, praise and
 author bios were not reachable, so long-form copy is **clearly marked placeholder**

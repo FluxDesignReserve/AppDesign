@@ -34,6 +34,17 @@ export type SceneConfig = {
    * with the hero type. Eases back to the origin as the hero scrolls away.
    */
   heroOffset: Vec3
+  /**
+   * How strongly the focus curve dwells on whole books (1 = linear, higher = more).
+   *
+   * With a linear mapping the shelf spends as much scroll distance halfway between
+   * two books as it does parked on one, so any given moment is as likely to show
+   * two half-books as one centred one. Easing the fractional part makes books rest
+   * centred and cross the gaps quickly — without ever snapping, since the mapping
+   * stays continuous and monotonic. It matters most where only one book is in
+   * frame, so mobile leans on it hardest.
+   */
+  focusEase: number
   dpr: [number, number]
   shadows: boolean
 }
@@ -57,6 +68,7 @@ export const sceneConfigs: Record<Breakpoint, SceneConfig> = {
     detailBookScale: 1.08,
     shelfScale: 1,
     heroOffset: [0.74, 0, -0.15],
+    focusEase: 2.2,
     dpr: [1, 2],
     shadows: true,
     ...shared,
@@ -73,6 +85,7 @@ export const sceneConfigs: Record<Breakpoint, SceneConfig> = {
     detailBookScale: 0.82,
     shelfScale: 0.96,
     heroOffset: [0.34, -0.06, -0.15],
+    focusEase: 3,
     dpr: [1, 2],
     shadows: true,
     ...shared,
@@ -89,6 +102,7 @@ export const sceneConfigs: Record<Breakpoint, SceneConfig> = {
     detailBookScale: 0.86,
     shelfScale: 0.95,
     heroOffset: [0, -0.6, -0.1],
+    focusEase: 4,
     dpr: [1, 1.75],
     shadows: false,
     visibleRadius: 4,
