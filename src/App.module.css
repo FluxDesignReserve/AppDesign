@@ -1,0 +1,31 @@
+.app {
+  position: relative;
+  min-height: 100dvh;
+}
+
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 30;
+  padding-block: var(--s-5);
+  /* Chrome stays out of the way: no bar, no blur, just type over the scene. */
+  pointer-events: none;
+}
+
+.headerInner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-5);
+}
+
+.main {
+  position: relative;
+  z-index: 2;
+}
+
+@media (max-width: 767px) {
+  .header { padding-block: var(--s-4); }
+}

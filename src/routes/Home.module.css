@@ -1,0 +1,48 @@
+.range {
+  /* One screen for the hero, then a screen-and-a-bit of travel per book. */
+  height: calc(100dvh + var(--book-count) * 62vh);
+  position: relative;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.hero {
+  height: 100dvh;
+  display: flex;
+  align-items: center;
+}
+
+.heroTitle {
+  max-width: 12ch;
+}
+
+.heroBody {
+  margin-top: var(--s-5);
+  max-width: 46ch;
+}
+
+.heroHint {
+  margin-top: var(--s-8);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  font-size: var(--text-xs);
+  animation: breathe 3.2s var(--ease-in-out) infinite;
+}
+
+@keyframes breathe {
+  0%, 100% { opacity: 0.4; transform: translateY(0); }
+  50%      { opacity: 0.9; transform: translateY(3px); }
+}
+
+.editorial {
+  position: relative;
+  z-index: 5;
+  background: var(--bg);
+}
+
+@media (max-width: 767px) {
+  .range { height: calc(100dvh + var(--book-count) * 52vh); }
+  .hero { align-items: flex-start; padding-top: 13vh; }
+  .heroTitle { max-width: 10ch; }
+  .heroHint { margin-top: var(--s-6); }
+}

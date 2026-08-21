@@ -1,0 +1,56 @@
+/* Design tokens. Re-calibration against the reference should happen HERE, not in components. */
+:root {
+  /* ---- Colour: warm editorial dark ---- */
+  --bg:            #201819;
+  --bg-raised:     #241b1c;
+  --bg-sunken:     #1a1314;
+  --fg:            #f5f1ec;
+  --fg-secondary:  #a89f99;
+  --fg-tertiary:   #7d736e;
+  --divider:       rgba(245, 241, 236, 0.12);
+  --divider-strong:rgba(245, 241, 236, 0.22);
+  --accent:        #e5c07b;
+  --danger:        #e08a72;
+  --success:       #9fbf8f;
+
+  /* ---- Type ---- */
+  --font-display: 'Newsreader Variable', 'Newsreader', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  --font-body:    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  --font-mono:    ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace;
+
+  --text-xs:      0.75rem;
+  --text-sm:      0.875rem;
+  --text-base:    1rem;
+  --text-lg:      1.1875rem;
+  --text-xl:      1.5rem;
+  --text-2xl:     clamp(1.5rem, 2.6vw, 2rem);
+  --text-3xl:     clamp(2rem, 4vw, 3rem);
+  --text-display: clamp(2.5rem, 6.2vw, 5.125rem);
+
+  --leading-tight: 1.06;
+  --leading-snug:  1.24;
+  --leading-body:  1.62;
+  --tracking-display: -0.022em;
+  --tracking-wide:  0.08em;
+
+  /* ---- Space: 8px rhythm ---- */
+  --s-1: 4px;  --s-2: 8px;  --s-3: 12px; --s-4: 16px;
+  --s-5: 24px; --s-6: 32px; --s-7: 48px; --s-8: 64px;
+  --s-9: 96px; --s-10: 128px; --s-11: 176px;
+
+  /* ---- Layout ---- */
+  --content-max: 1200px;
+  --measure: 62ch;
+  --gutter: 24px;
+
+  /* ---- Motion ---- */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 180ms;
+  --dur-base: 320ms;
+  --dur-slow: 620ms;
+}
+
+@media (max-width: 767px) {
+  :root { --gutter: 20px; }
+}

@@ -1,0 +1,106 @@
+@import './tokens.css';
+@import './typography.css';
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  background: var(--bg);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--leading-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overscroll-behavior-y: none;
+}
+
+/* Lenis */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-stopped { overflow: hidden; }
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button { font: inherit; color: inherit; background: none; border: none; padding: 0; cursor: pointer; }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 1px;
+}
+
+::selection { background: rgba(229, 192, 123, 0.28); color: var(--fg); }
+
+.container {
+  width: 100%;
+  max-width: var(--content-max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.rule { height: 1px; background: var(--divider); border: 0; margin: 0; }
+
+.visually-hidden {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  top: -100px; left: var(--gutter);
+  z-index: 100;
+  background: var(--bg-raised);
+  color: var(--fg);
+  padding: var(--s-3) var(--s-4);
+  border: 1px solid var(--divider-strong);
+  transition: top var(--dur-fast) var(--ease-out);
+}
+.skip-link:focus { top: var(--s-4); }
+
+/* Editorial link: underline grows from the left on hover, restrained. */
+.link {
+  position: relative;
+  color: var(--fg);
+  display: inline-block;
+  padding-bottom: 1px;
+}
+.link::after {
+  content: '';
+  position: absolute;
+  left: 0; bottom: 0;
+  width: 100%; height: 1px;
+  background: currentColor;
+  opacity: 0.34;
+  transform: scaleX(1);
+  transform-origin: left;
+  transition: opacity var(--dur-base) var(--ease-out);
+}
+.link:hover::after { opacity: 1; }
+
+.link-muted { color: var(--fg-secondary); transition: color var(--dur-base) var(--ease-out); }
+.link-muted:hover { color: var(--fg); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

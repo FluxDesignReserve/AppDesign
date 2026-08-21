@@ -1,0 +1,17 @@
+.canvasHost {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  /* The canvas receives pointer events so books are directly clickable; overlay
+     content opts back in per element. */
+  pointer-events: auto;
+  /* Faded out by useSceneFade once the shelf range is scrolled past, so books
+     never float behind the editorial sections. */
+  opacity: var(--scene-opacity, 1);
+  transition: opacity 200ms linear;
+}
+
+.canvasHost canvas {
+  display: block;
+  touch-action: pan-y;
+}
