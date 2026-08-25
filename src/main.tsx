@@ -1,6 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { BrowserRouter } from 'react-router-dom'
+import { BrowserRouter, HashRouter } from 'react-router-dom'
 import { App } from './App'
 // Self-hosted faces: no third-party request, no render-blocking stylesheet, and
 // the covers can be drawn the moment the fonts resolve.
@@ -28,12 +28,18 @@ async function fontsReady() {
   await Promise.race([load, new Promise((resolve) => setTimeout(resolve, 1500))])
 }
 
+/**
+ * The single-file build is served as one static document with no server-side
+ * rewrite, so deep links must live in the hash. Everywhere else keeps real paths.
+ */
+const Router = import.meta.env.VITE_SINGLE_FILE ? HashRouter : BrowserRouter
+
 fontsReady().then(() => {
   createRoot(document.getElementById('root')!).render(
     <StrictMode>
-      <BrowserRouter>
+      <Router>
         <App />
-      </BrowserRouter>
+      </Router>
     </StrictMode>,
   )
 })

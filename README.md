@@ -20,6 +20,14 @@ npm run build
 npm run typecheck
 ```
 
+To produce one self-contained `.html` you can open straight off disk — every chunk,
+stylesheet and font inlined, deep links moved to the hash since there is no server to
+rewrite paths:
+
+```bash
+npm run build:single   # -> dist-single/stripe-press-replica.html
+```
+
 ## QA
 
 QA runs against the **production build**, not the dev server — HMR reloads would
