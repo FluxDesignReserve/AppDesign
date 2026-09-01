@@ -1,0 +1,1118 @@
+<title>TestMu Design BIOS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..900&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Sacramento&family=Silkscreen:wght@400;700&display=swap">
+<style>
+/* ============================================================
+   TESTMU DESIGN BIOS — single committed dark CRT world.
+   Palette is derived from the Testmuai "Experience Builder" mark.
+   ============================================================ */
+:root{
+  --void:#08090B;
+  --panel:#101318;
+  --panel-2:#161A20;
+  --line:#242A32;
+  --ink:#DDE2E6;
+  --dim:#6F7B86;
+  --dimmer:#4A535C;
+  --acid:#9BE86A;          /* logo green  — system OK, accents, rules */
+  --butter:#F7F07F;        /* logo yellow — display highlight, script */
+  --alarm:#FF5C5C;         /* never / don't */
+  --fringe-a:#FF2E63;      /* chromatic aberration only */
+  --fringe-b:#21E6C1;      /* chromatic aberration only */
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,Segoe UI,sans-serif;
+  --disp:"Archivo","Arial Black",system-ui,sans-serif;
+  --pix:"Silkscreen","IBM Plex Mono",monospace;
+  --maxw:1180px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{
+  margin:0;background:var(--void);color:var(--ink);
+  font-family:var(--sans);font-size:16px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+::selection{background:var(--acid);color:#06210A}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--acid);outline-offset:3px}
+
+/* ---------- CRT overlay ---------- */
+.crt{position:fixed;inset:0;pointer-events:none;z-index:9000}
+.crt::before{
+  content:"";position:absolute;inset:0;
+  background:repeating-linear-gradient(180deg,rgba(0,0,0,0) 0 2px,rgba(0,0,0,.20) 2px 3px);
+  opacity:.5;
+}
+.crt::after{
+  content:"";position:absolute;inset:0;
+  background:radial-gradient(ellipse 120% 90% at 50% 50%,transparent 55%,rgba(0,0,0,.55) 100%);
+}
+
+/* ============================================================
+   PHASE 1 — POST SCREEN
+   ============================================================ */
+#boot{
+  position:fixed;inset:0;z-index:8000;background:var(--void);
+  font-family:var(--mono);font-size:14px;line-height:1.55;
+  padding:clamp(18px,3.2vw,44px);overflow-y:auto;overflow-x:hidden;
+  display:flex;flex-direction:column;
+}
+#boot.gone{display:none}
+body.booting{overflow:hidden}
+.post-top{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;flex-wrap:wrap-reverse}
+.post-head{max-width:60ch}
+.post-head h1{
+  font:inherit;font-weight:500;margin:0;color:var(--ink);
+  font-size:clamp(14px,1.5vw,17px);letter-spacing:.01em;
+}
+.post-head .copy{color:var(--dim);margin:2px 0 0}
+.post-body{margin-top:clamp(20px,4vh,52px);flex:1 0 auto;min-height:0}
+@media (max-width:700px){
+  #boot{font-size:12px;line-height:1.5}
+  .post-head h1{font-size:13px}
+  .mark{width:132px}
+  .cfggrid{padding:10px 12px}
+  .cfgrow{font-size:11.5px}
+  .cfgrow .k{min-width:13ch}
+  .enterbtn{font-size:12px;padding:9px 12px}
+  .prompt{gap:8px}
+}
+.ln{display:flex;gap:.5ch;white-space:pre-wrap;word-break:break-word}
+.ln .lbl{color:var(--ink)}
+.ln .dots{color:var(--dimmer);flex:1;overflow:hidden;white-space:nowrap}
+.ln .ok{color:var(--acid);font-weight:600;flex:none;white-space:nowrap}
+.ln .dots{flex:1 1 2ch;min-width:1ch}
+.ln.muted .lbl{color:var(--dim)}
+.ln.hl .lbl{color:var(--butter)}
+.spacer{height:1.55em}
+
+/* config box */
+.cfgbox{margin-top:clamp(16px,3vh,34px);border:1px solid var(--line);max-width:840px;background:rgba(155,232,106,.02)}
+.cfgbox .cfghead{
+  font-family:var(--pix);font-size:10px;letter-spacing:.14em;color:var(--void);
+  background:var(--acid);padding:5px 10px;
+}
+.cfggrid{display:grid;grid-template-columns:1fr 1fr;gap:0 28px;padding:12px 14px}
+@media (max-width:640px){.cfggrid{grid-template-columns:1fr}}
+.cfgrow{display:flex;gap:.5ch;color:var(--dim);font-size:13px}
+.cfgrow b{color:var(--ink);font-weight:500}
+.cfgrow .k{min-width:15ch}
+
+.post-foot{margin-top:auto;padding:22px 0 2px;border-top:1px solid var(--line);flex:none}
+.prompt{display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:14px}
+.enterbtn{
+  font-family:var(--mono);font-size:14px;font-weight:600;letter-spacing:.02em;
+  background:var(--acid);color:#06210A;border:0;padding:9px 18px;cursor:pointer;
+}
+.enterbtn:hover{background:var(--butter)}
+.blink{animation:blink 1s steps(1,end) infinite}
+@keyframes blink{50%{opacity:0}}
+.cursor{display:inline-block;width:.62ch;height:1.05em;background:var(--ink);vertical-align:-.18em}
+.skip{
+  margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--dimmer);
+  background:none;border:1px solid var(--line);padding:6px 12px;cursor:pointer;
+}
+.skip:hover{color:var(--ink);border-color:var(--dim)}
+
+/* ---------- the mark ---------- */
+.mark{width:clamp(148px,17vw,232px);height:auto;display:block;flex:none}
+.mark .arc,.mark .star{fill:none;stroke:var(--butter);stroke-width:7;stroke-linecap:round;stroke-linejoin:round}
+.mark .script{fill:var(--butter);font-family:"Sacramento",cursive;font-size:104px}
+.mark .rule{stroke:var(--acid);stroke-width:7}
+.mark .tag{fill:var(--acid);font-family:var(--sans);font-weight:400;font-size:41px;letter-spacing:.1em}
+.mark.small{width:96px}
+.mark.small .arc,.mark.small .star{stroke-width:9}
+
+/* boot → doc wipe */
+#wipe{position:fixed;inset:0;z-index:8500;background:var(--ink);transform:scaleY(0);pointer-events:none}
+#wipe.run{animation:wipe .66s cubic-bezier(.6,0,.35,1) forwards}
+@keyframes wipe{
+  0%{transform:scaleY(0);opacity:1}
+  30%{transform:scaleY(.006);opacity:1}
+  46%{transform:scaleY(.006);opacity:1}
+  50%{transform:scaleY(1);opacity:1}
+  100%{transform:scaleY(1);opacity:0}
+}
+
+/* ============================================================
+   PHASE 2 — THE MANUAL
+   ============================================================ */
+#doc{display:none}
+#doc.live{display:block}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 clamp(18px,4vw,40px)}
+
+/* top bar */
+.topbar{
+  position:sticky;top:0;z-index:600;background:rgba(8,9,11,.86);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--line);
+}
+.topbar .wrap{display:flex;align-items:center;gap:18px;height:56px}
+.tb-id{font-family:var(--pix);font-size:10px;letter-spacing:.13em;color:var(--acid);white-space:nowrap}
+.tb-nav{display:flex;gap:2px;margin-left:auto;overflow-x:auto;scrollbar-width:none}
+.tb-nav::-webkit-scrollbar{display:none}
+.tb-nav a{
+  font-family:var(--mono);font-size:11px;color:var(--dim);text-decoration:none;
+  padding:6px 7px;white-space:nowrap;border:1px solid transparent;
+}
+.tb-nav a:hover{color:var(--ink);background:var(--panel)}
+.tb-nav a.on{color:var(--acid);border-color:var(--line);background:var(--panel)}
+@media (max-width:820px){.tb-nav{display:none}}
+
+/* hero */
+.hero{padding:clamp(56px,11vh,120px) 0 clamp(40px,7vh,76px);border-bottom:1px solid var(--line)}
+.eyebrow{font-family:var(--pix);font-size:10px;letter-spacing:.16em;color:var(--acid);margin:0 0 18px}
+h1.title{
+  font-family:var(--disp);font-variation-settings:"wdth" 118,"wght" 800;
+  font-size:clamp(38px,8.4vw,92px);line-height:.94;letter-spacing:-.022em;
+  margin:0 0 22px;text-wrap:balance;text-transform:uppercase;color:var(--ink);
+  position:relative;
+}
+h1.title .g{position:relative;display:inline-block}
+h1.title .g::before,h1.title .g::after{
+  content:attr(data-t);position:absolute;inset:0;pointer-events:none;
+}
+h1.title .g::before{color:var(--fringe-a);transform:translate(-2px,0);opacity:.55;mix-blend-mode:screen;animation:fringeA 5.5s steps(1,end) infinite}
+h1.title .g::after{color:var(--fringe-b);transform:translate(2px,0);opacity:.55;mix-blend-mode:screen;animation:fringeB 5.5s steps(1,end) infinite}
+@keyframes fringeA{0%,92%{transform:translate(-2px,0)}93%{transform:translate(-7px,2px)}95%{transform:translate(3px,-2px)}97%{transform:translate(-5px,1px)}99%,100%{transform:translate(-2px,0)}}
+@keyframes fringeB{0%,92%{transform:translate(2px,0)}93%{transform:translate(6px,-2px)}95%{transform:translate(-4px,2px)}97%{transform:translate(5px,-1px)}99%,100%{transform:translate(2px,0)}}
+@media (prefers-reduced-motion:reduce){
+  h1.title .g::before,h1.title .g::after{animation:none}
+  .blink{animation:none}
+}
+.lede{font-size:clamp(17px,2.1vw,21px);color:var(--dim);max-width:64ch;margin:0 0 30px}
+.lede b{color:var(--ink);font-weight:500}
+.herorow{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.chip{
+  font-family:var(--mono);font-size:12px;color:var(--dim);
+  border:1px solid var(--line);padding:6px 11px;background:var(--panel);
+}
+.chip b{color:var(--acid);font-weight:600}
+
+/* sections */
+section.blk{padding:clamp(52px,9vh,96px) 0;border-bottom:1px solid var(--line);scroll-margin-top:56px}
+.sechead{display:flex;align-items:baseline;gap:16px;margin-bottom:12px;flex-wrap:wrap}
+.addr{font-family:var(--pix);font-size:10px;color:var(--acid);letter-spacing:.12em;flex:none}
+h2{
+  font-family:var(--disp);font-variation-settings:"wdth" 112,"wght" 700;
+  font-size:clamp(25px,4vw,44px);line-height:1.02;letter-spacing:-.018em;
+  margin:0;text-transform:uppercase;color:var(--ink);text-wrap:balance;
+}
+.subhead{color:var(--dim);max-width:66ch;margin:0 0 34px;font-size:16.5px}
+h3{
+  font-family:var(--sans);font-size:15px;font-weight:600;letter-spacing:.01em;
+  margin:0 0 7px;color:var(--ink);
+}
+p{margin:0 0 14px}
+.hint{font-family:var(--mono);font-size:12.5px;color:var(--dim)}
+
+/* generic grid + cards */
+.grid{display:grid;gap:1px;background:var(--line);border:1px solid var(--line)}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+@media (max-width:860px){.g3,.g4{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:560px){.g2,.g3,.g4{grid-template-columns:1fr}}
+.cell{background:var(--panel);padding:20px 18px;transition:background .18s}
+.cell:hover{background:var(--panel-2)}
+.cell .tag{font-family:var(--pix);font-size:9px;letter-spacing:.12em;color:var(--acid);display:block;margin-bottom:11px}
+.cell p{font-size:14px;color:var(--dim);margin:0}
+.cell .note{margin-top:11px;padding-top:11px;border-top:1px dashed var(--line);font-family:var(--mono);font-size:12px;color:var(--butter)}
+
+/* stat row */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin:30px 0 0}
+@media (max-width:640px){.stats{grid-template-columns:repeat(2,1fr)}}
+.stat{background:var(--panel);padding:18px}
+.stat .n{font-family:var(--disp);font-variation-settings:"wdth" 108,"wght" 700;font-size:clamp(22px,3.4vw,34px);color:var(--butter);line-height:1;font-variant-numeric:tabular-nums}
+.stat .l{font-family:var(--mono);font-size:11.5px;color:var(--dim);margin-top:8px}
+
+/* laws */
+.laws{border:1px solid var(--line);margin-top:8px}
+.law{display:grid;grid-template-columns:56px 1fr;gap:0;border-bottom:1px solid var(--line);background:var(--panel)}
+.law:last-child{border-bottom:0}
+.law:hover{background:var(--panel-2)}
+.law .num{
+  font-family:var(--pix);font-size:11px;color:var(--acid);
+  display:flex;align-items:center;justify-content:center;border-right:1px solid var(--line);
+}
+.law .txt{padding:16px 18px}
+.law .txt p{font-size:14px;color:var(--dim);margin:0}
+
+/* disciplines */
+.disc{border:1px solid var(--line);background:var(--panel);margin-bottom:1px}
+.disc summary{
+  list-style:none;cursor:pointer;padding:15px 18px;display:flex;align-items:center;gap:14px;
+  font-family:var(--mono);font-size:13.5px;color:var(--ink);
+}
+.disc summary::-webkit-details-marker{display:none}
+.disc summary:hover{background:var(--panel-2)}
+.disc summary .idx{font-family:var(--pix);font-size:10px;color:var(--acid);flex:none}
+.disc summary .caret{margin-left:auto;color:var(--dim);font-size:11px;flex:none}
+.disc[open] summary{border-bottom:1px solid var(--line);background:var(--panel-2)}
+.disc[open] summary .caret{color:var(--acid)}
+.disc .body{padding:18px}
+.disc .body p{font-size:14.5px;color:var(--dim);max-width:70ch}
+.specs{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.spec{font-family:var(--mono);font-size:11.5px;color:var(--dim);border:1px solid var(--line);padding:5px 9px}
+.spec b{color:var(--ink);font-weight:500}
+
+/* reference shelf */
+.shelfgrp{margin-bottom:26px}
+.shelfgrp h3{font-family:var(--pix);font-size:10px;letter-spacing:.12em;color:var(--acid);margin-bottom:12px}
+.shelf{border:1px solid var(--line)}
+.ref{
+  display:grid;grid-template-columns:190px 1fr;gap:0;
+  border-bottom:1px solid var(--line);background:var(--panel);
+}
+.ref:last-child{border-bottom:0}
+.ref:hover{background:var(--panel-2)}
+.ref .nm{
+  font-family:var(--mono);font-size:13px;color:var(--ink);padding:12px 16px;
+  border-right:1px solid var(--line);display:flex;align-items:center;gap:8px;
+}
+.ref .nm::before{content:"▸";color:var(--acid);font-size:10px}
+.ref .st{padding:12px 16px;font-size:13.5px;color:var(--dim)}
+@media (max-width:620px){
+  .ref{grid-template-columns:1fr}
+  .ref .nm{border-right:0;border-bottom:1px dashed var(--line)}
+}
+
+/* do / dont */
+.dd{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line)}
+@media (max-width:640px){.dd{grid-template-columns:1fr}}
+.dd>div{background:var(--panel);padding:20px 18px}
+.dd h3{font-family:var(--pix);font-size:10px;letter-spacing:.12em;margin-bottom:14px}
+.dd .yes h3{color:var(--acid)}
+.dd .no h3{color:var(--alarm)}
+.dd ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px}
+.dd li{font-size:14px;color:var(--dim);padding-left:20px;position:relative}
+.dd .yes li::before{content:"+";position:absolute;left:0;color:var(--acid);font-family:var(--mono)}
+.dd .no li::before{content:"×";position:absolute;left:0;color:var(--alarm);font-family:var(--mono)}
+
+/* timeline */
+.tl{border-left:1px solid var(--line);margin-left:6px;padding-left:0}
+.tl-item{position:relative;padding:0 0 26px 26px}
+.tl-item::before{
+  content:"";position:absolute;left:-4.5px;top:6px;width:8px;height:8px;background:var(--acid);
+}
+.tl-item:last-child{padding-bottom:0}
+.tl-item .when{font-family:var(--pix);font-size:10px;letter-spacing:.11em;color:var(--butter);display:block;margin-bottom:7px}
+.tl-item p{font-size:14px;color:var(--dim);margin:0;max-width:66ch}
+
+/* checklist */
+.check{border:1px solid var(--line)}
+.check label{
+  display:flex;gap:13px;align-items:flex-start;padding:13px 16px;cursor:pointer;
+  border-bottom:1px solid var(--line);background:var(--panel);font-size:14px;color:var(--dim);
+}
+.check label:last-child{border-bottom:0}
+.check label:hover{background:var(--panel-2)}
+.check input{
+  appearance:none;width:15px;height:15px;border:1px solid var(--dim);background:transparent;
+  flex:none;margin-top:3px;cursor:pointer;position:relative;
+}
+.check input:checked{background:var(--acid);border-color:var(--acid)}
+.check input:checked::after{
+  content:"✓";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  color:#06210A;font-size:11px;font-weight:700;font-family:var(--mono);
+}
+.check input:checked~span{color:var(--dimmer);text-decoration:line-through}
+.progress{
+  font-family:var(--mono);font-size:12px;color:var(--dim);
+  padding:11px 16px;border-top:1px solid var(--line);background:var(--panel-2);
+  display:flex;justify-content:space-between;gap:12px;
+}
+.progress b{color:var(--acid);font-variant-numeric:tabular-nums}
+
+/* callout */
+.callout{
+  border:1px solid var(--acid);background:rgba(155,232,106,.05);padding:20px 22px;margin:26px 0 0;
+}
+.callout .tag{font-family:var(--pix);font-size:10px;letter-spacing:.12em;color:var(--acid);display:block;margin-bottom:10px}
+.callout p{margin:0;font-size:15px;color:var(--ink)}
+.callout p+p{margin-top:11px;color:var(--dim);font-size:14px}
+.callout.warn{border-color:var(--butter);background:rgba(247,240,127,.05)}
+.callout.warn .tag{color:var(--butter)}
+
+/* link buttons */
+.lk{
+  display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:13px;
+  color:var(--void);background:var(--acid);padding:9px 15px;text-decoration:none;font-weight:600;
+}
+.lk:hover{background:var(--butter)}
+.lk.ghost{background:transparent;color:var(--ink);border:1px solid var(--line);font-weight:400}
+.lk.ghost:hover{border-color:var(--acid);color:var(--acid)}
+.lkrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+
+/* token classes strip */
+.tokens{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-top:8px}
+@media (max-width:760px){.tokens{grid-template-columns:repeat(2,1fr)}}
+.tok{background:var(--panel);padding:16px}
+.tok .sw{height:34px;border:1px solid var(--line);margin-bottom:12px}
+.tok .nm{font-family:var(--mono);font-size:12.5px;color:var(--ink)}
+.tok .ds{font-size:12.5px;color:var(--dim);margin-top:5px}
+
+/* footer */
+footer{padding:clamp(46px,8vh,84px) 0 60px}
+.shutdown{font-family:var(--mono);font-size:13px;color:var(--dim);line-height:1.9}
+.shutdown .ok{color:var(--acid)}
+.foot-mark{display:flex;justify-content:space-between;align-items:flex-end;gap:30px;flex-wrap:wrap;margin-top:34px;padding-top:26px;border-top:1px solid var(--line)}
+.foot-mark small{font-family:var(--mono);font-size:11.5px;color:var(--dimmer);max-width:46ch;line-height:1.7}
+
+/* reveal on scroll */
+.rv{opacity:0;transform:translateY(14px);transition:opacity .55s ease,transform .55s cubic-bezier(.2,.7,.3,1)}
+.rv.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}}
+</style>
+
+<div class="crt" aria-hidden="true"></div>
+<div id="wipe" aria-hidden="true"></div>
+
+<!-- ============================================================
+     PHASE 1 — POWER-ON SELF TEST
+     ============================================================ -->
+<div id="boot" role="region" aria-label="System boot screen">
+  <div class="post-top">
+    <div class="post-head">
+      <h1>TestMu BIOS v2026, A Quality Engineering Ally</h1>
+      <p class="copy">Copyright (C) 2017&ndash;2026, TestMu Corporation</p>
+    </div>
+    <!-- LOGO: reconstruction of the Testmuai "Experience Builder" mark.
+         To swap in the official asset, replace this <svg> with <img src="…" class="mark" alt="Testmuai — Experience Builder"> -->
+    <svg class="mark" viewBox="0 0 720 520" role="img" aria-label="Testmuai — Experience Builder">
+      <path class="arc" d="M14 206 A 352 196 0 0 1 706 206"/>
+      <text class="script" x="22" y="360" textLength="486" lengthAdjust="spacingAndGlyphs">Testmuai</text>
+      <polygon class="star" points="592,150 618.5,231.5 704.2,231.5 634.9,281.9 661.4,363.5 592,313.1 522.6,363.5 549.1,281.9 479.8,231.5 565.5,231.5"/>
+      <line class="rule" x1="12" y1="428" x2="708" y2="428"/>
+      <text class="tag" x="10" y="508" textLength="700" lengthAdjust="spacing">EXPERIENCE BUILDER</text>
+    </svg>
+  </div>
+
+  <div class="post-body" id="postbody"></div>
+
+  <div class="post-foot">
+    <div class="prompt">
+      <span id="finalprompt" hidden>
+        <span style="color:var(--butter)">FRESH INSTALL DETECTED</span>
+        <span style="color:var(--dim)">&mdash; USER: DESIGNER_01 &mdash;</span>
+      </span>
+      <button class="enterbtn" id="enterbtn" hidden>PRESS [ENTER] TO OPEN DESIGN SETUP</button>
+      <span class="cursor blink" id="cur"></span>
+      <button class="skip" id="skipbtn">SKIP POST</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     PHASE 2 — THE MANUAL
+     ============================================================ -->
+<main id="doc">
+
+  <div class="topbar">
+    <div class="wrap">
+      <svg class="mark small" viewBox="0 0 720 392" role="img" aria-label="Testmuai">
+        <path class="arc" d="M14 206 A 352 196 0 0 1 706 206"/>
+        <text class="script" x="22" y="360" textLength="486" lengthAdjust="spacingAndGlyphs">Testmuai</text>
+        <polygon class="star" points="592,150 618.5,231.5 704.2,231.5 634.9,281.9 661.4,363.5 592,313.1 522.6,363.5 549.1,281.9 479.8,231.5 565.5,231.5"/>
+      </svg>
+      <span class="tb-id">DESIGN SETUP</span>
+      <nav class="tb-nav" id="tbnav">
+        <a href="#system">00 SYSTEM</a>
+        <a href="#stack">01 STACK</a>
+        <a href="#glitch">02 RETRO GLITCH</a>
+        <a href="#laws">03 HOUSE LAWS</a>
+        <a href="#workloads">04 WORKLOADS</a>
+        <a href="#shelf">05 REFERENCE</a>
+        <a href="#toolkit">06 TOOLKIT</a>
+        <a href="#boot30">07 FIRST 30</a>
+        <a href="#preflight">08 PRE-FLIGHT</a>
+      </nav>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="wrap">
+      <p class="eyebrow rv">DESIGN SETUP UTILITY &nbsp;/&nbsp; PRODUCT &amp; MARKETING DESIGN &nbsp;/&nbsp; v2026.1</p>
+      <h1 class="title rv"><span class="g" data-t="You are now">You are now</span><br>part of the system.</h1>
+      <p class="lede rv">This is the operating manual for design at TestMu AI. Not a style guide &mdash; those go stale. <b>A way of working.</b> Read it once end to end today, then keep it open in a tab for the next ninety days. Everything here exists so that every artefact we ship &mdash; a product screen, a LinkedIn carousel, a case study PDF, a six-second motion sting &mdash; looks like it came from the same hand.</p>
+      <div class="herorow rv">
+        <span class="chip">EST. READ <b>11 MIN</b></span>
+        <span class="chip">AUDIENCE <b>NEW JOINEE, DESIGN</b></span>
+        <span class="chip">STATUS <b>LIVING DOCUMENT</b></span>
+      </div>
+    </div>
+  </header>
+
+  <!-- 00 SYSTEM -->
+  <section class="blk" id="system">
+    <div class="wrap">
+      <div class="sechead rv"><span class="addr">0x00</span><h2>What TestMu AI actually is</h2></div>
+      <p class="subhead rv">Before you open Figma, you need to be able to explain the company to a stranger in two sentences. Here they are.</p>
+
+      <div class="grid g2 rv">
+        <div class="cell">
+          <span class="tag">THE ONE-LINER</span>
+          <p>TestMu AI is a full-stack <b style="color:var(--ink);font-weight:500">agentic AI quality engineering platform</b> &mdash; AI agents that plan, write, run and analyse software tests, on top of a cloud of thousands of real browsers and devices.</p>
+          <p class="note">Formerly LambdaTest. Rebranded January 2026.</p>
+        </div>
+        <div class="cell">
+          <span class="tag">WHAT WE ACTUALLY SELL</span>
+          <p>Confidence to ship. Engineering teams are shipping faster than they can test. We remove testing as the thing that slows a release down &mdash; without removing the rigour.</p>
+          <p class="note">Design that sells speed but not sloppiness.</p>
+        </div>
+      </div>
+
+      <div class="stats rv">
+        <div class="stat"><div class="n">10K+</div><div class="l">real devices</div></div>
+        <div class="stat"><div class="n">3,000+</div><div class="l">browsers &amp; versions</div></div>
+        <div class="stat"><div class="n">2017</div><div class="l">founded, as LambdaTest</div></div>
+        <div class="stat"><div class="n">2026</div><div class="l">the agentic rebrand</div></div>
+      </div>
+
+      <div class="callout rv">
+        <span class="tag">WHO YOU ARE DESIGNING FOR</span>
+        <p>QA leads, SDETs, engineering managers, VPs of Engineering and CTOs. Technical, sceptical, time-poor, and allergic to marketing fluff.</p>
+        <p>This single fact should change your work more than any colour token. They do not want to be delighted. They want to be <em>convinced</em>, quickly, by something that looks like it was built by people who also write code. Every decision you make &mdash; density, tone, how much you explain &mdash; comes back to this reader.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 01 STACK -->
+  <section class="blk" id="stack">
+    <div class="wrap">
+      <div class="sechead rv"><span class="addr">0x01</span><h2>The stack you'll be designing</h2></div>
+      <p class="subhead rv">Six products and one idea holding them together: agents do the work, humans set the intent. Learn what each one does &mdash; you will be asked to design for all of them.</p>
+
+      <div class="grid g3 rv">
+        <div class="cell">
+          <span class="tag">KANEAI</span>
+          <h3>Agentic test authoring</h3>
+          <p>Write a test in plain English; the agent turns it into real automation. Our flagship, and the reason for the rebrand.</p>
+          <p class="note">You'll design: agent states, streaming output, trust signals.</p>
+        </div>
+        <div class="cell">
+          <span class="tag">HYPEREXECUTE</span>
+          <h3>Test orchestration</h3>
+          <p>The engine. Runs test suites in massive parallel so a job that took hours takes minutes.</p>
+          <p class="note">You'll design: speed, visibly. Timelines, waterfalls, deltas.</p>
+        </div>
+        <div class="cell">
+          <span class="tag">REAL DEVICE CLOUD</span>
+          <h3>Actual hardware</h3>
+          <p>10,000+ real phones and 3,000+ browsers. Not emulators &mdash; that distinction is the whole sales argument.</p>
+          <p class="note">You'll design: device grids, live sessions, matrices.</p>
+        </div>
+        <div class="cell">
+          <span class="tag">SMARTUI</span>
+          <h3>Visual regression</h3>
+          <p>Catches the pixel that moved. Screenshot diffing across browsers at scale.</p>
+          <p class="note">You'll design: diff views. Design tools, for designers' problems.</p>
+        </div>
+        <div class="cell">
+          <span class="tag">TEST MANAGER</span>
+          <h3>AI-native test management</h3>
+          <p>Plans, cases, runs, results &mdash; the system of record for a QA org.</p>
+          <p class="note">You'll design: dense tables that stay readable at 300 rows.</p>
+        </div>
+        <div class="cell">
+          <span class="tag">AGENTS &amp; MCP</span>
+          <h3>Agent-to-agent testing</h3>
+          <p>AI systems testing other AI systems, plus MCP servers so Claude Code, Cursor, Copilot and Gemini CLI can drive our platform directly.</p>
+          <p class="note">You'll design: the newest, least-charted surface here.</p>
+        </div>
+      </div>
+
+      <div class="callout warn rv">
+        <span class="tag">HOMEWORK, WEEK ONE</span>
+        <p>Run a real test yourself. Start a Live session, break something on purpose, watch it fail, read the log.</p>
+        <p>An hour of this is worth a month of reading decks. You cannot design an empty state for a product you have never watched fail.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 RETRO GLITCH -->
+  <section class="blk" id="glitch">
+    <div class="wrap">
+      <div class="sechead rv"><span class="addr">0x02</span><h2>Retro Glitch &mdash; the design system</h2></div>
+      <p class="subhead rv">One Figma file is the source of truth for every colour, type style, spacing step and component we own. It is not a mood board and not a suggestion. If a value isn't in the file, it doesn't exist yet.</p>
+
+      <div class="lkrow rv">
+        <a class="lk" href="https://www.figma.com/design/jxunc0ljQa3mKVki8K5kj9/Retro-Glitch?node-id=22896-37585" target="_blank" rel="noopener">OPEN RETRO GLITCH →</a>
+        <a class="lk ghost" href="https://www.youtube.com/@TestMuAI" target="_blank" rel="noopener">MOTION REFERENCE ↗</a>
+      </div>
+
+      <h3 class="rv" style="margin-top:38px;font-family:var(--pix);font-size:10px;letter-spacing:.12em;color:var(--acid)">HOW THE SYSTEM IS ORGANISED</h3>
+      <div class="tokens rv">
+        <div class="tok"><div class="sw" style="background:var(--void)"></div><div class="nm">Surface</div><div class="ds">Grounds and panels. Sets the mood before anything else lands.</div></div>
+        <div class="tok"><div class="sw" style="background:var(--ink)"></div><div class="nm">Ink</div><div class="ds">Type and icons. Three steps: primary, secondary, disabled.</div></div>
+        <div class="tok"><div class="sw" style="background:var(--acid)"></div><div class="nm">Accent</div><div class="ds">One hero colour. A scalpel, not a paint roller.</div></div>
+        <div class="tok"><div class="sw" style="background:linear-gradient(90deg,var(--acid),var(--butter),var(--alarm))"></div><div class="nm">Signal</div><div class="ds">Pass, warn, fail. Semantic &mdash; never borrowed for decoration.</div></div>
+        <div class="tok"><div class="sw" style="background:repeating-linear-gradient(90deg,var(--panel-2) 0 7px,var(--line) 7px 8px)"></div><div class="nm">Grid</div><div class="ds">4px base, 8px rhythm. Spacing is a token too.</div></div>
+      </div>
+      <p class="hint rv" style="margin-top:14px">Live hex values, type ramp and font pairings sit in the Figma file &mdash; read them there, never from a screenshot or from this page.</p>
+
+      <div class="dd rv" style="margin-top:30px">
+        <div class="yes">
+          <h3>THE SYSTEM IS THE FLOOR</h3>
+          <ul>
+            <li>Build from published components and variables, every time.</li>
+            <li>Need something that doesn't exist? Design it properly, then propose it into the library.</li>
+            <li>Detach only when you have a reason you'd say out loud in a review.</li>
+            <li>Name layers like someone else will open the file. They will.</li>
+          </ul>
+        </div>
+        <div class="no">
+          <h3>NEVER, WITHOUT A CONVERSATION</h3>
+          <ul>
+            <li>A colour that isn't a variable. "Close enough" hexes are how brands die.</li>
+            <li>A new typeface, or a fifth weight of an existing one.</li>
+            <li>Custom spacing off the 4px grid because it "looked better".</li>
+            <li>A component copy-pasted from another file and quietly edited.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 HOUSE LAWS -->
+  <section class="blk" id="laws">
+    <div class="wrap">
+      <div class="sechead rv"><span class="addr">0x03</span><h2>Seven house laws</h2></div>
+      <p class="subhead rv">If you remember nothing else from this document, remember law one. Everything else is a consequence of it.</p>
+      <div class="laws rv">
+        <div class="law"><div class="num">01</div><div class="txt">
+          <h3>One hand, many files.</h3>
+          <p>A blog header, an ABM ad and a product empty state should look like the same person made them on the same afternoon. Nobody outside design should be able to tell where one designer stopped and another started. Consistency is not a constraint on your taste &mdash; it <em>is</em> the taste.</p>
+        </div></div>
+        <div class="law"><div class="num">02</div><div class="txt">
+          <h3>The system is the floor, not the ceiling.</h3>
+          <p>Retro Glitch tells you what's allowed. It doesn't tell you what's good. Stay inside it and still make the best thing on the page.</p>
+        </div></div>
+        <div class="law"><div class="num">03</div><div class="txt">
+          <h3>Type is hierarchy, not decoration.</h3>
+          <p>Two families maximum per artefact. Three weights. If you need a fourth to make it work, the layout is the problem, not the type.</p>
+        </div></div>
+        <div class="law"><div class="num">04</div><div class="txt">
+          <h3>Colour carries meaning.</h3>
+          <p>Accent means "look here". Signal colours mean pass, warn, fail &mdash; and nothing else, ever. The moment green is decorative, green stops meaning green.</p>
+        </div></div>
+        <div class="law"><div class="num">05</div><div class="txt">
+          <h3>Contrast is not negotiable.</h3>
+          <p>4.5:1 for body, 3:1 for large text and meaningful UI edges. Our audience reads on bad monitors in bright offices. Check it, don't eyeball it.</p>
+        </div></div>
+        <div class="law"><div class="num">06</div><div class="txt">
+          <h3>Steal structure, never skin.</h3>
+          <p>Take how Linear sequences a page or how Stripe explains a hard idea. Never take their colours, their type or their illustration style. Reference is a thinking tool; resemblance is a failure.</p>
+        </div></div>
+        <div class="law"><div class="num">07</div><div class="txt">
+          <h3>Ship the honest version on time.</h3>
+          <p>A good asset today beats a perfect one after the campaign ran. Ship, watch how it performs, improve the template for next time.</p>
+        </div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 WORKLOADS -->
+  <section class="blk" id="workloads">
+    <div class="wrap">
+      <div class="sechead rv"><span class="addr">0x04</span><h2>Workloads</h2></div>
+      <p class="subhead rv">Seven kinds of work will land on your desk. Open each one &mdash; what it is, what "good" means, and the specs so you never have to ask.</p>
+
+      <details class="disc rv"><summary><span class="idx">04.1</span> The design brief &mdash; how work starts <span class="caret">▼</span></summary>
+        <div class="body">
+          <p>No work starts without a brief, and you are allowed &mdash; expected &mdash; to send one back. A brief we can act on names: the audience, the single message, where it will appear, the deadline, and how we'll know it worked.</p>
+          <p>If a request arrives as "can you make a graphic for this blog", that's not a brief. Ask the two questions that unblock everything: <em>who is reading it, and what do you want them to do next?</em> Two minutes of asking saves two days of revisions.</p>
+          <div class="specs">
+            <span class="spec"><b>Audience</b> · who, and how technical</span>
+            <span class="spec"><b>Message</b> · one sentence, not five</span>
+            <span class="spec"><b>Placement</b> · exact surface and size</span>
+            <span class="spec"><b>Success</b> · the metric or the feeling</span>
+          </div>
+        </div>
+      </details>
+
+      <details class="disc rv"><summary><span class="idx">04.2</span> Product design &mdash; screens and flows <span class="caret">▼</span></summary>
+        <div class="body">
+          <p>The hardest and most valuable work here. Our products show enormous amounts of data to people who are debugging under pressure. Density is a feature; clutter is not. Your job is to make a 400-row test run scannable in three seconds.</p>
+          <p>The rule: <b style="color:var(--ink);font-weight:500">never design a screen for a workflow you cannot describe out loud.</b> Sit with an engineer, watch a real run, then open Figma. Design the failure state before the happy path &mdash; in a testing product, failure <em>is</em> the happy path. And for agentic surfaces, always answer three questions on screen: what is the agent doing, how far along is it, and how do I stop it?</p>
+          <div class="specs">
+            <span class="spec"><b>Start</b> · existing components</span>
+            <span class="spec"><b>States</b> · empty, loading, partial, error, success</span>
+            <span class="spec"><b>Handoff</b> · specs, tokens, edge cases in the file</span>
+          </div>
+        </div>
+      </details>
+
+      <details class="disc rv"><summary><span class="idx">04.3</span> Web pages &mdash; product, feature, launch, legacy <span class="caret">▼</span></summary>
+        <div class="body">
+          <p>Four different jobs wearing similar clothes. <b style="color:var(--ink);font-weight:500">Product pages</b> convince someone the category matters and we own it. <b style="color:var(--ink);font-weight:500">Feature pages</b> assume they're already convinced and answer "how exactly". <b style="color:var(--ink);font-weight:500">Launch pages</b> buy attention for a week and are allowed to be louder than everything else we make. <b style="color:var(--ink);font-weight:500">Legacy pages</b> are the quiet majority &mdash; when you touch one, bring it up to system, don't redesign it into an island.</p>
+          <p>Every page: the product visible above the fold, one primary action, and a mobile layout designed rather than inherited. Half our traffic reads us on a phone between meetings.</p>
+          <div class="specs">
+            <span class="spec"><b>Breakpoints</b> · 1440 / 1024 / 768 / 390</span>
+            <span class="spec"><b>Hero</b> · real UI, never a stock abstraction</span>
+            <span class="spec"><b>OG image</b> · 1200×630</span>
+          </div>
+        </div>
+      </details>
+
+      <details class="disc rv"><summary><span class="idx">04.4</span> Marketing design &mdash; blog and social imagery <span class="caret">▼</span></summary>
+        <div class="body">
+          <p>High volume, high repetition. This is where "one hand, many files" is won or lost, because it's the work most likely to be made fast. Build the template properly once, then work inside it &mdash; a blog header should be a fifteen-minute job, not a fresh design problem.</p>
+          <p>Blog images earn the click without lying about the article. Use the product, a diagram, or bold type. Skip the stock photography of people pointing at laptops &mdash; our reader can smell it and it costs us credibility we can't buy back.</p>
+          <div class="specs">
+            <span class="spec"><b>Blog hero / OG</b> · 1200×630</span>
+            <span class="spec"><b>LinkedIn single</b> · 1200×627</span>
+            <span class="spec"><b>Square</b> · 1080×1080</span>
+            <span class="spec"><b>Portrait</b> · 1080×1350</span>
+            <span class="spec"><b>Text</b> · legible at thumbnail size</span>
+          </div>
+        </div>
+      </details>
+
+      <details class="disc rv"><summary><span class="idx">04.5</span> Carousels &mdash; LinkedIn and social <span class="caret">▼</span></summary>
+        <div class="body">
+          <p>Our best-performing organic format, and the one most often done badly. A carousel is a story with a hook, not a deck with a cover. Slide one earns the swipe or nothing else matters; slide two must reward it immediately.</p>
+          <p>One idea per slide. If a slide needs three sentences to make sense, it's two slides. Number them so people know where they are, keep a consistent left-edge so the swipe feels like motion rather than a jump-cut, and end with one clear next step.</p>
+          <div class="specs">
+            <span class="spec"><b>Size</b> · 1080×1350 (4:5)</span>
+            <span class="spec"><b>Length</b> · 8&ndash;12 slides</span>
+            <span class="spec"><b>Export</b> · PDF, fonts embedded</span>
+            <span class="spec"><b>Min type</b> · 24px equivalent</span>
+            <span class="spec"><b>Safe margin</b> · 64px</span>
+          </div>
+        </div>
+      </details>
+
+      <details class="disc rv"><summary><span class="idx">04.6</span> ABM ads and case-study PDFs <span class="caret">▼</span></summary>
+        <div class="body">
+          <p>ABM means one named company is the audience. The design can and should feel bespoke &mdash; their logo, their industry, their words &mdash; while staying unmistakably ours. Personal, not cheap.</p>
+          <p>Case studies live or die on numbers. Find the one figure that makes an engineering leader sit up (runtime cut by 70%, releases weekly instead of monthly) and build the whole layout around it. Treat the PDF as a designed document with a real grid and running hierarchy, not a slide deck exported sideways. It gets printed, forwarded and read on a phone &mdash; design for all three.</p>
+          <div class="specs">
+            <span class="spec"><b>PDF</b> · A4 + US Letter</span>
+            <span class="spec"><b>Images</b> · 300 ppi</span>
+            <span class="spec"><b>Fonts</b> · embedded, always</span>
+            <span class="spec"><b>Weight</b> · under 10 MB</span>
+            <span class="spec"><b>Ads</b> · 1200×628, 1080×1080, 300×250, 728×90</span>
+          </div>
+        </div>
+      </details>
+
+      <details class="disc rv"><summary><span class="idx">04.7</span> Motion graphics <span class="caret">▼</span></summary>
+        <div class="body">
+          <p>Watch the <a href="https://www.youtube.com/@TestMuAI" target="_blank" rel="noopener" style="color:var(--acid)">TestMu AI channel</a> before you animate anything &mdash; that's the house tempo. Motion here has one job: make an abstract thing (parallel execution, an agent reasoning) legible in seconds.</p>
+          <p>Craft rules: ease everything, nothing linear except a loading bar. Animate the fewest properties that tell the story &mdash; usually opacity and position. Type holds still while it's being read. Cut on the beat of the voiceover, not the music. And build for sound-off first: 85% of feed views are muted, so if it doesn't work silently with captions, it doesn't work.</p>
+          <div class="specs">
+            <span class="spec"><b>Frame rate</b> · 30fps social, 24fps film</span>
+            <span class="spec"><b>Master</b> · 1920×1080 H.264</span>
+            <span class="spec"><b>Social</b> · 1080×1350 &amp; 1080×1920</span>
+            <span class="spec"><b>Captions</b> · burned in</span>
+            <span class="spec"><b>Safety</b> · max 3 flashes / second</span>
+            <span class="spec"><b>Audio</b> · −14 LUFS</span>
+          </div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- 05 REFERENCE SHELF -->
+  <section class="blk" id="shelf">
+    <div class="wrap">
+      <div class="sechead rv"><span class="addr">0x05</span><h2>The reference shelf</h2></div>
+      <p class="subhead rv">Study the best design work in AI and B2B SaaS &mdash; deliberately, weekly, with a purpose. Each of these is on the list for one specific reason. Take the reason, not the pixels.</p>
+
+      <div class="callout warn rv" style="margin:0 0 32px">
+        <span class="tag">HOW TO USE THIS LIST</span>
+        <p>Reference is not resemblance. You are borrowing a decision, not a look.</p>
+        <p>"Linear stacks its feature sections in escalating specificity" is a usable reference. "Make it look like Linear" is not &mdash; and anything that arrives in review looking like another company's brand goes back, however beautiful it is. Everything you take gets rebuilt in Retro Glitch before anyone else sees it.</p>
+      </div>
+
+      <div class="shelfgrp rv">
+        <h3>PRODUCT SURFACE &mdash; INTERFACE CRAFT</h3>
+        <div class="shelf">
+          <div class="ref"><div class="nm">Linear</div><div class="st">Restraint as a flex. Count how much they leave out, and how one accent does all the work.</div></div>
+          <div class="ref"><div class="nm">Cursor</div><div class="st">The product screenshot <em>is</em> the argument. No abstract illustration standing in for a real UI.</div></div>
+          <div class="ref"><div class="nm">Claude</div><div class="st">Warmth inside a deeply technical product. Proof that "AI" doesn't have to mean cold gradients.</div></div>
+          <div class="ref"><div class="nm">Codex CLI</div><div class="st">The terminal treated as an aesthetic, with actual typographic care. Relevant to us &mdash; look where you are.</div></div>
+          <div class="ref"><div class="nm">Reflect</div><div class="st">Motion that explains instead of decorating. Watch the loops frame by frame.</div></div>
+          <div class="ref"><div class="nm">Chronicle</div><div class="st">Editorial layout logic applied to a tool. The type scale is doing most of the work.</div></div>
+          <div class="ref"><div class="nm">Midday</div><div class="st">Dark UI that stays legible. Study their contrast steps, not their colours.</div></div>
+          <div class="ref"><div class="nm">Lovable</div><div class="st">A landing page that shows the product working within five seconds of arrival.</div></div>
+        </div>
+      </div>
+
+      <div class="shelfgrp rv">
+        <h3>BRAND SYSTEMS &mdash; SCALE AND EXPLANATION</h3>
+        <div class="shelf">
+          <div class="ref"><div class="nm">Stripe</div><div class="st">Still the benchmark for explaining hard things simply. Steal their diagram discipline, especially in docs.</div></div>
+          <div class="ref"><div class="nm">Intercom</div><div class="st">An illustration system with one consistent hand across hundreds of assets. Exactly our law one, at scale.</div></div>
+          <div class="ref"><div class="nm">Cohere</div><div class="st">Enterprise AI that reads as confident rather than corporate.</div></div>
+          <div class="ref"><div class="nm">Baseten</div><div class="st">Technical credibility built into the visual language &mdash; real code, real numbers, no hand-waving.</div></div>
+          <div class="ref"><div class="nm">Contra</div><div class="st">Playful without being unserious. The closest cousin to where Retro Glitch wants to live.</div></div>
+          <div class="ref"><div class="nm">Littlebird</div><div class="st">Small-team craft. Detail density per screen, and what happens when nothing is left unconsidered.</div></div>
+        </div>
+      </div>
+
+      <div class="shelfgrp rv">
+        <h3>GTM MACHINERY &mdash; VOLUME WITHOUT DECAY</h3>
+        <div class="shelf">
+          <div class="ref"><div class="nm">Apollo</div><div class="st">How one system survives four hundred marketing assets without falling apart.</div></div>
+          <div class="ref"><div class="nm">Amplemarket</div><div class="st">Clean B2B storytelling. Their case-study format is worth studying line by line.</div></div>
+          <div class="ref"><div class="nm">Wiza</div><div class="st">Fast, plain-spoken conversion pages carrying no decoration debt.</div></div>
+          <div class="ref"><div class="nm">MineOS</div><div class="st">Compliance made visual. A masterclass in turning genuinely boring subject matter legible.</div></div>
+          <div class="ref"><div class="nm">Privado</div><div class="st">Data flows drawn well. Go here when you have a diagram problem.</div></div>
+        </div>
+      </div>
+
+      <div class="shelfgrp rv">
+        <h3>OUR OWN STREET &mdash; KNOW THEM COLD</h3>
+        <div class="shelf">
+          <div class="ref"><div class="nm">BrowserStack</div><div class="st">The competitor. Know every page &mdash; then make sure we look nothing like them.</div></div>
+          <div class="ref"><div class="nm">Sauce Labs</div><div class="st">Enterprise trust signals: proof density, logo walls, the credibility furniture.</div></div>
+          <div class="ref"><div class="nm">Momentic</div><div class="st">An AI-testing peer. Watch closely how they position agents against human QA.</div></div>
+          <div class="ref"><div class="nm">Browserbase</div><div class="st">Developer-first voice, with docs doing the work of marketing.</div></div>
+          <div class="ref"><div class="nm">Giga</div><div class="st">Bold type-led minimalism executed at small scale.</div></div>
+          <div class="ref"><div class="nm">Fin.ai</div><div class="st">Agent marketing done well &mdash; and the benchmark-chart genre we'll need soon.</div></div>
+          <div class="ref"><div class="nm">Vite+</div><div class="st">Open-source tooling energy. Speed communicated visually, not just claimed.</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 TOOLKIT -->
+  <section class="blk" id="toolkit">
+    <div class="wrap">
+      <div class="sechead rv"><span class="addr">0x06</span><h2>Your toolkit &mdash; and the upskilling clause</h2></div>
+      <p class="subhead rv">You get professional licences on day one. In return, there's an expectation: you get better at these tools every single day. We build a testing platform for the AI era &mdash; a design team that works like it's 2019 would be an embarrassing look.</p>
+
+      <div class="grid g3 rv">
+        <div class="cell">
+          <span class="tag">PRO LICENCE</span>
+          <h3>Claude</h3>
+          <p>Thinking partner, copywriter, critic. Use it to pressure-test concepts, generate the fifteen headline variants you'd never write alone, and audit your own work before review.</p>
+          <p class="note">Never let it choose. Judgement stays yours.</p>
+        </div>
+        <div class="cell">
+          <span class="tag">PRO LICENCE</span>
+          <h3>Figma</h3>
+          <p>Where the truth lives. Get fluent in variables, auto-layout and component properties &mdash; not just drawing rectangles. Speed here compounds across every other task.</p>
+          <p class="note">If you're still hand-nudging spacing, learn the system.</p>
+        </div>
+        <div class="cell">
+          <span class="tag">PRO LICENCE</span>
+          <h3>Midjourney</h3>
+          <p>Texture, atmosphere, exploration. Excellent for moodboards, backgrounds and abstract material.</p>
+          <p class="note">Not for anything factual, and never for product UI.</p>
+        </div>
+      </div>
+
+      <div class="dd rv" style="margin-top:26px">
+        <div class="yes">
+          <h3>AI EARNS ITS KEEP HERE</h3>
+          <ul>
+            <li>Twenty concept directions in the time you'd sketch three.</li>
+            <li>Copy variants, alt text, and the first draft of a case-study narrative.</li>
+            <li>Ruthless critique of your own layout before a human sees it.</li>
+            <li>Resizing a campaign across nine formats without losing the evening.</li>
+            <li>Learning a tool you don't know yet, at your own pace, tonight.</li>
+          </ul>
+        </div>
+        <div class="no">
+          <h3>AI DOES NOT GET TO DO THIS</h3>
+          <ul>
+            <li>Make the final call. That's what you were hired for.</li>
+            <li>Invent a statistic, a customer quote or a capability we don't ship.</li>
+            <li>Generate anything that lands in front of a customer unedited.</li>
+            <li>Produce imagery of real people, or of competitor products.</li>
+            <li>Replace looking at the actual product with imagining it.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout rv">
+        <span class="tag">THE DAILY MINIMUM</span>
+        <p>Thirty minutes a day. One new technique, one new tool, or one piece of great work pulled apart to find out why it works.</p>
+        <p>Nobody will check. It shows up in your work within a month either way.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 FIRST 30 -->
+  <section class="blk" id="boot30">
+    <div class="wrap">
+      <div class="sechead rv"><span class="addr">0x07</span><h2>Your first thirty days</h2></div>
+      <p class="subhead rv">You'll get access to templates, live product files, the brand kit and the full asset archive. Here's the order to open them in.</p>
+      <div class="tl rv">
+        <div class="tl-item"><span class="when">DAY 1&ndash;2 · MOUNT THE DRIVES</span>
+          <p>Licences and access: Figma, Claude, Midjourney, the shared drive, the asset archive. Open Retro Glitch and read it like a book &mdash; every page, including the ones nobody links to. Then read this document again; more of it will make sense.</p></div>
+        <div class="tl-item"><span class="when">DAY 3&ndash;5 · USE THE PRODUCT</span>
+          <p>Run a real test. Break it deliberately. Sit with someone from QA or engineering for an hour. Write down every word you didn't understand &mdash; that list is the vocabulary of your next two years.</p></div>
+        <div class="tl-item"><span class="when">WEEK 2 · COPY BEFORE YOU CREATE</span>
+          <p>Rebuild three existing assets from the archive &mdash; a blog header, a carousel, one product screen &mdash; without opening the originals' layers. Compare after. The gaps are your onboarding curriculum, and nobody has to tell you what they are.</p></div>
+        <div class="tl-item"><span class="when">WEEK 3 · SHIP SOMETHING SMALL</span>
+          <p>Take a real brief end to end. Small scope, real deadline, real publication. Ask for a proper critique and take notes rather than defending. First ships are meant to be small and finished, not large and nearly.</p></div>
+        <div class="tl-item"><span class="when">WEEK 4 · EARN AN OPINION</span>
+          <p>You've now seen enough to be useful about what's broken. Bring one improvement to the system or a template &mdash; with a proposal, not just a complaint. This is the moment you stop being new.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 PRE-FLIGHT -->
+  <section class="blk" id="preflight">
+    <div class="wrap">
+      <div class="sechead rv"><span class="addr">0x08</span><h2>Pre-flight check</h2></div>
+      <p class="subhead rv">Run this before anything leaves your hands. It takes ninety seconds and catches almost everything that comes back in review. Ticks are saved in this browser.</p>
+      <div class="check rv" id="check">
+        <label><input type="checkbox"><span>Every colour is a system variable &mdash; no loose hexes anywhere in the file.</span></label>
+        <label><input type="checkbox"><span>Two type families, three weights, all from the ramp.</span></label>
+        <label><input type="checkbox"><span>Body text passes 4.5:1; large text and UI edges pass 3:1.</span></label>
+        <label><input type="checkbox"><span>Spacing sits on the 4px grid. No "looked better" exceptions.</span></label>
+        <label><input type="checkbox"><span>Placed next to last month's asset, it looks like the same hand made both.</span></label>
+        <label><input type="checkbox"><span>Every number, claim and product name is verifiable. No AI-invented facts.</span></label>
+        <label><input type="checkbox"><span>Readable at thumbnail size and on a phone, not just at 100% on your monitor.</span></label>
+        <label><input type="checkbox"><span>Exported to the exact spec of its destination &mdash; size, format, weight, colour space.</span></label>
+        <label><input type="checkbox"><span>Layers named, file organised, cover frame set. Someone else can open this on Monday.</span></label>
+        <label><input type="checkbox"><span>It doesn't look like a reference. It looks like TestMu AI.</span></label>
+        <div class="progress"><span id="ckstate">0 OF 10 CHECKS PASSED</span><b id="ckverdict">FAIL</b></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <p class="shutdown rv">
+        Design resources loaded <span class="ok">.......... OK</span><br>
+        Brand guardrails mounted <span class="ok">........ OK</span><br>
+        Reference shelf indexed <span class="ok">......... OK</span><br>
+        Taste calibration <span class="ok">............... IN PROGRESS</span><br>
+        <span style="color:var(--butter)">Handing control to DESIGNER_01 ... go make something.</span>
+      </p>
+      <div class="foot-mark rv">
+        <small>TestMu Design BIOS v2026.1 &mdash; a living document. Found something wrong, missing or out of date? Fix it. That's not a suggestion box, it's an instruction.</small>
+        <svg class="mark small" viewBox="0 0 720 392" role="img" aria-label="Testmuai — Experience Builder">
+          <path class="arc" d="M14 206 A 352 196 0 0 1 706 206"/>
+          <text class="script" x="22" y="360" textLength="486" lengthAdjust="spacingAndGlyphs">Testmuai</text>
+          <polygon class="star" points="592,150 618.5,231.5 704.2,231.5 634.9,281.9 661.4,363.5 592,313.1 522.6,363.5 549.1,281.9 479.8,231.5 565.5,231.5"/>
+        </svg>
+      </div>
+    </div>
+  </footer>
+</main>
+
+<script>
+(function(){
+  "use strict";
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var boot = document.getElementById("boot");
+  var body = document.getElementById("postbody");
+  var doc  = document.getElementById("doc");
+  var wipe = document.getElementById("wipe");
+  var cur  = document.getElementById("cur");
+  var enterBtn = document.getElementById("enterbtn");
+  var finalPrompt = document.getElementById("finalprompt");
+  var skipBtn = document.getElementById("skipbtn");
+  document.body.classList.add("booting");
+
+  /* ---------- POST sequence ---------- */
+  var CFG = [
+    ["CPU Type",       "Designer, Product &amp; Marketing"],
+    ["Base Memory",    "640K Taste"],
+    ["Design System",  "Retro Glitch v2026"],
+    ["Display Type",   "CRT / Retina"],
+    ["Primary Master", "Figma (Pro)"],
+    ["Serial Ports",   "LinkedIn, YouTube, X"],
+    ["Primary Slave",  "Claude (Pro)"],
+    ["Parallel Ports", "Blog, ABM, Web, PDF"],
+    ["Secondary",      "Midjourney (Pro)"],
+    ["Boot Order",     "Brief &rarr; Ref &rarr; System &rarr; Ship"],
+    ["Coprocessor",    "Curiosity, installed"],
+    ["Upskill Clock",  "30 min / day"]
+  ];
+
+  var SEQ = [
+    {t:"line", txt:"TestMu (R)", cls:"hl", d:120},
+    {t:"line", txt:"HyperEx Super Computer 420", d:90},
+    {t:"line", txt:"6900 MHz Processor", d:90},
+    {t:"gap"},
+    {t:"count", txt:"Taste Test", to:9000, d:120},
+    {t:"gap"},
+    {t:"line", txt:"Award Plug and Play BIOS Extension u69.0", ok:"OK", d:240},
+    {t:"gap"},
+    {t:"line", txt:"TESTMU Init Completed", ok:"OK", cls:"hl", d:200},
+    {t:"line", txt:"Official TestMu Design Resources Loaded", ok:"OK", d:180},
+    {t:"line", txt:"Detecting Talent", ok:"OK", d:520},
+    {t:"line", txt:"Initializing System ..", d:220},
+    {t:"gap"},
+    {t:"cfg", d:260},
+    {t:"done", d:420}
+  ];
+
+  function el(tag, cls){ var e = document.createElement(tag); if(cls) e.className = cls; return e; }
+
+  function addLine(step){
+    var row = el("div","ln" + (step.cls ? " " + step.cls : ""));
+    var lbl = el("span","lbl"); lbl.textContent = step.txt; row.appendChild(lbl);
+    if(step.ok){
+      var dots = el("span","dots"); dots.textContent = new Array(90).join("."); row.appendChild(dots);
+      var ok = el("span","ok"); ok.textContent = step.ok; row.appendChild(ok);
+    }
+    body.appendChild(row);
+    return row;
+  }
+
+  function addCount(step, instant){
+    var row = el("div","ln");
+    var lbl = el("span","lbl"); lbl.textContent = step.txt + " : "; row.appendChild(lbl);
+    var val = el("span","lbl"); val.style.color = "var(--butter)"; row.appendChild(val);
+    var dots = el("span","dots"); dots.textContent = new Array(90).join("."); row.appendChild(dots);
+    var ok = el("span","ok"); row.appendChild(ok);
+    body.appendChild(row);
+    if(instant){ val.textContent = "> " + step.to; ok.textContent = "OK"; return; }
+    var n = 0, inc = Math.ceil(step.to / 34);
+    var iv = setInterval(function(){
+      n += inc;
+      if(n >= step.to){ n = step.to; clearInterval(iv); val.textContent = "> " + n; ok.textContent = "OK"; }
+      else { val.textContent = "  " + n; }
+    }, 26);
+  }
+
+  function addCfg(){
+    var box = el("div","cfgbox");
+    var head = el("div","cfghead");
+    head.textContent = "TESTMU DESIGN SYSTEM CONFIGURATION";
+    box.appendChild(head);
+    var grid = el("div","cfggrid");
+    for(var i = 0; i < CFG.length; i++){
+      var r = el("div","cfgrow");
+      var k = el("span","k"); k.textContent = CFG[i][0];
+      var s = el("span"); s.textContent = ":";
+      var v = el("b"); v.innerHTML = CFG[i][1];
+      r.appendChild(k); r.appendChild(s); r.appendChild(v);
+      grid.appendChild(r);
+    }
+    box.appendChild(grid);
+    body.appendChild(box);
+  }
+
+  function finish(){
+    finalPrompt.hidden = false;
+    enterBtn.hidden = false;
+    cur.classList.remove("blink");
+    cur.style.display = "none";
+    enterBtn.focus({preventScroll:true});
+    skipBtn.style.visibility = "hidden";
+    booted = true;
+  }
+
+  var booted = false, timer = null, idx = 0;
+
+  function step(instant){
+    if(idx >= SEQ.length) return;
+    var s = SEQ[idx++];
+    if(s.t === "line") addLine(s);
+    else if(s.t === "gap") body.appendChild(el("div","spacer"));
+    else if(s.t === "count") addCount(s, instant);
+    else if(s.t === "cfg") addCfg();
+    else if(s.t === "done"){ finish(); return; }
+    if(instant){ step(true); return; }
+    timer = setTimeout(function(){ step(false); }, s.d || 120);
+  }
+
+  function skipAll(){
+    if(booted) return;
+    clearTimeout(timer);
+    step(true);
+  }
+
+  skipBtn.addEventListener("click", skipAll);
+
+  /* ---------- boot -> manual ---------- */
+  function openManual(){
+    doc.classList.add("live");
+    document.body.classList.remove("booting");
+    if(reduce){
+      boot.classList.add("gone");
+      window.scrollTo(0,0);
+      revealAll();
+      return;
+    }
+    wipe.classList.add("run");
+    setTimeout(function(){ boot.classList.add("gone"); window.scrollTo(0,0); }, 300);
+    setTimeout(function(){ wipe.classList.remove("run"); }, 700);
+  }
+
+  enterBtn.addEventListener("click", openManual);
+
+  document.addEventListener("keydown", function(e){
+    if(boot.classList.contains("gone")) return;
+    if(e.key === "Enter"){
+      e.preventDefault();
+      if(booted) openManual(); else skipAll();
+    } else if(e.key === "Escape" || e.key === " "){
+      if(!booted){ e.preventDefault(); skipAll(); }
+    }
+  });
+
+  if(reduce){ step(true); } else { setTimeout(function(){ step(false); }, 340); }
+
+  /* ---------- scroll reveal ---------- */
+  var rvs = Array.prototype.slice.call(document.querySelectorAll(".rv"));
+  function revealAll(){ rvs.forEach(function(n){ n.classList.add("in"); }); }
+  if(reduce || !("IntersectionObserver" in window)){
+    revealAll();
+  } else {
+    var ro = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(en.isIntersecting){ en.target.classList.add("in"); ro.unobserve(en.target); }
+      });
+    }, {rootMargin:"0px 0px -8% 0px", threshold:.06});
+    rvs.forEach(function(n){ ro.observe(n); });
+  }
+
+  /* ---------- nav scrollspy ---------- */
+  var links = Array.prototype.slice.call(document.querySelectorAll("#tbnav a"));
+  var secs  = links.map(function(a){ return document.querySelector(a.getAttribute("href")); });
+  if("IntersectionObserver" in window){
+    var so = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(!en.isIntersecting) return;
+        var i = secs.indexOf(en.target);
+        if(i < 0) return;
+        links.forEach(function(l){ l.classList.remove("on"); });
+        links[i].classList.add("on");
+      });
+    }, {rootMargin:"-52px 0px -68% 0px", threshold:0});
+    secs.forEach(function(s){ if(s) so.observe(s); });
+  }
+
+  /* ---------- pre-flight checklist ---------- */
+  var KEY = "testmu.preflight.v1";
+  var boxes = Array.prototype.slice.call(document.querySelectorAll("#check input"));
+  var state = document.getElementById("ckstate");
+  var verdict = document.getElementById("ckverdict");
+
+  function readStore(){
+    try { return JSON.parse(localStorage.getItem(KEY) || "[]"); } catch(e){ return []; }
+  }
+  function writeStore(v){
+    try { localStorage.setItem(KEY, JSON.stringify(v)); } catch(e){ /* private mode: fine */ }
+  }
+  function paint(){
+    var n = boxes.filter(function(b){ return b.checked; }).length;
+    state.textContent = n + " OF " + boxes.length + " CHECKS PASSED";
+    var pass = n === boxes.length;
+    verdict.textContent = pass ? "READY TO SHIP" : "FAIL";
+    verdict.style.color = pass ? "var(--acid)" : "var(--alarm)";
+  }
+  var saved = readStore();
+  boxes.forEach(function(b, i){
+    if(saved[i]) b.checked = true;
+    b.addEventListener("change", function(){
+      writeStore(boxes.map(function(x){ return x.checked ? 1 : 0; }));
+      paint();
+    });
+  });
+  paint();
+})();
+</script>
