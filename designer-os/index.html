@@ -1251,7 +1251,7 @@ footer{padding:clamp(46px,8vh,84px) 0 60px}
   var art = new Image(), artReady = false;
 
   art.onload = function(){ artReady = true; if(!hello.hidden) buildGrid(); };
-  art.src = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MjAgNjIwIj4KICA8ZGVmcz4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0icm9jayIgY3g9IjM0JSIgY3k9IjMwJSIgcj0iNzIlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwIiAgc3RvcC1jb2xvcj0iI2ZmZmZmZiIvPgogICAgICA8c3RvcCBvZmZzZXQ9Ii40NSIgc3RvcC1jb2xvcj0iIzlhOWE5YSIvPgogICAgICA8c3RvcCBvZmZzZXQ9Ii44NSIgc3RvcC1jb2xvcj0iIzMzMzMzMyIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEiICBzdG9wLWNvbG9yPSIjMTExMTExIi8+CiAgICA8L3JhZGlhbEdyYWRpZW50PgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJmbGVzaCIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9Ii42Ij4KICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjZmZmZmZmIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiNhOGE4YTgiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjM2EzYTNhIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iNDIwIiBoZWlnaHQ9IjYyMCIgZmlsbD0iIzAwMCIvPgoKICA8IS0tIGJvdWxkZXIgLS0+CiAgPGNpcmNsZSBjeD0iMTgyIiBjeT0iMTc2IiByPSIxNTAiIGZpbGw9InVybCgjcm9jaykiLz4KCiAgPCEtLSA9PT09PSBmaWd1cmU6IGJyYWNlZCBhZ2FpbnN0IHRoZSBib3VsZGVyLCBkcml2aW5nIHVwLWxlZnQgPT09PT0gLS0+CiAgPGcgZmlsbD0idXJsKCNmbGVzaCkiPgogICAgPCEtLSByZWFyIGxlZywgZXh0ZW5kZWQgYmFjayBhbmQgZG93biAtLT4KICAgIDxwYXRoIGQ9Ik0yOTYgNDAwIHEzNCAyNiA1MiA3NCBxMTYgNDIgMjIgODIgcTMgMTYgLTEyIDIwIHEtMTUgNCAtMjAgLTExIHEtMTIgLTQwIC0yOCAtNzQgcS0xNCAtMzAgLTM4IC01MCB6Ii8+CiAgICA8IS0tIHJlYXIgZm9vdCAtLT4KICAgIDxwYXRoIGQ9Ik0zNTIgNTY2IHEyNiA2IDM0IDE2IHE2IDggLTQgMTIgcS0yMiA2IC00MCAtMiBxLTggLTQgLTYgLTE0IHoiLz4KICAgIDwhLS0gZnJvbnQgbGVnLCBkZWVwbHkgYmVudCwga25lZSBmb3J3YXJkIC0tPgogICAgPHBhdGggZD0iTTI2MiAzOTIgcS0zMCAzMCAtMzQgNzggcS0zIDM2IDYgNjYgcTQgMTUgLTEwIDE4IHEtMTUgMyAtMTkgLTEyIHEtMTIgLTQ0IC02IC04OCBxNyAtNTAgMzQgLTgwIHoiLz4KICAgIDwhLS0gZnJvbnQgZm9vdCAtLT4KICAgIDxwYXRoIGQ9Ik0xOTggNTQ4IHEtMjYgMTAgLTMyIDIyIHEtNCA5IDcgMTEgcTIzIDMgMzkgLTggcTcgLTUgMyAtMTQgeiIvPgogICAgPCEtLSBoaXBzIC8gcGVsdmlzIC0tPgogICAgPHBhdGggZD0iTTI0NiAzNjYgcTM0IC0xNiA2NiAyIHExNiA5IDEyIDI4IHEtNCAyMCAtMjYgMjQgcS0zMCA2IC01NCAtNiBxLTE2IC04IC0xNCAtMjYgcTEgLTE0IDE2IC0yMiB6Ii8+CiAgICA8IS0tIHRvcnNvLCBsZWFuaW5nIGhhcmQgaW50byB0aGUgcm9jayAtLT4KICAgIDxwYXRoIGQ9Ik0yMzggMjUwIHEzMCAtMjAgNTggNCBxMTggMTYgMjAgNTIgcTIgMzQgLTYgNjIgcS00IDE2IC0yMiAxNiBxLTMwIDAgLTUwIC0xNCBxLTE0IC0xMCAtMTIgLTM0IHEzIC01MCAxMiAtODYgeiIvPgogICAgPCEtLSBjaGVzdCAvIHNob3VsZGVyIG1hc3MgLS0+CiAgICA8cGF0aCBkPSJNMjMyIDI0NiBxMjYgLTI2IDU4IC0xMiBxMjAgOSAyMiAzMCBxMiAxOCAtMTYgMjIgcS0zMCA2IC01NiAtOCBxLTE0IC04IC04IC0zMiB6Ii8+CiAgICA8IS0tIGhlYWQsIGRyb3BwZWQgYmV0d2VlbiB0aGUgc2hvdWxkZXJzIC0tPgogICAgPHBhdGggZD0iTTIzNiAyMTQgcTQgLTI2IDI4IC0yOCBxMjQgLTIgMjggMjIgcTMgMjIgLTE0IDMyIHEtMTggMTAgLTM0IC0yIHEtMTAgLTggLTggLTI0IHoiLz4KICAgIDwhLS0gdXBwZXIgYXJtLCByZWFjaGluZyB1cCB0aGUgY3VydmUgLS0+CiAgICA8cGF0aCBkPSJNMjQ0IDI0NCBxLTM0IC0xNCAtNTYgLTQ0IHEtMTIgLTE2IC0yIC0yNiBxMTEgLTEwIDIyIDIgcTE4IDIyIDQ0IDMyIHoiLz4KICAgIDwhLS0gZm9yZWFybSBhbmQgaGFuZCBmbGF0IG9uIHRoZSByb2NrIC0tPgogICAgPHBhdGggZD0iTTE4OCAyMDAgcS0yNiAtMjAgLTM0IC00NCBxLTUgLTE0IDggLTE5IHExMyAtNSAxOCA4IHE4IDIyIDI2IDM4IHoiLz4KICAgIDxwYXRoIGQ9Ik0xNTQgMTQyIHEtMTYgLTggLTIyIC0yIHEtNiA2IDIgMTIgcTEwIDggMjQgNiB6Ii8+CiAgICA8IS0tIHNlY29uZCBhcm0sIGxvd2VyLCBicmFjaW5nIC0tPgogICAgPHBhdGggZD0iTTI1MiAyNzQgcS0zOCAtOCAtNjYgLTMwIHEtMTMgLTEwIC01IC0yMSBxOSAtMTEgMjEgLTIgcTI0IDE4IDUyIDI2IHoiLz4KICAgIDxwYXRoIGQ9Ik0xODIgMjI2IHEtMTggLTYgLTI2IDAgcS02IDUgMSAxMSBxMTEgOSAyNyA1IHoiLz4KICA8L2c+Cjwvc3ZnPgo=";
+  art.src = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MjAgNDIwIj4KICA8ZGVmcz4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0icm9jayIgY3g9IjMzJSIgY3k9IjI4JSIgcj0iNzQlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwIiAgIHN0b3AtY29sb3I9IiNmZmZmZmYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIuMzAiIHN0b3AtY29sb3I9IiNkY2RjZGMiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIuNTgiIHN0b3AtY29sb3I9IiM4ZThlOGUiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIuODIiIHN0b3AtY29sb3I9IiMzYTNhM2EiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiAgIHN0b3AtY29sb3I9IiMwZDBkMGQiLz4KICAgIDwvcmFkaWFsR3JhZGllbnQ+CiAgPC9kZWZzPgogIDxyZWN0IHdpZHRoPSI0MjAiIGhlaWdodD0iNDIwIiBmaWxsPSIjMDAwIi8+CiAgPGNpcmNsZSBjeD0iMjEwIiBjeT0iMjEwIiByPSIxOTYiIGZpbGw9InVybCgjcm9jaykiLz4KICA8IS0tIHN1cmZhY2UgcmVsaWVmLCBzbyB0aGUgaGFsZnRvbmUgcmVhZHMgYXMgcm9jayByYXRoZXIgdGhhbiBhIHNwaGVyZSByZW5kZXIgLS0+CiAgPGcgb3BhY2l0eT0iLjIyIiBmaWxsPSIjMDAwIj4KICAgIDxlbGxpcHNlIGN4PSIxNDAiIGN5PSIxNTAiIHJ4PSI0NiIgcnk9IjMwIiB0cmFuc2Zvcm09InJvdGF0ZSgtMTggMTQwIDE1MCkiLz4KICAgIDxlbGxpcHNlIGN4PSIyNjgiIGN5PSIxOTYiIHJ4PSIzNCIgcnk9IjIyIiB0cmFuc2Zvcm09InJvdGF0ZSgyNCAyNjggMTk2KSIvPgogICAgPGVsbGlwc2UgY3g9IjE5NiIgY3k9IjI4NiIgcng9IjUyIiByeT0iMjYiIHRyYW5zZm9ybT0icm90YXRlKC04IDE5NiAyODYpIi8+CiAgICA8ZWxsaXBzZSBjeD0iMzAwIiBjeT0iMzAwIiByeD0iMjgiIHJ5PSIxOCIgdHJhbnNmb3JtPSJyb3RhdGUoMzYgMzAwIDMwMCkiLz4KICAgIDxlbGxpcHNlIGN4PSIxMDYiIGN5PSIyNDgiIHJ4PSIyNCIgcnk9IjE2IiB0cmFuc2Zvcm09InJvdGF0ZSgxMiAxMDYgMjQ4KSIvPgogIDwvZz4KICA8ZyBvcGFjaXR5PSIuMTYiIGZpbGw9IiNmZmZmZmYiPgogICAgPGVsbGlwc2UgY3g9IjExOCIgY3k9IjEyMCIgcng9IjMwIiByeT0iMTgiIHRyYW5zZm9ybT0icm90YXRlKC0yNiAxMTggMTIwKSIvPgogICAgPGVsbGlwc2UgY3g9IjIzMiIgY3k9IjI0MCIgcng9IjIyIiByeT0iMTMiIHRyYW5zZm9ybT0icm90YXRlKDE0IDIzMiAyNDApIi8+CiAgPC9nPgo8L3N2Zz4K";
 
   function resizeField(){
     dpr = Math.min(2, window.devicePixelRatio || 1);
@@ -1278,9 +1278,9 @@ footer{padding:clamp(46px,8vh,84px) 0 60px}
 
   function buildGrid(){
     if(!artReady || !W || !H) return;
-    /* the figure sits in the left third, tall */
-    var fh = H * 0.86, fw = fh * (420 / 620);
-    var fx = W * (W > 900 ? 0.22 : 0.5) - fw / 2, fy = (H - fh) / 2;
+    /* the boulder sits left of centre, sized off the shorter axis */
+    var fh = Math.min(H * 0.78, W * 0.44), fw = fh;
+    var fx = W * (W > 900 ? 0.26 : 0.5) - fw / 2, fy = (H - fh) / 2;
     box = {x: fx, y: fy, w: fw, h: fh};
 
     gridCols = Math.max(1, Math.ceil(fw / PITCH));
@@ -1300,8 +1300,8 @@ footer{padding:clamp(46px,8vh,84px) 0 60px}
 
   function drawGeometry(t){
     if(!box) return;
-    var cx = box.x + box.w * 0.44, cy = box.y + box.h * 0.28;
-    var r  = box.w * 0.36;
+    var cx = box.x + box.w / 2, cy = box.y + box.h / 2;
+    var r  = box.w * 0.468;
     ctx.save();
     ctx.strokeStyle = "rgba(255,255,255,.30)";
     ctx.lineWidth = 1;
@@ -1314,15 +1314,15 @@ footer{padding:clamp(46px,8vh,84px) 0 60px}
     ctx.moveTo(cx, cy - r * 1.25); ctx.lineTo(cx, cy + r * 1.25);
     ctx.stroke();
 
-    ctx.strokeStyle = "rgba(255,255,255,.22)";
-    ctx.strokeRect(box.x + box.w * .06, cy, box.w * .86, box.h * .68);
+    ctx.strokeStyle = "rgba(255,255,255,.20)";
+    ctx.strokeRect(cx - r, cy - r, r * 2, r * 2);      /* bounding square */
 
     ctx.beginPath();                                   /* golden arc */
-    ctx.arc(box.x + box.w * .06, cy + box.h * .68, box.w * .86, -Math.PI / 2, 0);
+    ctx.arc(cx - r, cy + r, r * 2, -Math.PI / 2, 0);
     ctx.stroke();
 
-    var sq = box.w * 0.16;                             /* detail square */
-    var sx = box.x + box.w * .60, sy = cy + box.h * .40;
+    var sq = r * 0.30;                                 /* detail square */
+    var sx = cx + r * 0.44, sy = cy + r * 0.52;
     ctx.strokeRect(sx, sy, sq, sq);
     ctx.beginPath();
     ctx.moveTo(sx, sy + sq / 2); ctx.lineTo(sx + sq, sy + sq / 2);
