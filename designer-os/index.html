@@ -59,7 +59,7 @@ a{color:inherit}
    ============================================================ */
 #boot{
   position:fixed;inset:0;z-index:8000;background:#000;
-  padding:clamp(16px,3vh,36px) clamp(16px,4vw,40px) clamp(52px,7vh,70px);
+  padding:clamp(14px,2.4vh,28px) clamp(16px,4vw,40px) clamp(48px,6vh,62px);
   overflow-y:auto;overflow-x:hidden;
   display:flex;flex-direction:column;
 }
@@ -104,15 +104,16 @@ body.booting{overflow:hidden}
 
 /* ---------- the mark, held large at the top of the splash ---------- */
 .mark{
-  width:min(400px,46vw);height:auto;display:block;
-  margin:0 auto clamp(18px,3.2vh,34px);
+  width:min(310px,37vw);height:auto;display:block;
+  margin:0 auto clamp(14px,2.4vh,26px);
 }
-.mark .star{fill:none;stroke:var(--butter);stroke-width:10;stroke-linecap:round;stroke-linejoin:round}
-.mark .script{fill:var(--butter);font-family:"Sacramento",cursive;font-size:160px;stroke:var(--butter);stroke-width:4;paint-order:stroke fill}
+.mark .arc,.mark .star{fill:none;stroke:var(--butter);stroke-width:10;stroke-linecap:round;stroke-linejoin:round}
+.mark .script{fill:var(--butter);font-family:"Sacramento",cursive;font-size:200px;stroke:var(--butter);stroke-width:4;paint-order:stroke fill}
 .mark .rule{stroke:var(--acid);stroke-width:8}
-.mark .tag{fill:var(--acid);font-family:var(--sans);font-weight:400;font-size:41px;letter-spacing:.1em}
+.mark .tag{fill:var(--acid);font-family:var(--mono);font-weight:400;font-size:40px}
+img.mark{object-fit:contain}
 .mark.small{width:96px;margin:0}
-.mark.small .star{stroke-width:13}
+.mark.small .arc,.mark.small .star{stroke-width:14}
 .mark.small .script{stroke-width:6}
 
 /* boot -> manual: CRT power-on collapse, reversed */
@@ -364,14 +365,18 @@ footer{padding:clamp(46px,8vh,84px) 0 60px}
      ============================================================ -->
 <div id="boot" role="region" aria-label="System boot screen">
   <div class="post">
-    <!-- LOGO: reconstruction of the Testmuai "Experience Builder" mark (script + star + rule).
-         To swap in the official asset, replace this <svg> with
-         <img src="…" class="mark" alt="Testmuai — Experience Builder"> -->
-    <svg class="mark" viewBox="0 128 720 392" role="img" aria-label="Testmuai — Experience Builder">
-      <text class="script" x="16" y="368" textLength="512" lengthAdjust="spacingAndGlyphs">Testmuai</text>
-      <polygon class="star" points="592,146 617.2,223.4 698.5,223.4 632.7,271.2 657.8,348.6 592,300.8 526.2,348.6 551.3,271.2 485.5,223.4 566.8,223.4"/>
-      <line class="rule" x1="10" y1="428" x2="710" y2="428"/>
-      <text class="tag" x="10" y="508" textLength="700" lengthAdjust="spacing">EXPERIENCE BUILDER</text>
+    <!-- ============================================================
+         LOGO SLOT
+         Drop the official artwork in beside this file as logo.png,
+         logo.svg or logo.webp and it replaces the traced fallback
+         below automatically — no code change needed.
+         ============================================================ -->
+    <svg class="mark" viewBox="0 0 694 536" role="img" aria-label="Testmuai — Experience Builder">
+    <path class="arc" d="M8 212 A 345 200 0 0 1 686 212"/>
+    <polygon class="star" transform="rotate(-6 574 268)" points="574,142 602.3,229.1 693.8,229.1 619.7,282.9 648.1,369.9 574,316.1 499.9,369.9 528.3,282.9 454.2,229.1 545.7,229.1"/>
+    <text class="script" x="18" y="360" textLength="586" lengthAdjust="spacingAndGlyphs">Testmuai</text>
+    <line class="rule" x1="10" y1="424" x2="684" y2="424"/>
+    <text class="tag" x="10" y="502" textLength="674" lengthAdjust="spacing">EXPERIENCE BUILDER</text>
     </svg>
 
     <div class="vga" id="postbody"></div>
@@ -392,9 +397,11 @@ footer{padding:clamp(46px,8vh,84px) 0 60px}
 
   <div class="topbar">
     <div class="wrap">
-      <svg class="mark small" viewBox="0 128 720 240" role="img" aria-label="Testmuai">
-        <text class="script" x="16" y="368" textLength="512" lengthAdjust="spacingAndGlyphs">Testmuai</text>
-        <polygon class="star" points="592,146 617.2,223.4 698.5,223.4 632.7,271.2 657.8,348.6 592,300.8 526.2,348.6 551.3,271.2 485.5,223.4 566.8,223.4"/>
+      <svg class="mark small" viewBox="0 0 694 400" role="img" aria-label="Testmuai">
+      <path class="arc" d="M8 212 A 345 200 0 0 1 686 212"/>
+      <polygon class="star" transform="rotate(-6 574 268)" points="574,142 602.3,229.1 693.8,229.1 619.7,282.9 648.1,369.9 574,316.1 499.9,369.9 528.3,282.9 454.2,229.1 545.7,229.1"/>
+      <text class="script" x="18" y="360" textLength="586" lengthAdjust="spacingAndGlyphs">Testmuai</text>
+
       </svg>
       <span class="tb-id">DESIGN SETUP</span>
       <nav class="tb-nav" id="tbnav">
@@ -870,9 +877,11 @@ footer{padding:clamp(46px,8vh,84px) 0 60px}
       </p>
       <div class="foot-mark rv">
         <small>TestMu Design BIOS v2026.1 &mdash; a living document. Found something wrong, missing or out of date? Fix it. That's not a suggestion box, it's an instruction.</small>
-        <svg class="mark small" viewBox="0 128 720 240" role="img" aria-label="Testmuai — Experience Builder">
-          <text class="script" x="16" y="368" textLength="512" lengthAdjust="spacingAndGlyphs">Testmuai</text>
-          <polygon class="star" points="592,146 617.2,223.4 698.5,223.4 632.7,271.2 657.8,348.6 592,300.8 526.2,348.6 551.3,271.2 485.5,223.4 566.8,223.4"/>
+        <svg class="mark small" viewBox="0 0 694 400" role="img" aria-label="Testmuai — Experience Builder">
+      <path class="arc" d="M8 212 A 345 200 0 0 1 686 212"/>
+      <polygon class="star" transform="rotate(-6 574 268)" points="574,142 602.3,229.1 693.8,229.1 619.7,282.9 648.1,369.9 574,316.1 499.9,369.9 528.3,282.9 454.2,229.1 545.7,229.1"/>
+      <text class="script" x="18" y="360" textLength="586" lengthAdjust="spacingAndGlyphs">Testmuai</text>
+
         </svg>
       </div>
     </div>
@@ -891,6 +900,28 @@ footer{padding:clamp(46px,8vh,84px) 0 60px}
   var biosId = document.getElementById("biosid");
   var skipBtn = document.getElementById("skipbtn");
   document.body.classList.add("booting");
+
+  /* If the official logo file is sitting next to this page, use it in
+     place of the traced fallback. Probing an Image means a missing file
+     costs nothing and never flashes a broken graphic. */
+  (function swapInRealLogo(){
+    var svg = document.querySelector("#boot svg.mark");
+    if(!svg) return;
+    var names = ["logo.png", "logo.svg", "logo.webp"], i = 0;
+    (function tryNext(){
+      if(i >= names.length) return;
+      var probe = new Image();
+      probe.onload = function(){
+        var img = document.createElement("img");
+        img.className = "mark";
+        img.src = probe.src;
+        img.alt = "Testmuai — Experience Builder";
+        svg.replaceWith(img);
+      };
+      probe.onerror = function(){ i++; tryNext(); };
+      probe.src = names[i];
+    })();
+  })();
 
   /* ------------------------------------------------------------
      POST sequence. A real BIOS prints whole lines into a text
