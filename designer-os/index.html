@@ -1,7 +1,7 @@
 <title>TestMu Design BIOS</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..900&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Sacramento&family=Silkscreen:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..900&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Sacramento&family=Silkscreen:wght@400;700&family=VT323&display=swap">
 <style>
 /* ============================================================
    TESTMU DESIGN BIOS — single committed dark CRT world.
@@ -51,81 +51,71 @@ a{color:inherit}
 }
 
 /* ============================================================
-   PHASE 1 — POST SCREEN
+   PHASE 1 — POWER-ON SELF TEST
+   Centred VGA text on black, with the mark held large at the top
+   where a boot splash carries it. VT323 is the closest DOS bitmap
+   face available; the text-shadow thickens it toward the weight a
+   real 8x16 VGA glyph has.
    ============================================================ */
 #boot{
-  position:fixed;inset:0;z-index:8000;background:var(--void);
-  font-family:var(--mono);font-size:14px;line-height:1.55;
-  padding:clamp(18px,3.2vw,44px);overflow-y:auto;overflow-x:hidden;
+  position:fixed;inset:0;z-index:8000;background:#000;
+  padding:clamp(16px,3vh,36px) clamp(16px,4vw,40px) clamp(52px,7vh,70px);
+  overflow-y:auto;overflow-x:hidden;
   display:flex;flex-direction:column;
 }
 #boot.gone{display:none}
 body.booting{overflow:hidden}
-.post-top{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;flex-wrap:wrap-reverse}
-.post-head{max-width:60ch}
-.post-head h1{
-  font:inherit;font-weight:500;margin:0;color:var(--ink);
-  font-size:clamp(14px,1.5vw,17px);letter-spacing:.01em;
-}
-.post-head .copy{color:var(--dim);margin:2px 0 0}
-.post-body{margin-top:clamp(20px,4vh,52px);flex:1 0 auto;min-height:0}
-@media (max-width:700px){
-  #boot{font-size:12px;line-height:1.5}
-  .post-head h1{font-size:13px}
-  .mark{width:132px}
-  .cfggrid{padding:10px 12px}
-  .cfgrow{font-size:11.5px}
-  .cfgrow .k{min-width:13ch}
-  .enterbtn{font-size:12px;padding:9px 12px}
-  .prompt{gap:8px}
-}
-.ln{display:flex;gap:.5ch;white-space:pre-wrap;word-break:break-word}
-.ln .lbl{color:var(--ink)}
-.ln .dots{color:var(--dimmer);flex:1;overflow:hidden;white-space:nowrap}
-.ln .ok{color:var(--acid);font-weight:600;flex:none;white-space:nowrap}
-.ln .dots{flex:1 1 2ch;min-width:1ch}
-.ln.muted .lbl{color:var(--dim)}
-.ln.hl .lbl{color:var(--butter)}
-.spacer{height:1.55em}
 
-/* config box */
-.cfgbox{margin-top:clamp(16px,3vh,34px);border:1px solid var(--line);max-width:840px;background:rgba(155,232,106,.02)}
-.cfgbox .cfghead{
-  font-family:var(--pix);font-size:10px;letter-spacing:.14em;color:var(--void);
-  background:var(--acid);padding:5px 10px;
+.post{
+  width:100%;max-width:940px;margin:0 auto;
+  display:flex;flex-direction:column;flex:1 0 auto;text-align:center;
 }
-.cfggrid{display:grid;grid-template-columns:1fr 1fr;gap:0 28px;padding:12px 14px}
-@media (max-width:640px){.cfggrid{grid-template-columns:1fr}}
-.cfgrow{display:flex;gap:.5ch;color:var(--dim);font-size:13px}
-.cfgrow b{color:var(--ink);font-weight:500}
-.cfgrow .k{min-width:15ch}
-
-.post-foot{margin-top:auto;padding:22px 0 2px;border-top:1px solid var(--line);flex:none}
-.prompt{display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:14px}
-.enterbtn{
-  font-family:var(--mono);font-size:14px;font-weight:600;letter-spacing:.02em;
-  background:var(--acid);color:#06210A;border:0;padding:9px 18px;cursor:pointer;
+.vga{
+  font-family:"VT323",var(--mono);
+  font-size:clamp(15px,1.75vw,25px);
+  line-height:1.22;color:#FFF;
+  text-shadow:.5px 0 0 currentColor;      /* bitmap weight */
+  letter-spacing:.01em;
 }
-.enterbtn:hover{background:var(--butter)}
-.blink{animation:blink 1s steps(1,end) infinite}
+.ln{min-height:1.22em;white-space:pre-wrap}
+.dim{color:#B4B4B4}
+.blink{animation:blink 1.05s steps(1,end) infinite}
 @keyframes blink{50%{opacity:0}}
-.cursor{display:inline-block;width:.62ch;height:1.05em;background:var(--ink);vertical-align:-.18em}
-.skip{
-  margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--dimmer);
-  background:none;border:1px solid var(--line);padding:6px 12px;cursor:pointer;
+.cursor{display:inline-block;width:.5em;height:.8em;background:#FFF;vertical-align:-.02em}
+
+.post-foot{margin-top:auto;padding-top:clamp(18px,3.5vh,38px);flex:none}
+.enterbtn{
+  font-family:"VT323",var(--mono);font-size:clamp(15px,1.75vw,25px);line-height:1.22;
+  background:none;border:0;padding:2px 8px;margin:0;cursor:pointer;
+  color:var(--acid);text-shadow:.5px 0 0 currentColor;
 }
-.skip:hover{color:var(--ink);border-color:var(--dim)}
+/* BIOS selection is inverse video, not a rounded button */
+.enterbtn:hover,.enterbtn:focus-visible{background:var(--acid);color:#000;outline:none;text-shadow:none}
+.biosid{
+  font-family:var(--mono);font-size:clamp(10px,1.05vw,12px);
+  color:#4E4E4E;letter-spacing:.02em;margin-top:14px;
+}
+.skip{
+  position:absolute;left:50%;transform:translateX(-50%);bottom:clamp(16px,2.6vh,26px);
+  font-family:var(--mono);font-size:11.5px;color:#4E4E4E;
+  background:none;border:0;padding:6px 10px;cursor:pointer;letter-spacing:.06em;
+}
+.skip:hover{color:#FFF}
 
-/* ---------- the mark ---------- */
-.mark{width:clamp(148px,17vw,232px);height:auto;display:block;flex:none}
-.mark .arc,.mark .star{fill:none;stroke:var(--butter);stroke-width:7;stroke-linecap:round;stroke-linejoin:round}
-.mark .script{fill:var(--butter);font-family:"Sacramento",cursive;font-size:104px}
-.mark .rule{stroke:var(--acid);stroke-width:7}
+/* ---------- the mark, held large at the top of the splash ---------- */
+.mark{
+  width:min(400px,46vw);height:auto;display:block;
+  margin:0 auto clamp(18px,3.2vh,34px);
+}
+.mark .star{fill:none;stroke:var(--butter);stroke-width:10;stroke-linecap:round;stroke-linejoin:round}
+.mark .script{fill:var(--butter);font-family:"Sacramento",cursive;font-size:160px;stroke:var(--butter);stroke-width:4;paint-order:stroke fill}
+.mark .rule{stroke:var(--acid);stroke-width:8}
 .mark .tag{fill:var(--acid);font-family:var(--sans);font-weight:400;font-size:41px;letter-spacing:.1em}
-.mark.small{width:96px}
-.mark.small .arc,.mark.small .star{stroke-width:9}
+.mark.small{width:96px;margin:0}
+.mark.small .star{stroke-width:13}
+.mark.small .script{stroke-width:6}
 
-/* boot → doc wipe */
+/* boot -> manual: CRT power-on collapse, reversed */
 #wipe{position:fixed;inset:0;z-index:8500;background:var(--ink);transform:scaleY(0);pointer-events:none}
 #wipe.run{animation:wipe .66s cubic-bezier(.6,0,.35,1) forwards}
 @keyframes wipe{
@@ -373,35 +363,26 @@ footer{padding:clamp(46px,8vh,84px) 0 60px}
      PHASE 1 — POWER-ON SELF TEST
      ============================================================ -->
 <div id="boot" role="region" aria-label="System boot screen">
-  <div class="post-top">
-    <div class="post-head">
-      <h1>TestMu BIOS v2026, A Quality Engineering Ally</h1>
-      <p class="copy">Copyright (C) 2017&ndash;2026, TestMu Corporation</p>
-    </div>
-    <!-- LOGO: reconstruction of the Testmuai "Experience Builder" mark.
-         To swap in the official asset, replace this <svg> with <img src="…" class="mark" alt="Testmuai — Experience Builder"> -->
-    <svg class="mark" viewBox="0 0 720 520" role="img" aria-label="Testmuai — Experience Builder">
-      <path class="arc" d="M14 206 A 352 196 0 0 1 706 206"/>
-      <text class="script" x="22" y="360" textLength="486" lengthAdjust="spacingAndGlyphs">Testmuai</text>
-      <polygon class="star" points="592,150 618.5,231.5 704.2,231.5 634.9,281.9 661.4,363.5 592,313.1 522.6,363.5 549.1,281.9 479.8,231.5 565.5,231.5"/>
-      <line class="rule" x1="12" y1="428" x2="708" y2="428"/>
+  <div class="post">
+    <!-- LOGO: reconstruction of the Testmuai "Experience Builder" mark (script + star + rule).
+         To swap in the official asset, replace this <svg> with
+         <img src="…" class="mark" alt="Testmuai — Experience Builder"> -->
+    <svg class="mark" viewBox="0 128 720 392" role="img" aria-label="Testmuai — Experience Builder">
+      <text class="script" x="16" y="368" textLength="512" lengthAdjust="spacingAndGlyphs">Testmuai</text>
+      <polygon class="star" points="592,146 617.2,223.4 698.5,223.4 632.7,271.2 657.8,348.6 592,300.8 526.2,348.6 551.3,271.2 485.5,223.4 566.8,223.4"/>
+      <line class="rule" x1="10" y1="428" x2="710" y2="428"/>
       <text class="tag" x="10" y="508" textLength="700" lengthAdjust="spacing">EXPERIENCE BUILDER</text>
     </svg>
-  </div>
 
-  <div class="post-body" id="postbody"></div>
+    <div class="vga" id="postbody"></div>
 
-  <div class="post-foot">
-    <div class="prompt">
-      <span id="finalprompt" hidden>
-        <span style="color:var(--butter)">FRESH INSTALL DETECTED</span>
-        <span style="color:var(--dim)">&mdash; USER: DESIGNER_01 &mdash;</span>
-      </span>
-      <button class="enterbtn" id="enterbtn" hidden>PRESS [ENTER] TO OPEN DESIGN SETUP</button>
-      <span class="cursor blink" id="cur"></span>
-      <button class="skip" id="skipbtn">SKIP POST</button>
+    <div class="post-foot">
+      <button class="enterbtn" id="enterbtn" hidden>Press [ENTER] to enter DESIGN SETUP</button>
+      <div class="biosid" id="biosid" hidden>09/01/2026-TESTMU-RETROGLITCH-2A69KM4EC-00</div>
     </div>
   </div>
+
+  <button class="skip" id="skipbtn">[ESC] SKIP POST</button>
 </div>
 
 <!-- ============================================================
@@ -411,10 +392,9 @@ footer{padding:clamp(46px,8vh,84px) 0 60px}
 
   <div class="topbar">
     <div class="wrap">
-      <svg class="mark small" viewBox="0 0 720 392" role="img" aria-label="Testmuai">
-        <path class="arc" d="M14 206 A 352 196 0 0 1 706 206"/>
-        <text class="script" x="22" y="360" textLength="486" lengthAdjust="spacingAndGlyphs">Testmuai</text>
-        <polygon class="star" points="592,150 618.5,231.5 704.2,231.5 634.9,281.9 661.4,363.5 592,313.1 522.6,363.5 549.1,281.9 479.8,231.5 565.5,231.5"/>
+      <svg class="mark small" viewBox="0 128 720 240" role="img" aria-label="Testmuai">
+        <text class="script" x="16" y="368" textLength="512" lengthAdjust="spacingAndGlyphs">Testmuai</text>
+        <polygon class="star" points="592,146 617.2,223.4 698.5,223.4 632.7,271.2 657.8,348.6 592,300.8 526.2,348.6 551.3,271.2 485.5,223.4 566.8,223.4"/>
       </svg>
       <span class="tb-id">DESIGN SETUP</span>
       <nav class="tb-nav" id="tbnav">
@@ -890,10 +870,9 @@ footer{padding:clamp(46px,8vh,84px) 0 60px}
       </p>
       <div class="foot-mark rv">
         <small>TestMu Design BIOS v2026.1 &mdash; a living document. Found something wrong, missing or out of date? Fix it. That's not a suggestion box, it's an instruction.</small>
-        <svg class="mark small" viewBox="0 0 720 392" role="img" aria-label="Testmuai — Experience Builder">
-          <path class="arc" d="M14 206 A 352 196 0 0 1 706 206"/>
-          <text class="script" x="22" y="360" textLength="486" lengthAdjust="spacingAndGlyphs">Testmuai</text>
-          <polygon class="star" points="592,150 618.5,231.5 704.2,231.5 634.9,281.9 661.4,363.5 592,313.1 522.6,363.5 549.1,281.9 479.8,231.5 565.5,231.5"/>
+        <svg class="mark small" viewBox="0 128 720 240" role="img" aria-label="Testmuai — Experience Builder">
+          <text class="script" x="16" y="368" textLength="512" lengthAdjust="spacingAndGlyphs">Testmuai</text>
+          <polygon class="star" points="592,146 617.2,223.4 698.5,223.4 632.7,271.2 657.8,348.6 592,300.8 526.2,348.6 551.3,271.2 485.5,223.4 566.8,223.4"/>
         </svg>
       </div>
     </div>
@@ -908,98 +887,85 @@ footer{padding:clamp(46px,8vh,84px) 0 60px}
   var body = document.getElementById("postbody");
   var doc  = document.getElementById("doc");
   var wipe = document.getElementById("wipe");
-  var cur  = document.getElementById("cur");
   var enterBtn = document.getElementById("enterbtn");
-  var finalPrompt = document.getElementById("finalprompt");
+  var biosId = document.getElementById("biosid");
   var skipBtn = document.getElementById("skipbtn");
   document.body.classList.add("booting");
 
-  /* ---------- POST sequence ---------- */
-  var CFG = [
-    ["CPU Type",       "Designer, Product &amp; Marketing"],
-    ["Base Memory",    "640K Taste"],
-    ["Design System",  "Retro Glitch v2026"],
-    ["Display Type",   "CRT / Retina"],
-    ["Primary Master", "Figma (Pro)"],
-    ["Serial Ports",   "LinkedIn, YouTube, X"],
-    ["Primary Slave",  "Claude (Pro)"],
-    ["Parallel Ports", "Blog, ABM, Web, PDF"],
-    ["Secondary",      "Midjourney (Pro)"],
-    ["Boot Order",     "Brief &rarr; Ref &rarr; System &rarr; Ship"],
-    ["Coprocessor",    "Curiosity, installed"],
-    ["Upskill Clock",  "30 min / day"]
-  ];
-
+  /* ------------------------------------------------------------
+     POST sequence. A real BIOS prints whole lines into a text
+     buffer, so lines appear complete — never typed character by
+     character. Only the memory count and trailing dots animate.
+     ------------------------------------------------------------ */
   var SEQ = [
-    {t:"line", txt:"TestMu (R)", cls:"hl", d:120},
-    {t:"line", txt:"HyperEx Super Computer 420", d:90},
-    {t:"line", txt:"6900 MHz Processor", d:90},
+    {t:"txt", s:"TestMu BIOS v2026, A Quality Engineering Ally", d:150},
+    {t:"txt", s:"Copyright (c) 2017-2026 TestMu Corporation.", d:110},
     {t:"gap"},
-    {t:"count", txt:"Taste Test", to:9000, d:120},
+    {t:"txt", s:"TestMu(R) Kanentium(R) 420 6900 MHz Processor", d:200},
+    {t:"count", pre:"Taste Test: ", to:9000, post:" ... OK", d:150},
     {t:"gap"},
-    {t:"line", txt:"Award Plug and Play BIOS Extension u69.0", ok:"OK", d:240},
+    {t:"txt", s:"Award Plug and Play BIOS Extension v69.0", d:230},
+    {t:"txt", s:"Initializing Retro-Glitch Cards ... OK", d:180},
+    {t:"txt", s:"TESTMU Init Completed", d:180},
     {t:"gap"},
-    {t:"line", txt:"TESTMU Init Completed", ok:"OK", cls:"hl", d:200},
-    {t:"line", txt:"Official TestMu Design Resources Loaded", ok:"OK", d:180},
-    {t:"line", txt:"Detecting Talent", ok:"OK", d:520},
-    {t:"line", txt:"Initializing System ..", d:220},
+    {t:"txt", s:"Official TestMu Design Resources Loaded", d:260},
     {t:"gap"},
-    {t:"cfg", d:260},
-    {t:"done", d:420}
+    {t:"dots", pre:"Detecting Design Talent ", n:7, post:" OK", d:640},
+    {t:"gap"},
+    {t:"cursor", s:"Initializing Retro-Glitch ..", d:700},
+    {t:"done"}
   ];
 
   function el(tag, cls){ var e = document.createElement(tag); if(cls) e.className = cls; return e; }
-
-  function addLine(step){
-    var row = el("div","ln" + (step.cls ? " " + step.cls : ""));
-    var lbl = el("span","lbl"); lbl.textContent = step.txt; row.appendChild(lbl);
-    if(step.ok){
-      var dots = el("span","dots"); dots.textContent = new Array(90).join("."); row.appendChild(dots);
-      var ok = el("span","ok"); ok.textContent = step.ok; row.appendChild(ok);
-    }
+  function put(text, cls){
+    var row = el("div", "ln" + (cls ? " " + cls : ""));
+    row.textContent = text;
     body.appendChild(row);
     return row;
   }
 
   function addCount(step, instant){
-    var row = el("div","ln");
-    var lbl = el("span","lbl"); lbl.textContent = step.txt + " : "; row.appendChild(lbl);
-    var val = el("span","lbl"); val.style.color = "var(--butter)"; row.appendChild(val);
-    var dots = el("span","dots"); dots.textContent = new Array(90).join("."); row.appendChild(dots);
-    var ok = el("span","ok"); row.appendChild(ok);
+    var row = el("div", "ln");
+    row.appendChild(document.createTextNode(step.pre));
+    var v = el("span"); row.appendChild(v);
+    var tail = el("span"); row.appendChild(tail);
     body.appendChild(row);
-    if(instant){ val.textContent = "> " + step.to; ok.textContent = "OK"; return; }
-    var n = 0, inc = Math.ceil(step.to / 34);
+    if(instant){ v.textContent = ">" + step.to; tail.textContent = step.post; return; }
+    var n = 0, inc = Math.ceil(step.to / 30);
     var iv = setInterval(function(){
       n += inc;
-      if(n >= step.to){ n = step.to; clearInterval(iv); val.textContent = "> " + n; ok.textContent = "OK"; }
-      else { val.textContent = "  " + n; }
+      if(n >= step.to){ n = step.to; clearInterval(iv); v.textContent = ">" + n; tail.textContent = step.post; }
+      else { v.textContent = " " + n; }
     }, 26);
   }
 
-  function addCfg(){
-    var box = el("div","cfgbox");
-    var head = el("div","cfghead");
-    head.textContent = "TESTMU DESIGN SYSTEM CONFIGURATION";
-    box.appendChild(head);
-    var grid = el("div","cfggrid");
-    for(var i = 0; i < CFG.length; i++){
-      var r = el("div","cfgrow");
-      var k = el("span","k"); k.textContent = CFG[i][0];
-      var s = el("span"); s.textContent = ":";
-      var v = el("b"); v.innerHTML = CFG[i][1];
-      r.appendChild(k); r.appendChild(s); r.appendChild(v);
-      grid.appendChild(r);
-    }
-    box.appendChild(grid);
-    body.appendChild(box);
+  function addDots(step, instant){
+    var row = el("div", "ln");
+    row.appendChild(document.createTextNode(step.pre));
+    var d = el("span"); row.appendChild(d);
+    var tail = el("span"); row.appendChild(tail);
+    body.appendChild(row);
+    if(instant){ d.textContent = new Array(step.n + 1).join("."); tail.textContent = step.post; return; }
+    var n = 0;
+    var iv = setInterval(function(){
+      d.textContent += ".";
+      if(++n >= step.n){ clearInterval(iv); tail.textContent = step.post; }
+    }, 72);
+  }
+
+  var cursorEl = null;
+  function addCursor(step){
+    var row = el("div", "ln");
+    row.appendChild(document.createTextNode(step.s + " "));
+    cursorEl = el("span", "cursor blink");
+    row.appendChild(cursorEl);
+    body.appendChild(row);
   }
 
   function finish(){
-    finalPrompt.hidden = false;
+    if(cursorEl) cursorEl.remove();
     enterBtn.hidden = false;
-    cur.classList.remove("blink");
-    cur.style.display = "none";
+    biosId.hidden = false;
     enterBtn.focus({preventScroll:true});
     skipBtn.style.visibility = "hidden";
     booted = true;
@@ -1010,11 +976,12 @@ footer{padding:clamp(46px,8vh,84px) 0 60px}
   function step(instant){
     if(idx >= SEQ.length) return;
     var s = SEQ[idx++];
-    if(s.t === "line") addLine(s);
-    else if(s.t === "gap") body.appendChild(el("div","spacer"));
-    else if(s.t === "count") addCount(s, instant);
-    else if(s.t === "cfg") addCfg();
-    else if(s.t === "done"){ finish(); return; }
+    if(s.t === "txt")         put(s.s, s.c);
+    else if(s.t === "gap")    put(" ");
+    else if(s.t === "count")  addCount(s, instant);
+    else if(s.t === "dots")   addDots(s, instant);
+    else if(s.t === "cursor") addCursor(s);
+    else if(s.t === "done"){  finish(); return; }
     if(instant){ step(true); return; }
     timer = setTimeout(function(){ step(false); }, s.d || 120);
   }
