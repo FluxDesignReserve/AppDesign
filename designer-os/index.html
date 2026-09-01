@@ -72,7 +72,7 @@ body.booting{overflow:hidden}
 }
 .vga{
   font-family:"VT323",var(--mono);
-  font-size:clamp(15px,1.75vw,25px);
+  font-size:clamp(15px,min(1.95vw,3.3vh),50px);
   line-height:1.22;color:#FFF;
   text-shadow:.5px 0 0 currentColor;      /* bitmap weight */
   letter-spacing:.01em;
@@ -85,7 +85,7 @@ body.booting{overflow:hidden}
 
 .post-foot{margin-top:auto;padding-top:clamp(18px,3.5vh,38px);flex:none}
 .enterbtn{
-  font-family:"VT323",var(--mono);font-size:clamp(15px,1.75vw,25px);line-height:1.22;
+  font-family:"VT323",var(--mono);font-size:clamp(15px,min(1.95vw,3.3vh),50px);line-height:1.22;
   background:none;border:0;padding:2px 8px;margin:0;cursor:pointer;
   color:var(--acid);text-shadow:.5px 0 0 currentColor;
 }
@@ -104,8 +104,8 @@ body.booting{overflow:hidden}
 
 /* ---------- the mark, held large at the top of the splash ---------- */
 .mark{
-  width:min(310px,37vw);height:auto;display:block;
-  margin:0 auto clamp(14px,2.4vh,26px);
+  width:clamp(95px,min(12.2vw,20.6vh),312px);height:auto;display:block;
+  margin:0 auto clamp(16px,2.2vh,30px);
 }
 .mark .arc,.mark .star{fill:none;stroke:var(--butter);stroke-width:10;stroke-linecap:round;stroke-linejoin:round}
 .mark .script{fill:var(--butter);font-family:"Sacramento",cursive;font-size:200px;stroke:var(--butter);stroke-width:4;paint-order:stroke fill}
