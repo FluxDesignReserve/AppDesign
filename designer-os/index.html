@@ -72,7 +72,7 @@ body.booting{overflow:hidden}
 }
 .vga{
   font-family:"VT323",var(--mono);
-  font-size:clamp(15px,min(1.95vw,3.3vh),50px);
+  font-size:clamp(13px,min(1.95vw,3.3vh),50px);
   line-height:1.22;color:#FFF;
   text-shadow:.5px 0 0 currentColor;      /* bitmap weight */
   letter-spacing:.01em;
@@ -84,13 +84,6 @@ body.booting{overflow:hidden}
 .cursor{display:inline-block;width:.5em;height:.8em;background:#FFF;vertical-align:-.02em}
 
 .post-foot{margin-top:auto;padding-top:clamp(18px,3.5vh,38px);flex:none}
-.enterbtn{
-  font-family:"VT323",var(--mono);font-size:clamp(15px,min(1.95vw,3.3vh),50px);line-height:1.22;
-  background:none;border:0;padding:2px 8px;margin:0;cursor:pointer;
-  color:var(--acid);text-shadow:.5px 0 0 currentColor;
-}
-/* BIOS selection is inverse video, not a rounded button */
-.enterbtn:hover,.enterbtn:focus-visible{background:var(--acid);color:#000;outline:none;text-shadow:none}
 .biosid{
   font-family:var(--mono);font-size:clamp(10px,1.05vw,12px);
   color:#4E4E4E;letter-spacing:.02em;margin-top:14px;
@@ -412,12 +405,11 @@ footer{padding:clamp(46px,8vh,84px) 0 60px}
     <div class="vga" id="postbody"></div>
 
     <div class="post-foot">
-      <button class="enterbtn" id="enterbtn" hidden>Press [ENTER] to enter DESIGN SETUP</button>
       <div class="biosid" id="biosid" hidden>09/01/2026-TESTMU-RETROGLITCH-2A69KM4EC-00</div>
     </div>
   </div>
 
-  <button class="skip" id="skipbtn">[ESC] SKIP POST</button>
+  <button class="skip" id="skipbtn">[ESC] SKIP</button>
 </div>
 
 <!-- ============================================================
@@ -926,7 +918,6 @@ footer{padding:clamp(46px,8vh,84px) 0 60px}
   var body = document.getElementById("postbody");
   var doc  = document.getElementById("doc");
   var wipe = document.getElementById("wipe");
-  var enterBtn = document.getElementById("enterbtn");
   var biosId = document.getElementById("biosid");
   var skipBtn = document.getElementById("skipbtn");
   document.body.classList.add("booting");
@@ -940,7 +931,7 @@ footer{padding:clamp(46px,8vh,84px) 0 60px}
     {t:"txt", s:"TestMu BIOS v2026, A Quality Engineering Ally", d:150},
     {t:"txt", s:"Copyright (c) 2017-2026 TestMu Corporation.", d:110},
     {t:"gap"},
-    {t:"txt", s:"TestMu(R) Kanentium(R) 420 6900 MHz Processor", d:200},
+    {t:"txt", s:"TestMu(R) HyperEx Supercomputer 420 6900 MHz Processor", d:200},
     {t:"count", pre:"Taste Test: ", to:9000, post:" ... OK", d:150},
     {t:"gap"},
     {t:"txt", s:"Award Plug and Play BIOS Extension v69.0", d:230},
@@ -1001,16 +992,18 @@ footer{padding:clamp(46px,8vh,84px) 0 60px}
     body.appendChild(row);
   }
 
+  /* The completed POST sits for a beat, then hands off on its own —
+     no keypress, the way a machine that is already booting behaves. */
+  var HOLD_MS = 2600;
+
   function finish(){
     if(cursorEl) cursorEl.remove();
-    enterBtn.hidden = false;
     biosId.hidden = false;
-    enterBtn.focus({preventScroll:true});
-    skipBtn.style.visibility = "hidden";
     booted = true;
+    handoff = setTimeout(openManual, HOLD_MS);
   }
 
-  var booted = false, timer = null, idx = 0;
+  var booted = false, timer = null, handoff = null, idx = 0;
 
   function step(instant){
     if(idx >= SEQ.length) return;
@@ -1029,9 +1022,10 @@ footer{padding:clamp(46px,8vh,84px) 0 60px}
     if(booted) return;
     clearTimeout(timer);
     step(true);
+    clearTimeout(handoff);
   }
 
-  skipBtn.addEventListener("click", skipAll);
+  skipBtn.addEventListener("click", function(){ advance(); });
 
   /* ---------- boot -> manual ---------- */
   function openManual(){
@@ -1048,15 +1042,19 @@ footer{padding:clamp(46px,8vh,84px) 0 60px}
     setTimeout(function(){ wipe.classList.remove("run"); }, 700);
   }
 
-  enterBtn.addEventListener("click", openManual);
+  function advance(){
+    clearTimeout(timer);
+    clearTimeout(handoff);
+    if(!booted) skipAll();
+    openManual();
+  }
 
+  boot.addEventListener("click", advance);
   document.addEventListener("keydown", function(e){
     if(boot.classList.contains("gone")) return;
-    if(e.key === "Enter"){
+    if(e.key === "Enter" || e.key === "Escape" || e.key === " "){
       e.preventDefault();
-      if(booted) openManual(); else skipAll();
-    } else if(e.key === "Escape" || e.key === " "){
-      if(!booted){ e.preventDefault(); skipAll(); }
+      advance();
     }
   });
 
