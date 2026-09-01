@@ -123,12 +123,7 @@ body.booting{overflow:hidden}
 #hello[hidden]{display:none}
 
 /* ---------- the ASCII field ---------- */
-#ascii{
-  position:absolute;inset:0;margin:0;z-index:0;pointer-events:none;
-  font-family:inherit;font-size:calc(13 * var(--u));line-height:calc(13 * var(--u));
-  color:#FFF;opacity:.22;white-space:pre;overflow:hidden;
-  -webkit-user-select:none;user-select:none;
-}
+#field{position:absolute;inset:0;z-index:0;pointer-events:none;display:block;width:100%;height:100%}
 
 /* ---------- frame accents ---------- */
 #hello .corner{position:absolute;width:calc(48 * var(--u));height:calc(48 * var(--u));z-index:20}
@@ -232,7 +227,6 @@ body.booting{overflow:hidden}
   #hello .stage{justify-content:flex-start;padding:calc(96 * var(--u)) 20px calc(96 * var(--u)) 20px}
   #hello .panel{max-width:none}
   #hello .htitle{font-size:calc(34 * var(--u));white-space:normal}
-  #ascii{opacity:.14}
   #hello .hbar,#hello .hfoot{padding-left:20px;padding-right:20px}
   #hello .hbar .rhs{display:none}
 }
@@ -533,7 +527,7 @@ footer{padding:clamp(46px,8vh,84px) 0 60px}
      SCREEN 2 — HELLO
      ============================================================ -->
 <div id="hello" hidden role="region" aria-label="Welcome">
-  <pre id="ascii" aria-hidden="true"></pre>
+  <canvas id="field" aria-hidden="true"></canvas>
 
   <div class="corner c-tl"></div>
   <div class="corner c-tr"></div>
@@ -1244,58 +1238,139 @@ footer{padding:clamp(46px,8vh,84px) 0 60px}
   var hello = document.getElementById("hello");
 
   /* ------------------------------------------------------------
-     ASCII field. Real characters in Departure Mono written into a
-     <pre>, not a canvas — one string per frame is cheaper than tens
-     of thousands of fillText calls, and it uses the actual typeface.
-     Density falls off to the right so the content panel stays clean.
+     The field: a starfield, a halftone Sisyphus sampled from vector
+     art, and crisp construction geometry over it. The figure is drawn
+     once into a small offscreen canvas — one pixel per halftone cell —
+     and each pixel's luminance sets that dot's size and brightness.
      ------------------------------------------------------------ */
-  var asciiEl = document.getElementById("ascii");
-  var RAMP = " .:-=+*#%@";
-  var cols = 0, rows = 0, cellW = 0, cellH = 0, raf = null, last = 0;
+  var cv = document.getElementById("field");
+  var ctx = cv.getContext("2d");
+  var W = 0, H = 0, dpr = 1, raf = null, last = 0;
+  var stars = [], grid = null, gridCols = 0, gridRows = 0, box = null;
+  var PITCH = 3.2;                       /* halftone dot pitch, css px */
+  var art = new Image(), artReady = false;
 
-  function measureCell(){
-    var cs = getComputedStyle(asciiEl);
-    var probe = document.createElement("span");
-    probe.textContent = new Array(101).join("M");
-    probe.style.cssText = "position:absolute;visibility:hidden;white-space:pre;" +
-      "font-family:" + cs.fontFamily + ";font-size:" + cs.fontSize;
-    document.body.appendChild(probe);
-    cellW = probe.getBoundingClientRect().width / 100;
-    document.body.removeChild(probe);
-    cellH = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.2;
-    cols = Math.max(1, Math.ceil(asciiEl.clientWidth / cellW) + 1);
-    rows = Math.max(1, Math.ceil(asciiEl.clientHeight / cellH) + 1);
+  art.onload = function(){ artReady = true; if(!hello.hidden) buildGrid(); };
+  art.src = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MjAgNjIwIj4KICA8ZGVmcz4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0icm9jayIgY3g9IjM0JSIgY3k9IjMwJSIgcj0iNzIlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwIiAgc3RvcC1jb2xvcj0iI2ZmZmZmZiIvPgogICAgICA8c3RvcCBvZmZzZXQ9Ii40NSIgc3RvcC1jb2xvcj0iIzlhOWE5YSIvPgogICAgICA8c3RvcCBvZmZzZXQ9Ii44NSIgc3RvcC1jb2xvcj0iIzMzMzMzMyIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEiICBzdG9wLWNvbG9yPSIjMTExMTExIi8+CiAgICA8L3JhZGlhbEdyYWRpZW50PgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJmbGVzaCIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9Ii42Ij4KICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjZmZmZmZmIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiNhOGE4YTgiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjM2EzYTNhIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iNDIwIiBoZWlnaHQ9IjYyMCIgZmlsbD0iIzAwMCIvPgoKICA8IS0tIGJvdWxkZXIgLS0+CiAgPGNpcmNsZSBjeD0iMTgyIiBjeT0iMTc2IiByPSIxNTAiIGZpbGw9InVybCgjcm9jaykiLz4KCiAgPCEtLSA9PT09PSBmaWd1cmU6IGJyYWNlZCBhZ2FpbnN0IHRoZSBib3VsZGVyLCBkcml2aW5nIHVwLWxlZnQgPT09PT0gLS0+CiAgPGcgZmlsbD0idXJsKCNmbGVzaCkiPgogICAgPCEtLSByZWFyIGxlZywgZXh0ZW5kZWQgYmFjayBhbmQgZG93biAtLT4KICAgIDxwYXRoIGQ9Ik0yOTYgNDAwIHEzNCAyNiA1MiA3NCBxMTYgNDIgMjIgODIgcTMgMTYgLTEyIDIwIHEtMTUgNCAtMjAgLTExIHEtMTIgLTQwIC0yOCAtNzQgcS0xNCAtMzAgLTM4IC01MCB6Ii8+CiAgICA8IS0tIHJlYXIgZm9vdCAtLT4KICAgIDxwYXRoIGQ9Ik0zNTIgNTY2IHEyNiA2IDM0IDE2IHE2IDggLTQgMTIgcS0yMiA2IC00MCAtMiBxLTggLTQgLTYgLTE0IHoiLz4KICAgIDwhLS0gZnJvbnQgbGVnLCBkZWVwbHkgYmVudCwga25lZSBmb3J3YXJkIC0tPgogICAgPHBhdGggZD0iTTI2MiAzOTIgcS0zMCAzMCAtMzQgNzggcS0zIDM2IDYgNjYgcTQgMTUgLTEwIDE4IHEtMTUgMyAtMTkgLTEyIHEtMTIgLTQ0IC02IC04OCBxNyAtNTAgMzQgLTgwIHoiLz4KICAgIDwhLS0gZnJvbnQgZm9vdCAtLT4KICAgIDxwYXRoIGQ9Ik0xOTggNTQ4IHEtMjYgMTAgLTMyIDIyIHEtNCA5IDcgMTEgcTIzIDMgMzkgLTggcTcgLTUgMyAtMTQgeiIvPgogICAgPCEtLSBoaXBzIC8gcGVsdmlzIC0tPgogICAgPHBhdGggZD0iTTI0NiAzNjYgcTM0IC0xNiA2NiAyIHExNiA5IDEyIDI4IHEtNCAyMCAtMjYgMjQgcS0zMCA2IC01NCAtNiBxLTE2IC04IC0xNCAtMjYgcTEgLTE0IDE2IC0yMiB6Ii8+CiAgICA8IS0tIHRvcnNvLCBsZWFuaW5nIGhhcmQgaW50byB0aGUgcm9jayAtLT4KICAgIDxwYXRoIGQ9Ik0yMzggMjUwIHEzMCAtMjAgNTggNCBxMTggMTYgMjAgNTIgcTIgMzQgLTYgNjIgcS00IDE2IC0yMiAxNiBxLTMwIDAgLTUwIC0xNCBxLTE0IC0xMCAtMTIgLTM0IHEzIC01MCAxMiAtODYgeiIvPgogICAgPCEtLSBjaGVzdCAvIHNob3VsZGVyIG1hc3MgLS0+CiAgICA8cGF0aCBkPSJNMjMyIDI0NiBxMjYgLTI2IDU4IC0xMiBxMjAgOSAyMiAzMCBxMiAxOCAtMTYgMjIgcS0zMCA2IC01NiAtOCBxLTE0IC04IC04IC0zMiB6Ii8+CiAgICA8IS0tIGhlYWQsIGRyb3BwZWQgYmV0d2VlbiB0aGUgc2hvdWxkZXJzIC0tPgogICAgPHBhdGggZD0iTTIzNiAyMTQgcTQgLTI2IDI4IC0yOCBxMjQgLTIgMjggMjIgcTMgMjIgLTE0IDMyIHEtMTggMTAgLTM0IC0yIHEtMTAgLTggLTggLTI0IHoiLz4KICAgIDwhLS0gdXBwZXIgYXJtLCByZWFjaGluZyB1cCB0aGUgY3VydmUgLS0+CiAgICA8cGF0aCBkPSJNMjQ0IDI0NCBxLTM0IC0xNCAtNTYgLTQ0IHEtMTIgLTE2IC0yIC0yNiBxMTEgLTEwIDIyIDIgcTE4IDIyIDQ0IDMyIHoiLz4KICAgIDwhLS0gZm9yZWFybSBhbmQgaGFuZCBmbGF0IG9uIHRoZSByb2NrIC0tPgogICAgPHBhdGggZD0iTTE4OCAyMDAgcS0yNiAtMjAgLTM0IC00NCBxLTUgLTE0IDggLTE5IHExMyAtNSAxOCA4IHE4IDIyIDI2IDM4IHoiLz4KICAgIDxwYXRoIGQ9Ik0xNTQgMTQyIHEtMTYgLTggLTIyIC0yIHEtNiA2IDIgMTIgcTEwIDggMjQgNiB6Ii8+CiAgICA8IS0tIHNlY29uZCBhcm0sIGxvd2VyLCBicmFjaW5nIC0tPgogICAgPHBhdGggZD0iTTI1MiAyNzQgcS0zOCAtOCAtNjYgLTMwIHEtMTMgLTEwIC01IC0yMSBxOSAtMTEgMjEgLTIgcTI0IDE4IDUyIDI2IHoiLz4KICAgIDxwYXRoIGQ9Ik0xODIgMjI2IHEtMTggLTYgLTI2IDAgcS02IDUgMSAxMSBxMTEgOSAyNyA1IHoiLz4KICA8L2c+Cjwvc3ZnPgo=";
+
+  function resizeField(){
+    dpr = Math.min(2, window.devicePixelRatio || 1);
+    W = cv.clientWidth; H = cv.clientHeight;
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    buildStars();
+    buildGrid();
+  }
+
+  function buildStars(){
+    stars = [];
+    var n = Math.round(W * H / 2600);
+    for(var i = 0; i < n; i++){
+      stars.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        r: Math.random() < .82 ? 1 : 1.8,
+        a: .18 + Math.random() * .62,
+        p: Math.random() * Math.PI * 2
+      });
+    }
+  }
+
+  function buildGrid(){
+    if(!artReady || !W || !H) return;
+    /* the figure sits in the left third, tall */
+    var fh = H * 0.86, fw = fh * (420 / 620);
+    var fx = W * (W > 900 ? 0.22 : 0.5) - fw / 2, fy = (H - fh) / 2;
+    box = {x: fx, y: fy, w: fw, h: fh};
+
+    gridCols = Math.max(1, Math.ceil(fw / PITCH));
+    gridRows = Math.max(1, Math.ceil(fh / PITCH));
+    var o = document.createElement("canvas");
+    o.width = gridCols; o.height = gridRows;
+    var og = o.getContext("2d", {willReadFrequently:true});
+    og.fillStyle = "#000"; og.fillRect(0, 0, gridCols, gridRows);
+    og.drawImage(art, 0, 0, gridCols, gridRows);
+    var d = og.getImageData(0, 0, gridCols, gridRows).data;
+    grid = new Float32Array(gridCols * gridRows);
+    for(var i = 0, n = gridCols * gridRows; i < n; i++){
+      var j = i * 4;
+      grid[i] = (d[j] * 0.299 + d[j + 1] * 0.587 + d[j + 2] * 0.114) / 255;
+    }
+  }
+
+  function drawGeometry(t){
+    if(!box) return;
+    var cx = box.x + box.w * 0.44, cy = box.y + box.h * 0.28;
+    var r  = box.w * 0.36;
+    ctx.save();
+    ctx.strokeStyle = "rgba(255,255,255,.30)";
+    ctx.lineWidth = 1;
+
+    ctx.beginPath();                                   /* boulder circle */
+    ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
+
+    ctx.beginPath();                                   /* crosshairs */
+    ctx.moveTo(cx - r * 1.5, cy); ctx.lineTo(cx + r * 1.5, cy);
+    ctx.moveTo(cx, cy - r * 1.25); ctx.lineTo(cx, cy + r * 1.25);
+    ctx.stroke();
+
+    ctx.strokeStyle = "rgba(255,255,255,.22)";
+    ctx.strokeRect(box.x + box.w * .06, cy, box.w * .86, box.h * .68);
+
+    ctx.beginPath();                                   /* golden arc */
+    ctx.arc(box.x + box.w * .06, cy + box.h * .68, box.w * .86, -Math.PI / 2, 0);
+    ctx.stroke();
+
+    var sq = box.w * 0.16;                             /* detail square */
+    var sx = box.x + box.w * .60, sy = cy + box.h * .40;
+    ctx.strokeRect(sx, sy, sq, sq);
+    ctx.beginPath();
+    ctx.moveTo(sx, sy + sq / 2); ctx.lineTo(sx + sq, sy + sq / 2);
+    ctx.moveTo(sx + sq / 2, sy); ctx.lineTo(sx + sq / 2, sy + sq);
+    ctx.stroke();
+    ctx.restore();
   }
 
   function paintField(t){
-    var out = "", cx = cols * 0.26, cy = rows * 0.5, top = RAMP.length - 1;
-    for(var y = 0; y < rows; y++){
-      var row = "";
-      for(var x = 0; x < cols; x++){
-        var dx = x - cx, dy = (y - cy) * 2.1;
-        var d = Math.sqrt(dx * dx + dy * dy);
-        var v = Math.sin(x * 0.09 + t)
-              + Math.sin(y * 0.17 - t * 0.7)
-              + Math.sin((x + y) * 0.055 + t * 1.15)
-              + Math.sin(d * 0.13 - t * 1.35);
-        var n = (v + 4) / 8;
-        n = (n - 0.42) * 2.6;                       /* lift contrast */
-        n *= 1 - Math.min(1, x / cols) * 0.78;      /* clear the right-hand panel */
-        var i = Math.round(n * top);
-        row += RAMP.charAt(i < 0 ? 0 : i > top ? top : i);
-      }
-      out += row + "\n";
+    ctx.fillStyle = "#000";
+    ctx.fillRect(0, 0, W, H);
+
+    /* starfield */
+    for(var i = 0; i < stars.length; i++){
+      var st = stars[i];
+      ctx.globalAlpha = st.a * (0.72 + 0.28 * Math.sin(t * 1.4 + st.p));
+      ctx.fillStyle = "#FFF";
+      ctx.fillRect(st.x, st.y, st.r, st.r);
     }
-    asciiEl.textContent = out;
+    ctx.globalAlpha = 1;
+
+    /* halftone figure */
+    if(grid){
+      ctx.fillStyle = "#FFF";
+      for(var y = 0; y < gridRows; y++){
+        for(var x = 0; x < gridCols; x++){
+          var v = grid[y * gridCols + x];
+          if(v < 0.06) continue;
+          v += 0.05 * Math.sin(x * 0.3 + y * 0.22 - t * 1.9);
+          if(v < 0.06) continue;
+          var size = Math.max(0.7, Math.min(PITCH - 0.6, v * PITCH * 0.9));
+          ctx.globalAlpha = 0.30 + v * 0.62;
+          ctx.fillRect(box.x + x * PITCH, box.y + y * PITCH, size, size);
+        }
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    drawGeometry(t);
   }
 
   function startField(){
-    measureCell();
+    resizeField();
     if(reduce){ paintField(0); return; }
     var t0 = performance.now();
     (function loop(now){
       raf = requestAnimationFrame(loop);
-      if(now - last < 55) return;                   /* ~18fps, deliberately mechanical */
+      if(now - last < 55) return;            /* ~18fps, deliberately mechanical */
       last = now;
       paintField((now - t0) / 1000 * 0.55);
     })(t0);
@@ -1309,7 +1384,7 @@ footer{padding:clamp(46px,8vh,84px) 0 60px}
   window.addEventListener("resize", function(){
     if(hello.hidden) return;
     clearTimeout(resizeT);
-    resizeT = setTimeout(measureCell, 150);
+    resizeT = setTimeout(function(){ resizeField(); }, 150);
   });
   var atHello = false;
 
