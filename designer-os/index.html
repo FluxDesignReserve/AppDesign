@@ -107,66 +107,134 @@ body.booting{overflow:hidden}
 
 /* ============================================================
    SCREEN 2 — HELLO
-   Same artboard grid as frame 1: black ground, mark at x360/y72,
-   everything flush to x360, Departure Mono throughout. The title
-   steps up to 64/72; body stays on the 20/30 POST setting so the
-   two screens read as one system.
+   Structure follows the 21st.dev hero reference: full-bleed animated
+   field, corner frame accents, header and telemetry rails, content
+   panel held to the right half. The field is a live ASCII grid drawn
+   in Departure Mono rather than the reference's embedded WebGL scene.
+   Same --u design-pixel grid as frame 1.
    ============================================================ */
 #hello{
   --u:clamp(.62px,100vw / 1440,1.6px);
-  position:fixed;inset:0;z-index:7900;background:#000;
-  overflow:auto;
+  --hair:rgba(255,255,255,.2);
+  position:fixed;inset:0;z-index:7900;background:#000;overflow:hidden;
   font-family:"Departure Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
   text-transform:uppercase;color:#FFF;
 }
 #hello[hidden]{display:none}
-#hello .screen{
-  padding:calc(72 * var(--u)) calc(40 * var(--u)) calc(64 * var(--u)) calc(360 * var(--u));
-  min-height:100%;display:flex;flex-direction:column;
+
+/* ---------- the ASCII field ---------- */
+#ascii{
+  position:absolute;inset:0;margin:0;z-index:0;pointer-events:none;
+  font-family:inherit;font-size:calc(13 * var(--u));line-height:calc(13 * var(--u));
+  color:#FFF;opacity:.22;white-space:pre;overflow:hidden;
+  -webkit-user-select:none;user-select:none;
 }
-#hello .mark{width:calc(161.478 * var(--u));height:auto;display:block}
-#hello .hblock{margin-top:calc(53 * var(--u))}
+
+/* ---------- frame accents ---------- */
+#hello .corner{position:absolute;width:calc(48 * var(--u));height:calc(48 * var(--u));z-index:20}
+#hello .c-tl{top:0;left:0;border-top:calc(2 * var(--u)) solid rgba(255,255,255,.3);border-left:calc(2 * var(--u)) solid rgba(255,255,255,.3)}
+#hello .c-tr{top:0;right:0;border-top:calc(2 * var(--u)) solid rgba(255,255,255,.3);border-right:calc(2 * var(--u)) solid rgba(255,255,255,.3)}
+#hello .c-bl{bottom:5vh;left:0;border-bottom:calc(2 * var(--u)) solid rgba(255,255,255,.3);border-left:calc(2 * var(--u)) solid rgba(255,255,255,.3)}
+#hello .c-br{bottom:5vh;right:0;border-bottom:calc(2 * var(--u)) solid rgba(255,255,255,.3);border-right:calc(2 * var(--u)) solid rgba(255,255,255,.3)}
+
+/* ---------- header rail ---------- */
+#hello .hbar{
+  position:absolute;top:0;left:0;right:0;z-index:20;
+  border-bottom:1px solid var(--hair);
+  background:rgba(0,0,0,.55);backdrop-filter:blur(4px);
+  padding:calc(14 * var(--u)) calc(32 * var(--u));
+  display:flex;align-items:center;justify-content:space-between;gap:calc(16 * var(--u));
+}
+#hello .hbar .mark{width:calc(104 * var(--u));height:auto;display:block}
+#hello .hbar .div{width:1px;height:calc(16 * var(--u));background:rgba(255,255,255,.4)}
+#hello .meta{font-size:calc(10 * var(--u));color:rgba(255,255,255,.6);letter-spacing:.08em}
+#hello .hbar .lhs{display:flex;align-items:center;gap:calc(16 * var(--u))}
+#hello .hbar .rhs{display:flex;align-items:center;gap:calc(12 * var(--u))}
+#hello .dot{width:calc(4 * var(--u));height:calc(4 * var(--u));border-radius:50%;background:rgba(255,255,255,.4)}
+
+/* ---------- content panel, held to the right half ---------- */
+#hello .stage{
+  position:relative;z-index:10;min-height:100vh;
+  display:flex;align-items:center;justify-content:flex-end;
+  padding:0 calc(140 * var(--u)) 0 calc(24 * var(--u));
+}
+#hello .panel{width:100%;max-width:calc(560 * var(--u))}
+
+#hello .rule{display:flex;align-items:center;gap:calc(8 * var(--u));opacity:.6;margin-bottom:calc(14 * var(--u))}
+#hello .rule .seg{height:1px;background:#FFF}
+#hello .rule .seg.short{width:calc(32 * var(--u))}
+#hello .rule .seg.grow{flex:1}
+#hello .rule .inf{font-size:calc(10 * var(--u));letter-spacing:.1em}
+/* glyphs Departure Mono does not carry, drawn from the system mono */
+#hello .sym{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+
 #hello .htitle{
-  font-size:calc(64 * var(--u));line-height:calc(72 * var(--u));
-  font-weight:400;margin:0;color:var(--butter);
+  font-size:calc(48 * var(--u));line-height:1.1;font-weight:400;margin:0;
+  letter-spacing:.1em;color:#FFF;white-space:nowrap;
 }
+#hello .dots{display:flex;gap:calc(4 * var(--u));margin:calc(14 * var(--u)) 0;opacity:.4}
+#hello .dots i{width:calc(2 * var(--u));height:calc(2 * var(--u));border-radius:50%;background:#FFF}
+
 #hello .hkick{
-  font-size:calc(28 * var(--u));line-height:calc(40 * var(--u));
-  margin:calc(28 * var(--u)) 0 0;color:var(--acid);
+  font-size:calc(16 * var(--u));line-height:1.7;margin:0 0 calc(26 * var(--u));
+  color:#D4D4D4;opacity:.85;max-width:calc(480 * var(--u));
 }
-#hello .hbody{
-  font-size:calc(20 * var(--u));line-height:calc(30 * var(--u));
-  margin:calc(24 * var(--u)) 0 0;color:#FFF;max-width:calc(760 * var(--u));
-}
+
 #hello .cta{
-  font-family:inherit;text-transform:inherit;
-  font-size:calc(20 * var(--u));line-height:calc(30 * var(--u));
-  margin:calc(64 * var(--u)) 0 0;
-  padding:calc(10 * var(--u)) calc(20 * var(--u));
-  align-self:flex-start;cursor:pointer;
-  color:var(--acid);background:none;
-  border:calc(2 * var(--u)) solid var(--acid);
+  font-family:inherit;text-transform:inherit;letter-spacing:.08em;
+  font-size:calc(14 * var(--u));line-height:1;
+  padding:calc(12 * var(--u)) calc(26 * var(--u));
+  background:none;color:var(--acid);border:1px solid var(--acid);
+  cursor:pointer;position:relative;transition:background .18s,color .18s;
 }
-#hello .cta:hover,#hello .cta:focus-visible{
-  background:var(--acid);color:#000;outline:none;
+#hello .cta:hover,#hello .cta:focus-visible{background:var(--acid);color:#000;outline:none}
+#hello .cta::before,#hello .cta::after{
+  content:"";position:absolute;width:calc(8 * var(--u));height:calc(8 * var(--u));
+  opacity:0;transition:opacity .18s;
 }
-#hello .cta .arrow{margin-left:calc(14 * var(--u))}
-#hello .cursor{
-  display:inline-block;width:.55em;height:.8em;background:#8A8A8A;
-  vertical-align:-.02em;margin-left:.15em;
+#hello .cta::before{top:calc(-4 * var(--u));left:calc(-4 * var(--u));border-top:1px solid var(--acid);border-left:1px solid var(--acid)}
+#hello .cta::after{bottom:calc(-4 * var(--u));right:calc(-4 * var(--u));border-bottom:1px solid var(--acid);border-right:1px solid var(--acid)}
+#hello .cta:hover::before,#hello .cta:hover::after,
+#hello .cta:focus-visible::before,#hello .cta:focus-visible::after{opacity:1}
+
+#hello .note{display:flex;align-items:center;gap:calc(8 * var(--u));opacity:.4;margin-top:calc(34 * var(--u))}
+#hello .note .seg{flex:1;height:1px;background:#FFF}
+#hello .note span{font-size:calc(9 * var(--u));letter-spacing:.1em}
+
+/* ---------- telemetry footer ---------- */
+#hello .hfoot{
+  position:absolute;left:0;right:0;bottom:5vh;z-index:20;
+  border-top:1px solid var(--hair);background:rgba(0,0,0,.4);backdrop-filter:blur(4px);
+  padding:calc(10 * var(--u)) calc(32 * var(--u));
+  display:flex;align-items:center;justify-content:space-between;gap:calc(16 * var(--u));
+  font-size:calc(9 * var(--u));color:rgba(255,255,255,.5);letter-spacing:.08em;
 }
-#hello .blink{animation:blink 1.05s steps(1,end) infinite}
-/* each line arrives on its own beat, like the POST above it */
+#hello .hfoot .grp{display:flex;align-items:center;gap:calc(14 * var(--u))}
+#hello .bars{display:flex;align-items:flex-end;gap:calc(3 * var(--u));height:calc(12 * var(--u))}
+#hello .bars i{width:calc(3 * var(--u));background:rgba(255,255,255,.3)}
+#hello .pulse{display:flex;gap:calc(4 * var(--u))}
+#hello .pulse i{width:calc(4 * var(--u));height:calc(4 * var(--u));border-radius:50%;background:rgba(255,255,255,.6);animation:hpulse 1.4s ease-in-out infinite}
+#hello .pulse i:nth-child(2){background:rgba(255,255,255,.4);animation-delay:.2s}
+#hello .pulse i:nth-child(3){background:rgba(255,255,255,.2);animation-delay:.4s}
+@keyframes hpulse{0%,100%{opacity:1}50%{opacity:.25}}
+
+/* each element arrives on its own beat, like the POST above it */
 #hello .rise{opacity:0;transform:translateY(calc(8 * var(--u)));
-  transition:opacity .32s ease,transform .32s cubic-bezier(.2,.7,.3,1)}
+  transition:opacity .38s ease,transform .38s cubic-bezier(.2,.7,.3,1)}
 #hello .rise.in{opacity:1;transform:none}
 @media (prefers-reduced-motion:reduce){
   #hello .rise{opacity:1;transform:none;transition:none}
+  #hello .pulse i{animation:none}
 }
-@media (max-width:900px){
+
+@media (max-width:1024px){
   #hello{--u:clamp(.42px,100vw / 700,1px)}
-  #hello .screen{padding:calc(56 * var(--u)) 20px calc(48 * var(--u)) 20px}
-  #hello .htitle{font-size:calc(44 * var(--u));line-height:calc(52 * var(--u))}
+  #hello .stage{justify-content:flex-start;padding:calc(96 * var(--u)) 20px calc(96 * var(--u)) 20px}
+  #hello .panel{max-width:none}
+  #hello .htitle{font-size:calc(34 * var(--u));white-space:normal}
+  #ascii{opacity:.14}
+  #hello .hbar,#hello .hfoot{padding-left:20px;padding-right:20px}
+  #hello .hbar .rhs{display:none}
 }
 
 /* boot -> manual: CRT power-on collapse, reversed */
@@ -465,8 +533,16 @@ footer{padding:clamp(46px,8vh,84px) 0 60px}
      SCREEN 2 — HELLO
      ============================================================ -->
 <div id="hello" hidden role="region" aria-label="Welcome">
-  <div class="screen">
-    <svg class="mark" viewBox="0 0 237 176" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Testmuai — Autonomous QA">
+  <pre id="ascii" aria-hidden="true"></pre>
+
+  <div class="corner c-tl"></div>
+  <div class="corner c-tr"></div>
+  <div class="corner c-bl"></div>
+  <div class="corner c-br"></div>
+
+  <header class="hbar">
+    <div class="lhs">
+      <svg class="mark" viewBox="0 0 237 176" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Testmuai — Autonomous QA">
         <g clip-path="url(#clip0_1642_208b)">
         <path d="M1.22656 144.33H236.777" stroke="#9CF564" stroke-width="2" stroke-miterlimit="10"/>
         <path d="M184.605 49.5925C185.596 47.0326 189.128 46.9281 190.311 49.3132L190.417 49.5525L201.46 76.9402L229.624 78.2615C232.433 78.3931 233.653 81.8766 231.539 83.7312L209.876 102.742L216.961 131.081C217.643 133.808 214.657 135.979 212.273 134.489L187.499 119.005L162.84 134.418C160.41 135.937 157.388 133.657 158.181 130.903L165.958 103.912C166.283 102.784 167.461 102.133 168.588 102.458C169.716 102.783 170.367 103.96 170.042 105.088L163.077 129.258L187.5 113.994L212.161 129.407L205.124 101.258L226.639 82.3757L198.539 81.0584L187.54 53.782L176.982 81.0584L143.098 82.6228C141.926 82.6767 140.931 81.7697 140.877 80.5974C140.823 79.4252 141.73 78.4308 142.903 78.3767L174.018 76.9402L184.605 49.5925Z" fill="#FAF584"/>
@@ -503,14 +579,52 @@ footer{padding:clamp(46px,8vh,84px) 0 60px}
         </clipPath>
         </defs>
         </svg>
-
-    <div class="hblock">
-      <h1 class="htitle rise">Hello, New Joinee</h1>
-      <p class="hkick rise">Nothing here is ever finished. Push anyway.</p>
+      <div class="div"></div>
+      <span class="meta">EST. 2017</span>
     </div>
+    <div class="rhs">
+      <span class="meta">RETRO GLITCH</span>
+      <div class="dot"></div>
+      <span class="meta">BUILD 2026.1</span>
+    </div>
+  </header>
 
-    <button class="cta rise" id="cta" type="button">Start the Climb<span class="arrow">&rarr;</span></button>
+  <div class="stage">
+    <div class="panel">
+      <div class="rule rise">
+        <div class="seg short"></div>
+        <span class="inf sym">&#8734;</span>
+        <div class="seg grow"></div>
+      </div>
+
+      <h1 class="htitle rise">Hello, New Joinee</h1>
+
+      <div class="dots rise"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+
+      <p class="hkick rise">Nothing here is ever finished. Push anyway.</p>
+
+      <button class="cta rise" id="cta" type="button">Start the Climb</button>
+
+      <div class="note rise">
+        <span class="sym">&#8734;</span>
+        <div class="seg"></div>
+        <span>SISYPHUS.PROTOCOL</span>
+      </div>
+    </div>
   </div>
+
+  <footer class="hfoot">
+    <div class="grp">
+      <span>SYSTEM.ACTIVE</span>
+      <div class="bars"><i style="height:40%"></i><i style="height:75%"></i><i style="height:25%"></i><i style="height:90%"></i><i style="height:55%"></i><i style="height:35%"></i><i style="height:80%"></i><i style="height:50%"></i></div>
+      <span>V1.0.0</span>
+    </div>
+    <div class="grp">
+      <span><span class="sym">&#9680;</span> RENDERING</span>
+      <div class="pulse"><i></i><i></i><i></i></div>
+      <span>FRAME: <span class="sym">&#8734;</span></span>
+    </div>
+  </footer>
 </div>
 
 <!-- ============================================================
@@ -1128,6 +1242,75 @@ footer{padding:clamp(46px,8vh,84px) 0 60px}
      carries the eye between them.
      ------------------------------------------------------------ */
   var hello = document.getElementById("hello");
+
+  /* ------------------------------------------------------------
+     ASCII field. Real characters in Departure Mono written into a
+     <pre>, not a canvas — one string per frame is cheaper than tens
+     of thousands of fillText calls, and it uses the actual typeface.
+     Density falls off to the right so the content panel stays clean.
+     ------------------------------------------------------------ */
+  var asciiEl = document.getElementById("ascii");
+  var RAMP = " .:-=+*#%@";
+  var cols = 0, rows = 0, cellW = 0, cellH = 0, raf = null, last = 0;
+
+  function measureCell(){
+    var cs = getComputedStyle(asciiEl);
+    var probe = document.createElement("span");
+    probe.textContent = new Array(101).join("M");
+    probe.style.cssText = "position:absolute;visibility:hidden;white-space:pre;" +
+      "font-family:" + cs.fontFamily + ";font-size:" + cs.fontSize;
+    document.body.appendChild(probe);
+    cellW = probe.getBoundingClientRect().width / 100;
+    document.body.removeChild(probe);
+    cellH = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.2;
+    cols = Math.max(1, Math.ceil(asciiEl.clientWidth / cellW) + 1);
+    rows = Math.max(1, Math.ceil(asciiEl.clientHeight / cellH) + 1);
+  }
+
+  function paintField(t){
+    var out = "", cx = cols * 0.26, cy = rows * 0.5, top = RAMP.length - 1;
+    for(var y = 0; y < rows; y++){
+      var row = "";
+      for(var x = 0; x < cols; x++){
+        var dx = x - cx, dy = (y - cy) * 2.1;
+        var d = Math.sqrt(dx * dx + dy * dy);
+        var v = Math.sin(x * 0.09 + t)
+              + Math.sin(y * 0.17 - t * 0.7)
+              + Math.sin((x + y) * 0.055 + t * 1.15)
+              + Math.sin(d * 0.13 - t * 1.35);
+        var n = (v + 4) / 8;
+        n = (n - 0.42) * 2.6;                       /* lift contrast */
+        n *= 1 - Math.min(1, x / cols) * 0.78;      /* clear the right-hand panel */
+        var i = Math.round(n * top);
+        row += RAMP.charAt(i < 0 ? 0 : i > top ? top : i);
+      }
+      out += row + "\n";
+    }
+    asciiEl.textContent = out;
+  }
+
+  function startField(){
+    measureCell();
+    if(reduce){ paintField(0); return; }
+    var t0 = performance.now();
+    (function loop(now){
+      raf = requestAnimationFrame(loop);
+      if(now - last < 55) return;                   /* ~18fps, deliberately mechanical */
+      last = now;
+      paintField((now - t0) / 1000 * 0.55);
+    })(t0);
+  }
+
+  function stopField(){
+    if(raf){ cancelAnimationFrame(raf); raf = null; }
+  }
+
+  var resizeT = null;
+  window.addEventListener("resize", function(){
+    if(hello.hidden) return;
+    clearTimeout(resizeT);
+    resizeT = setTimeout(measureCell, 150);
+  });
   var atHello = false;
 
   function wipeTo(swap){
@@ -1143,12 +1326,12 @@ footer{padding:clamp(46px,8vh,84px) 0 60px}
     wipeTo(function(){
       boot.classList.add("gone");
       hello.hidden = false;
+      startField();
       /* let the greeting arrive a line at a time, like the POST above it */
       var rows = hello.querySelectorAll(".rise");
       rows.forEach(function(n, i){
         setTimeout(function(){
           n.classList.add("in");
-          if(n.id === "cta") n.focus({preventScroll:true});
         }, reduce ? 0 : 140 + i * 260);
       });
     });
@@ -1159,6 +1342,7 @@ footer{padding:clamp(46px,8vh,84px) 0 60px}
     atHello = false;
     document.body.classList.remove("booting");
     wipeTo(function(){
+      stopField();
       hello.hidden = true;
       doc.classList.add("live");
       revealAll();
