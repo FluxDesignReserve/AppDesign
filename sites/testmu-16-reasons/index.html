@@ -7,7 +7,7 @@
 <meta name="description" content="Sixteen reasons to try TestMu AI, laid out as a 4×4 coverage matrix — the way a passing test run reports itself." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500&family=Inter:wght@300;400&family=JetBrains+Mono:wght@300;400&display=swap" />
 <style>
 /* ─────────────────────────────────────────────────────────────
    Tokens — lifted from the TestMu Figma variable set
@@ -62,8 +62,8 @@ img,canvas{max-width:100%;display:block}
 .shell{max-width:var(--shell);margin:0 auto;padding-inline:var(--gut)}
 
 /* type */
-.mono{font-family:var(--f-mono);font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--faint);font-weight:500}
-h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:-.032em;margin:0;text-wrap:balance;line-height:1.04}
+.mono{font-family:var(--f-mono);font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--faint);font-weight:400}
+h1,h2,h3{font-family:var(--f-display);font-weight:300;letter-spacing:-.024em;margin:0;text-wrap:balance;line-height:1.04}
 p{margin:0}
 .lede{color:var(--muted);max-width:62ch}
 
@@ -73,14 +73,14 @@ p{margin:0}
   font-family:var(--f-mono);font-size:11.5px;letter-spacing:.04em;
   text-align:center;padding:9px 16px;
 }
-.announce b{color:var(--band-ink);font-weight:500}
+.announce b{color:var(--band-ink);font-weight:400}
 .announce a{color:var(--pass);text-decoration:none;border-bottom:1px solid transparent}
 .announce a:hover{border-bottom-color:currentColor}
 
 /* ── nav ──────────────────────────────────────────────────── */
 .nav{border-bottom:1px solid var(--rule);position:sticky;top:0;z-index:60;background:color-mix(in srgb,var(--paper) 88%,transparent);backdrop-filter:blur(10px)}
 .nav-in{display:flex;align-items:center;gap:30px;height:60px}
-.brand{display:flex;align-items:baseline;gap:8px;font-family:var(--f-display);font-weight:700;letter-spacing:-.03em;font-size:17px;text-decoration:none}
+.brand{display:flex;align-items:baseline;gap:8px;font-family:var(--f-display);font-weight:500;letter-spacing:-.02em;font-size:17px;text-decoration:none}
 .brand em{font-style:normal;font-family:var(--f-mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);font-weight:400}
 .nav-links{display:flex;gap:22px;margin-left:6px}
 .nav-links a{font-size:13.5px;color:var(--muted);text-decoration:none}
@@ -88,7 +88,7 @@ p{margin:0}
 .nav-act{margin-left:auto;display:flex;align-items:center;gap:14px}
 
 .btn{
-  font-family:var(--f-body);font-size:13.5px;font-weight:500;
+  font-family:var(--f-body);font-size:13.5px;font-weight:400;
   padding:9px 15px;border-radius:6px;text-decoration:none;
   border:1px solid var(--ink);background:var(--ink);color:var(--paper);
   display:inline-block;transition:opacity .16s ease;
@@ -114,7 +114,7 @@ p{margin:0}
   display:grid;grid-template-columns:minmax(0,1fr) 460px;gap:60px;
   align-items:center;padding-block:clamp(48px,7vw,88px);
 }
-h1{font-size:clamp(40px,5.9vw,76px);line-height:.98;letter-spacing:-.042em;max-width:14ch}
+h1{font-size:clamp(40px,5.9vw,76px);line-height:1.0;letter-spacing:-.03em;max-width:13ch}
 h1 .num{
   font-variant-numeric:tabular-nums;
   background:linear-gradient(transparent 66%,var(--pass-dim) 66%);
@@ -142,7 +142,7 @@ h1 .num{
 .matrix-legend div{padding:9px 13px;color:var(--faint);letter-spacing:.05em}
 .matrix-legend div:nth-child(odd){border-right:1px solid var(--rule)}
 .matrix-legend div:nth-child(-n+2){border-bottom:1px solid var(--rule)}
-.matrix-legend b{color:var(--ink);font-weight:500}
+.matrix-legend b{color:var(--ink);font-weight:400}
 
 /* ── proof strip ──────────────────────────────────────────── */
 .proof{border-bottom:1px solid var(--rule);background:var(--card)}
@@ -152,8 +152,8 @@ h1 .num{
 }
 .proof-in div:last-child{border-right:0}
 .proof-in b{
-  display:block;font-family:var(--f-display);font-weight:600;font-size:23px;
-  letter-spacing:-.03em;font-variant-numeric:tabular-nums;
+  display:block;font-family:var(--f-display);font-weight:300;font-size:25px;
+  letter-spacing:-.022em;font-variant-numeric:tabular-nums;
 }
 .proof-in span{display:block;font-family:var(--f-mono);font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--faint);margin-top:5px}
 
@@ -186,7 +186,7 @@ h1 .num{
   display:flex;align-items:center;gap:11px;margin-bottom:16px;
 }
 .reason-no::after{content:"";height:1px;flex:1;background:var(--rule);max-width:120px}
-.lead h3{font-size:clamp(23px,2.5vw,33px);letter-spacing:-.034em;line-height:1.08}
+.lead h3{font-size:clamp(23px,2.5vw,33px);letter-spacing:-.026em;line-height:1.12}
 .lead p{color:var(--muted);margin-top:16px;max-width:48ch}
 .tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:22px}
 .tag{
@@ -202,7 +202,7 @@ h1 .num{
 }
 .card:last-child{border-right:0}
 .card h4{
-  font-family:var(--f-display);font-weight:600;font-size:19px;letter-spacing:-.028em;
+  font-family:var(--f-display);font-weight:400;font-size:19px;letter-spacing:-.02em;
   margin:0;line-height:1.2;text-wrap:balance;
 }
 .card p{color:var(--muted);font-size:14.5px}
@@ -211,7 +211,7 @@ h1 .num{
   font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;color:var(--faint);
   display:flex;align-items:center;gap:8px;
 }
-.card .metric b{color:var(--ink);font-weight:500;font-variant-numeric:tabular-nums}
+.card .metric b{color:var(--ink);font-weight:400;font-variant-numeric:tabular-nums}
 .dotmark{width:6px;height:6px;background:var(--pass);border-radius:1px;flex:none}
 
 /* ── artifacts (panel innards) ────────────────────────────── */
@@ -242,7 +242,7 @@ h1 .num{
 }
 .grid-art div:nth-child(4n){border-right:0}
 .grid-art div:nth-child(n+9){border-bottom:0}
-.grid-art b{display:block;font-family:var(--f-display);font-size:17px;font-weight:600;letter-spacing:-.028em}
+.grid-art b{display:block;font-family:var(--f-display);font-size:17px;font-weight:300;letter-spacing:-.02em}
 .grid-art span{display:block;font-family:var(--f-mono);font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);margin-top:3px}
 
 .score{padding:6px 0}
@@ -267,12 +267,12 @@ h1 .num{
   content:"";position:absolute;top:-4px;left:22px;width:7px;height:7px;
   background:var(--paper);border:1px solid var(--pass);border-radius:50%;
 }
-.steps b{display:block;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink);margin-bottom:9px}
+.steps b{display:block;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink);margin-bottom:9px;font-weight:400}
 .steps p{color:var(--muted);font-size:14px}
 
 /* ── close ────────────────────────────────────────────────── */
 .close{padding-block:clamp(56px,7vw,96px);text-align:center}
-.close h2{font-size:clamp(30px,4.2vw,54px);letter-spacing:-.04em;max-width:17ch;margin-inline:auto}
+.close h2{font-size:clamp(30px,4.2vw,54px);letter-spacing:-.028em;max-width:17ch;margin-inline:auto}
 .close p{color:var(--muted);margin:20px auto 0;max-width:50ch}
 .close-cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:32px}
 
@@ -285,7 +285,7 @@ h1 .num{
 }
 .foot-cols h5{
   font-family:var(--f-mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;
-  color:var(--band-ink);margin:0 0 14px;font-weight:500;
+  color:var(--band-ink);margin:0 0 14px;font-weight:400;
 }
 .foot-cols ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px}
 .foot-cols a{font-size:13.5px;color:var(--band-muted);text-decoration:none}
@@ -361,8 +361,8 @@ h1 .num{
 <section class="hero" id="top">
   <div class="shell hero-in">
     <div>
-      <span class="mono">16 reasons · one run · all green</span>
-      <h1 style="margin-top:20px">Your QA team, <span class="num">16</span> arguments shorter.</h1>
+      <span class="mono">one run · sixteen checks · all green</span>
+      <h1 style="margin-top:20px"><span class="num">16</span> reasons to trust TestMu AI.</h1>
       <p class="lede">TestMu AI writes the test, runs it on real hardware, watches your AI agents for hallucinations, and hands back evidence anyone can open. Here is the whole case, laid out the way we'd report a run — sixteen checks, one pass each, every one green.</p>
       <div class="hero-cta">
         <a class="btn lg" href="#start">Start free</a>
@@ -838,13 +838,13 @@ h1 .num{
     octx.textBaseline = "middle";
     octx.textAlign = "left";
     var size = 190;
-    octx.font = "700 " + size + "px Manrope, sans-serif";
+    octx.font = "300 " + size + "px Manrope, sans-serif";
     var text = "TESTMU AI";
     // fit the text to the canvas width
     var mw = octx.measureText(text).width;
     if(mw > w - 20){
       size = Math.floor(size * (w - 20) / mw);
-      octx.font = "700 " + size + "px Manrope, sans-serif";
+      octx.font = "300 " + size + "px Manrope, sans-serif";
     }
     octx.fillText(text, 4, h/2);
 
