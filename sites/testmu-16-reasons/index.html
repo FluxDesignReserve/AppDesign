@@ -1,0 +1,623 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>16 Reasons — TestMu AI</title>
+<meta name="description" content="Sixteen concrete reasons to try TestMu AI (formerly LambdaTest), the agentic AI testing cloud.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ==========================================================================
+   Tensorlake design language (.claude/skills/tensorlake-design), accent swapped
+   to TestMu AI's brand cyan #0ebac5. Structure, type and spacing tokens are
+   carried over unchanged.
+   ========================================================================== */
+:root{
+  --tl-ink:#161715; --tl-ink-2:#1e1f1c; --tl-ink-3:#1b2426; --tl-ink-5:#16201f;
+  --tl-stroke:#393939; --tl-stroke-2:#4a4a4a; --tl-stroke-dim:#ffffff1a;
+  --tl-fg:#fff; --tl-fg-2:#ddd; --tl-fg-3:#c9c9c9; --tl-fg-4:#989d9e; --tl-fg-ink:#0a1112;
+
+  /* accent — TestMu AI cyan, one hue only */
+  --tm:#0ebac5; --tm-2:#7fd9e0; --tm-3:#c7f0f3;
+  --tm-pill:#0ebac533; --tm-wash:#0ebac51f; --tm-deep:#062a2d;
+
+  --font-display:"Inter Tight","Neue Haas Grotesk",system-ui,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  --display-hero:clamp(48px,6.4vw,125px);
+  --display-md:clamp(32px,3.6vw,58px);
+  --display-sm:clamp(26px,2.6vw,42px);
+  --body-lg:18px; --body:16px; --mono:14px; --mono-sm:12px;
+  --track-crunch:-.07em;
+  --r1:2px; --r2:4px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp5:20px; --sp6:28px; --sp7:40px; --sp8:60px; --sp9:80px; --sp10:120px;
+  --container:1320px; --gutter:24px;
+  --d-instant:120ms; --d-fast:140ms; --d-normal:180ms;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--tl-ink);color:var(--tl-fg);
+  font-family:var(--font-display);font-size:var(--body);font-weight:500;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{font-weight:500;margin:0}
+h1{font-size:var(--display-hero);line-height:.98;letter-spacing:-.035em}
+h2{font-size:var(--display-md);line-height:1.06;letter-spacing:-.028em}
+h3{font-size:var(--display-sm);line-height:1.08;letter-spacing:-.025em}
+h4{font-size:22px;line-height:1.12;letter-spacing:-.02em}
+p{margin:0;line-height:1.45;color:var(--tl-fg-2)}
+a{color:var(--tm)}
+:where(a,button,input,summary,[tabindex]):focus-visible{outline:2px solid var(--tm);outline-offset:2px}
+
+.wrap{max-width:var(--container);margin:0 auto;padding:0 var(--gutter);position:relative}
+
+/* full-height column rules — the signature structural device */
+.rules{position:fixed;inset:0;pointer-events:none;z-index:0}
+.rules i{position:absolute;top:0;bottom:0;width:1px;background:var(--tl-stroke-dim)}
+.rules i:nth-child(1){left:max(var(--gutter),calc(50% - var(--container)/2))}
+.rules i:nth-child(2){right:max(var(--gutter),calc(50% - var(--container)/2))}
+.rules i:nth-child(3){left:50%;opacity:.55}
+header,main,footer{position:relative;z-index:1}
+
+/* ---------- mono helpers ---------- */
+.mono,.eyebrow,.btn,nav a,th,.tag,.ord{
+  font-family:var(--font-mono);font-size:var(--mono-sm);
+  text-transform:uppercase;letter-spacing:var(--track-crunch)
+}
+.eyebrow{display:block;color:var(--tm-2);margin-bottom:var(--sp3);font-size:11px}
+.eyebrow--dim{color:var(--tl-fg-4)}
+.lede{font-size:var(--body-lg);color:var(--tl-fg-2);max-width:56ch}
+.accent{color:var(--tm-2)}
+
+/* ---------- header ---------- */
+header{
+  position:sticky;top:0;z-index:20;
+  background:color-mix(in srgb,var(--tl-ink) 82%,transparent);
+  backdrop-filter:blur(8px);border-bottom:1px solid var(--tl-stroke)
+}
+.bar{display:flex;align-items:center;gap:var(--sp6);height:66px}
+.wordmark{font-size:20px;letter-spacing:-.03em;color:var(--tl-fg);text-decoration:none;white-space:nowrap}
+.wordmark b{font-weight:500;color:var(--tm)}
+.formerly{font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:var(--track-crunch);color:var(--tl-fg-4);border-left:1px solid var(--tl-stroke);padding-left:var(--sp3);margin-left:var(--sp3)}
+nav{display:flex;gap:var(--sp5);margin-inline:auto;height:100%;align-items:center}
+nav a{
+  color:var(--tl-fg-4);text-decoration:none;height:100%;display:grid;place-items:center;
+  border-bottom:2px solid transparent;
+  transition:color var(--d-instant) ease,border-color var(--d-instant) ease
+}
+nav a:hover{color:var(--tl-fg)}
+nav a[aria-current="true"]{color:var(--tl-fg);border-bottom-color:var(--tm)}
+
+/* ---------- buttons ---------- */
+.btn{
+  display:inline-flex;align-items:center;gap:var(--sp2);
+  padding:10px 14px;border:1px solid var(--tl-stroke);border-radius:var(--r1);
+  background:transparent;color:var(--tl-fg);text-decoration:none;cursor:pointer;font-weight:500;
+  transition:background var(--d-instant) ease,color var(--d-instant) ease,border-color var(--d-instant) ease
+}
+.btn:hover{border-color:var(--tl-stroke-2);background:#ffffff0a}
+.btn:active{background:#ffffff14}
+.btn--primary{background:var(--tm);border-color:var(--tm);color:var(--tl-fg-ink)}
+.btn--primary:hover{background:var(--tm-2);border-color:var(--tm-2);color:var(--tl-fg-ink)}
+.btn--primary:active{background:#0aa0aa;border-color:#0aa0aa}
+.btn[aria-disabled="true"]{opacity:.45;pointer-events:none}
+.actions{display:flex;flex-wrap:wrap;gap:var(--sp3)}
+
+/* ---------- sections ---------- */
+section{padding-block:var(--sp9);border-bottom:1px solid var(--tl-stroke-dim)}
+.hero{padding-block:var(--sp10) var(--sp9)}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:var(--sp8);align-items:start}
+.hero h1{margin-bottom:var(--sp5);max-width:13ch}
+.hero .actions{margin-top:var(--sp7)}
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:var(--sp6);margin-bottom:var(--sp7)}
+.head h2{max-width:20ch}
+.taxonomy{text-align:right;color:var(--tl-fg-4);white-space:nowrap}
+.taxonomy b{display:block;font-weight:500;color:var(--tl-fg-2)}
+
+/* ---------- terminal ---------- */
+.term{border:1px solid var(--tl-stroke);border-radius:var(--r1);background:var(--tl-ink-2);font-family:var(--font-mono);font-size:13px;line-height:1.65;overflow:hidden}
+.term__bar{display:flex;align-items:center;gap:var(--sp2);padding:10px 14px;border-bottom:1px solid var(--tl-stroke);color:var(--tl-fg-4);font-size:12px}
+.dot{width:10px;height:10px;border-radius:50%}
+.term__title{margin-left:var(--sp3)}
+.term__status{margin-left:auto;display:inline-flex;align-items:center;gap:6px;background:var(--tm-pill);color:var(--tm-2);padding:3px 8px;border-radius:var(--r1);font-size:10px;letter-spacing:var(--track-crunch);text-transform:uppercase}
+.term__body{padding:18px 20px;color:var(--tl-fg-2);overflow-x:auto;white-space:pre;margin:0}
+.p{color:var(--tl-fg-4)}
+.ok{color:var(--tm-2)}
+.str{color:var(--tm-3)}
+
+/* ---------- stat band ---------- */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--tl-stroke)}
+.stat{padding:var(--sp6);border-left:1px solid var(--tl-stroke)}
+.stat:first-child{border-left:0}
+.stat b{display:block;font-size:clamp(30px,3.2vw,44px);line-height:1;letter-spacing:-.03em;font-weight:500;margin-bottom:var(--sp3)}
+.stat span{font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:var(--track-crunch);color:var(--tl-fg-4)}
+
+/* ---------- the 16 reasons ---------- */
+.act{margin-bottom:var(--sp8)}
+.act__head{display:flex;align-items:baseline;gap:var(--sp4);padding-bottom:var(--sp3);border-bottom:1px solid var(--tl-stroke);margin-bottom:var(--sp5)}
+.act__head h3{font-size:26px;letter-spacing:-.02em}
+.act__head .mono{color:var(--tl-fg-4)}
+.act__head .mono:last-child{margin-left:auto}
+.reasons{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--tl-stroke)}
+.reason{
+  padding:var(--sp6);border-top:1px solid var(--tl-stroke);border-left:1px solid var(--tl-stroke);
+  display:flex;flex-direction:column;gap:var(--sp3);
+  transition:background var(--d-instant) ease
+}
+.reason:nth-child(-n+2){border-top:0}
+.reason:nth-child(odd){border-left:0}
+.reason:hover{background:var(--tl-ink-3)}
+.reason__top{display:flex;align-items:baseline;gap:var(--sp3)}
+.ord{color:var(--tm);font-size:13px;font-weight:600}
+.reason__top .eyebrow{margin:0;color:var(--tl-fg-4)}
+.reason h4{margin:0}
+.reason p{font-size:15px;color:var(--tl-fg-3)}
+.reason .mono-note{font-family:var(--font-mono);font-size:11px;letter-spacing:var(--track-crunch);text-transform:uppercase;color:var(--tl-fg-4);margin-top:auto;padding-top:var(--sp2)}
+
+/* ---------- results table ---------- */
+.tablewrap{overflow-x:auto;border:1px solid var(--tl-stroke)}
+table{width:100%;border-collapse:collapse;font-family:var(--font-mono);font-size:13px;min-width:640px}
+caption{caption-side:bottom;text-align:left;padding:var(--sp3) var(--sp4);font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:var(--track-crunch);color:var(--tl-fg-4);border-top:1px solid var(--tl-stroke-dim)}
+th{background:var(--tl-ink-2);color:var(--tl-fg-4);font-size:11px;text-transform:uppercase;letter-spacing:var(--track-crunch);text-align:left;padding:10px 14px;border-bottom:1px solid var(--tl-stroke);font-weight:500}
+td{padding:12px 14px;border-bottom:1px solid var(--tl-stroke-dim);color:var(--tl-fg-2);vertical-align:top}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+tbody tr:last-child td{border-bottom:0}
+td .who{display:block;color:var(--tl-fg-4);font-size:11px;text-transform:uppercase;letter-spacing:var(--track-crunch);margin-top:4px}
+
+/* ---------- quote split ---------- */
+.split{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--tl-stroke)}
+.split>*{padding:var(--sp7)}
+.split>*+*{border-left:1px solid var(--tl-stroke)}
+.split blockquote{margin:0;padding-left:var(--sp4);border-left:2px solid var(--tm);font-size:22px;line-height:1.3;letter-spacing:-.02em;color:var(--tl-fg)}
+.split figcaption{margin-top:var(--sp4);font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:var(--track-crunch);color:var(--tl-fg-4)}
+
+/* ---------- faq ---------- */
+.faq{border:1px solid var(--tl-stroke)}
+details{border-top:1px solid var(--tl-stroke)}
+details:first-child{border-top:0}
+summary{
+  list-style:none;cursor:pointer;padding:var(--sp5) var(--sp6);
+  display:flex;align-items:center;gap:var(--sp4);
+  font-size:18px;letter-spacing:-.02em;
+  transition:background var(--d-instant) ease
+}
+summary::-webkit-details-marker{display:none}
+summary:hover{background:var(--tl-ink-2)}
+summary::after{content:"+";margin-left:auto;font-family:var(--font-mono);color:var(--tm);font-size:16px}
+details[open] summary::after{content:"−"}
+details p{padding:0 var(--sp6) var(--sp5);font-size:15px;color:var(--tl-fg-3);max-width:78ch}
+
+/* ---------- final cta ---------- */
+.final{border:1px solid var(--tl-stroke);background:var(--tl-ink-2);padding:var(--sp8);text-align:center}
+.final h2{margin:0 auto var(--sp5);max-width:18ch}
+.final .actions{justify-content:center}
+.final .mono{display:block;color:var(--tl-fg-4);margin-top:var(--sp5)}
+
+/* ---------- footer ---------- */
+footer{border-top:1px solid var(--tl-stroke);padding-block:var(--sp8)}
+.foot{display:flex;justify-content:space-between;gap:var(--sp7);flex-wrap:wrap}
+.foot ul{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp2)}
+.foot a{font-family:var(--font-mono);font-size:var(--mono-sm);text-transform:uppercase;letter-spacing:var(--track-crunch);color:var(--tl-fg-2);text-decoration:none;transition:color var(--d-instant) ease}
+.foot a:hover{color:var(--tl-fg)}
+.foot .mono{color:var(--tl-fg-4);line-height:1.7}
+
+/* ---------- responsive ---------- */
+@media (max-width:1000px){
+  .hero-grid,.split{grid-template-columns:1fr}
+  .split>*+*{border-left:0;border-top:1px solid var(--tl-stroke)}
+  .stats{grid-template-columns:1fr 1fr}
+  .stat:nth-child(3),.stat:nth-child(4){border-top:1px solid var(--tl-stroke)}
+  .stat:nth-child(odd){border-left:0}
+  .rules i:nth-child(3){display:none}
+  nav{display:none}
+}
+@media (max-width:720px){
+  :root{--gutter:20px}
+  .reasons{grid-template-columns:1fr}
+  .reason{border-left:0}
+  .reason:nth-child(2){border-top:1px solid var(--tl-stroke)}
+  .head{flex-direction:column;align-items:flex-start}
+  .taxonomy{text-align:left}
+  .formerly{display:none}
+  .bar .btn:not(.btn--primary){display:none}
+  .bar{gap:var(--sp4)}
+  .wordmark{margin-right:auto}
+  .term__body{font-size:12px;padding:var(--sp4)}
+  .hero .lede{font-size:16px}
+  section{padding-block:var(--sp8)}
+  .hero{padding-block:var(--sp8)}
+  .split>*{padding:var(--sp6)}
+  .final{padding:var(--sp7) var(--sp5)}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{transition-duration:1ms!important;animation-duration:1ms!important}
+}
+</style>
+</head>
+<body>
+<div class="rules" aria-hidden="true"><i></i><i></i><i></i></div>
+
+<header>
+  <div class="wrap bar">
+    <a class="wordmark" href="https://www.testmuai.com/">TestMu<b> AI</b></a>
+    <span class="formerly">Formerly LambdaTest</span>
+    <nav aria-label="Sections">
+      <a href="#reasons" aria-current="true">The 16</a>
+      <a href="#results">Results</a>
+      <a href="#rebrand">Rebrand</a>
+      <a href="#start">Start</a>
+    </nav>
+    <a class="btn" href="https://www.testmuai.com/">Book a demo</a>
+    <a class="btn btn--primary" href="https://www.testmuai.com/">Get started free →</a>
+  </div>
+</header>
+
+<main>
+  <!-- ============================ HERO ============================ -->
+  <section class="hero wrap">
+    <div class="hero-grid">
+      <div>
+        <span class="eyebrow">◆ Agentic AI testing cloud · Formerly LambdaTest</span>
+        <h1>Sixteen reasons to try <span class="accent">TestMu AI.</span></h1>
+        <p class="lede">Test planning, authoring, execution and analysis on one AI-native
+          platform — plus the only place to test the AI agents you are shipping. Trusted by
+          3M+ users and 18,000+ enterprises across 132 countries.</p>
+        <div class="actions">
+          <a class="btn btn--primary" href="#reasons">Read the 16 reasons →</a>
+          <a class="btn" href="https://www.testmuai.com/">Start free</a>
+        </div>
+      </div>
+      <div class="term">
+        <div class="term__bar">
+          <span class="dot" style="background:#ff5f56"></span>
+          <span class="dot" style="background:#ffbd2e"></span>
+          <span class="dot" style="background:#27c93f"></span>
+          <span class="term__title">kane-cli — local browser</span>
+          <span class="term__status">● Running</span>
+        </div>
+<pre class="term__body"><span class="p">$</span> kane run <span class="str">"add 2 items, apply SAVE20, verify total"</span>
+
+<span class="ok">✓</span> plan drafted        <span class="p">·</span> 7 steps from one sentence
+<span class="ok">✓</span> executed locally    <span class="p">·</span> chrome 141 · headed
+<span class="ok">✓</span> promo applied       <span class="p">·</span> total verified
+<span class="ok">✓</span> exported to grid    <span class="p">·</span> web + mobile automation
+<span class="ok">✓</span> synced to dashboard <span class="p">·</span> replay + report ready
+
+<span class="p">#</span> same flow, now in CI — no rewrite
+<span class="p">$</span> kane run --ci --parallel 40</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ STATS ============================ -->
+  <section class="wrap">
+    <div class="stats">
+      <div class="stat"><b>3M+</b><span>Users globally</span></div>
+      <div class="stat"><b>1.5B+</b><span>Tests run</span></div>
+      <div class="stat"><b>18K+</b><span>Enterprises</span></div>
+      <div class="stat"><b>132</b><span>Countries</span></div>
+    </div>
+  </section>
+
+  <!-- ============================ THE 16 ============================ -->
+  <section class="wrap" id="reasons">
+    <div class="head">
+      <div>
+        <span class="eyebrow eyebrow--dim">The case</span>
+        <h2>Sixteen reasons, in the order you'd meet them.</h2>
+      </div>
+      <div class="taxonomy mono">Four acts<b>Author · Execute · Understand · Adopt</b></div>
+    </div>
+
+    <!-- ACT I -->
+    <div class="act">
+      <div class="act__head">
+        <span class="mono" style="color:var(--tm)">Act I</span>
+        <h3>Author</h3>
+        <span class="mono">01 — 04</span>
+      </div>
+      <div class="reasons">
+        <article class="reason">
+          <div class="reason__top"><span class="ord">01</span><span class="eyebrow">Kane AI</span></div>
+          <h4>Write tests in plain English.</h4>
+          <p>Describe what you want to test in natural language and Kane AI turns it into
+            executable test steps. No code required — it is the world's first GenAI-native
+            end-to-end software testing agent.</p>
+          <span class="mono-note">Natural language → executable steps</span>
+        </article>
+        <article class="reason">
+          <div class="reason__top"><span class="ord">02</span><span class="eyebrow">Multi-modal planning</span></div>
+          <h4>Feed it a ticket, not a spec.</h4>
+          <p>Kane AI takes text, code diffs, tickets, docs, images or media, then plans the
+            scenarios and writes the cases itself — using company-wide context rather than
+            a blank page.</p>
+          <span class="mono-note">Text · diffs · tickets · docs · images · media</span>
+        </article>
+        <article class="reason">
+          <div class="reason__top"><span class="ord">03</span><span class="eyebrow">Auto-generated automation</span></div>
+          <h4>Authoring output is real automation.</h4>
+          <p>Authored tests convert straight into automation across web and mobile and run
+            at scale on the cloud grid. The artefact you review is the artefact that ships.</p>
+          <span class="mono-note">Web + mobile · runs on the grid</span>
+        </article>
+        <article class="reason">
+          <div class="reason__top"><span class="ord">04</span><span class="eyebrow">Kane CLI</span></div>
+          <h4>It lives in your terminal too.</h4>
+          <p>Trigger the same flows from your terminal, your CI pipeline, or your coding
+            agent. Runs sync back to the dashboard for replay and reporting, so local and
+            CI are one record.</p>
+          <span class="mono-note">Terminal · CI · coding agents</span>
+        </article>
+      </div>
+    </div>
+
+    <!-- ACT II -->
+    <div class="act">
+      <div class="act__head">
+        <span class="mono" style="color:var(--tm)">Act II</span>
+        <h3>Execute</h3>
+        <span class="mono">05 — 08</span>
+      </div>
+      <div class="reasons">
+        <article class="reason">
+          <div class="reason__top"><span class="ord">05</span><span class="eyebrow">HyperExecute</span></div>
+          <h4>Up to 70% faster than any cloud grid.</h4>
+          <p>AI-native test orchestration with fail-fast aborts and intelligent retries, so
+            a broken build stops burning minutes the moment it is known to be broken.</p>
+          <span class="mono-note">Fail-fast · intelligent retries</span>
+        </article>
+        <article class="reason">
+          <div class="reason__top"><span class="ord">06</span><span class="eyebrow">Real device cloud</span></div>
+          <h4>10,000+ real devices, not emulators.</h4>
+          <p>Real iOS and Android hardware for manual and automated testing, with
+            pre-installed DevTools, network throttling and a UI inspector. Public,
+            dedicated or on-premise.</p>
+          <span class="mono-note">Real iOS + Android · DevTools · throttling</span>
+        </article>
+        <article class="reason">
+          <div class="reason__top"><span class="ord">07</span><span class="eyebrow">Browser coverage</span></div>
+          <h4>3,000+ browser combinations.</h4>
+          <p>The cross-browser grid the platform was built on is still here, at the same
+            scale, now sitting under the agents rather than beside them.</p>
+          <span class="mono-note">Desktop · mobile · legacy versions</span>
+        </article>
+        <article class="reason">
+          <div class="reason__top"><span class="ord">08</span><span class="eyebrow">Every layer</span></div>
+          <h4>One platform, not five subscriptions.</h4>
+          <p>Database, API, UI, performance, visual and accessibility testing under a single
+            plan, a single dashboard and a single bill — instead of stitching six vendors
+            into one pipeline.</p>
+          <span class="mono-note">DB · API · UI · perf · visual · a11y</span>
+        </article>
+      </div>
+    </div>
+
+    <!-- ACT III -->
+    <div class="act">
+      <div class="act__head">
+        <span class="mono" style="color:var(--tm)">Act III</span>
+        <h3>Understand</h3>
+        <span class="mono">09 — 12</span>
+      </div>
+      <div class="reasons">
+        <article class="reason">
+          <div class="reason__top"><span class="ord">09</span><span class="eyebrow">Agent testing</span></div>
+          <h4>Test the AI you ship, not just the UI.</h4>
+          <p>Autonomous evaluators test chatbots, voice assistants, calling agents and image
+            analysers for hallucinations, bias, toxicity and compliance. Inbound and
+            outbound phone agents included.</p>
+          <span class="mono-note">Chat · voice · video · phone · image</span>
+        </article>
+        <article class="reason">
+          <div class="reason__top"><span class="ord">10</span><span class="eyebrow">Agent assurance</span></div>
+          <h4>Test what your agent did, not what it said.</h4>
+          <p>The newest layer checks an agent's actual actions and side effects rather than
+            trusting its transcript — the gap where agent bugs actually live.</p>
+          <span class="mono-note">New · waitlist open</span>
+        </article>
+        <article class="reason">
+          <div class="reason__top"><span class="ord">11</span><span class="eyebrow">Test insights</span></div>
+          <h4>Flaky tests get found and healed.</h4>
+          <p>AI-powered error classification, smart flakiness detection, smart auto-healing
+            and root-cause analysis — so a red pipeline arrives with a diagnosis attached.</p>
+          <span class="mono-note">RCA · auto-healing · flakiness detection</span>
+        </article>
+        <article class="reason">
+          <div class="reason__top"><span class="ord">12</span><span class="eyebrow">Test manager</span></div>
+          <h4>Cases, runs and Jira in one place.</h4>
+          <p>AI-native test management: create cases with AI, execute and track them
+            alongside your runs, sync issues with Jira, and migrate from your current tool
+            in one click.</p>
+          <span class="mono-note">Jira sync · 1-click migration</span>
+        </article>
+      </div>
+    </div>
+
+    <!-- ACT IV -->
+    <div class="act">
+      <div class="act__head">
+        <span class="mono" style="color:var(--tm)">Act IV</span>
+        <h3>Adopt</h3>
+        <span class="mono">13 — 16</span>
+      </div>
+      <div class="reasons">
+        <article class="reason">
+          <div class="reason__top"><span class="ord">13</span><span class="eyebrow">MCP server</span></div>
+          <h4>Your coding agent can read the test data.</h4>
+          <p>A unified MCP server connects AI agents in your IDE directly to test data and
+            execution — no manual copying between the tool that writes code and the tool
+            that tests it.</p>
+          <span class="mono-note">IDE-native · unified tools</span>
+        </article>
+        <article class="reason">
+          <div class="reason__top"><span class="ord">14</span><span class="eyebrow">Compatibility</span></div>
+          <h4>Nothing you already built breaks.</h4>
+          <p>120+ integrations including Jenkins, GitHub Actions, Slack and Jira. Java,
+            Node.js, C#, PHP, Python and Ruby. Existing API keys, webhooks and Selenium /
+            Appium Grid endpoints keep working unchanged.</p>
+          <span class="mono-note">No migration · no reconfiguration</span>
+        </article>
+        <article class="reason">
+          <div class="reason__top"><span class="ord">15</span><span class="eyebrow">Deployment</span></div>
+          <h4>Shared cloud, private cloud, or on-premise.</h4>
+          <p>Run it where your compliance team can live with it, with enterprise-grade
+            security and privacy, advanced access controls, data-retention rules and
+            premium support.</p>
+          <span class="mono-note">Enterprise security · access controls</span>
+        </article>
+        <article class="reason">
+          <div class="reason__top"><span class="ord">16</span><span class="eyebrow">Standing</span></div>
+          <h4>Analysts and 1,300+ reviewers agree.</h4>
+          <p>Named a Challenger in the 2025 Gartner® Magic Quadrant™ for AI-Augmented
+            Software Testing Tools, recognised in The Forrester Wave™: Autonomous Testing
+            Platforms, Q4 2025, and rated 4.5/5 across three major review sites.</p>
+          <span class="mono-note">Gartner · Forrester · 4.5 / 5</span>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ RESULTS ============================ -->
+  <section class="wrap" id="results">
+    <div class="head">
+      <div>
+        <span class="eyebrow eyebrow--dim">Reported results</span>
+        <h2>What teams measured after switching.</h2>
+      </div>
+      <div class="taxonomy mono">Source<b>Published customer stories</b></div>
+    </div>
+    <div class="tablewrap">
+      <table>
+        <caption>Figures as published in TestMu AI (formerly LambdaTest) customer stories. Results vary by suite and infrastructure.</caption>
+        <thead>
+          <tr>
+            <th scope="col">Reported by</th>
+            <th scope="col">What changed</th>
+            <th scope="col" class="num">Result</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Hrishi Potdar<span class="who">Quality Engineering Architect</span></td>
+            <td>Tripled the test suite, now executing in under two hours</td>
+            <td class="num">78% faster</td>
+          </tr>
+          <tr>
+            <td>Daniel de Bruijn<span class="who">QA Automation Engineer</span></td>
+            <td>Faster time-to-market and improved customer experience</td>
+            <td class="num">70% faster</td>
+          </tr>
+          <tr>
+            <td>Sagar Uday Kumar<span class="who">Sr. Engineering Manager · Dashlane</span></td>
+            <td>Moved execution onto HyperExecute</td>
+            <td class="num">50% reduction</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============================ QUOTE ============================ -->
+  <section class="wrap">
+    <div class="split">
+      <figure style="margin:0">
+        <blockquote>“We have tripled our tests and are now executing tests in less than
+          2 hours with 78% faster test execution.”</blockquote>
+        <figcaption>Hrishi Potdar · Quality Engineering Architect</figcaption>
+      </figure>
+      <figure style="margin:0">
+        <blockquote>“TestMu AI's analytics make release tracking a lot easier. The ability
+          to pull comprehensive stats from the dashboard makes tracking releases
+          effortless.”</blockquote>
+        <figcaption>Zarren Camilleri · QA Automation Manager</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ============================ REBRAND / FAQ ============================ -->
+  <section class="wrap" id="rebrand">
+    <div class="head">
+      <div>
+        <span class="eyebrow eyebrow--dim">If you knew us as LambdaTest</span>
+        <h2>Same platform. Same credentials. New name.</h2>
+      </div>
+      <div class="taxonomy mono">Rebranded<b>12 January 2026</b></div>
+    </div>
+    <div class="faq">
+      <details open>
+        <summary>Is LambdaTest still available?</summary>
+        <p>Yes. LambdaTest is now TestMu AI. Every product, feature, integration and piece
+          of infrastructure is available under the new brand at testmuai.com. Existing
+          customers experienced no service interruption, and previously published
+          documentation, learning content and community resources remain accessible.</p>
+      </details>
+      <details>
+        <summary>Do my credentials and API keys still work?</summary>
+        <p>Yes. Accounts, test history, integrations, billing, API keys and team settings
+          transferred automatically. Log in with your existing email and password — no
+          migration, password reset or re-onboarding is required.</p>
+      </details>
+      <details>
+        <summary>Will my CI pipelines keep running?</summary>
+        <p>Yes. All API endpoints, SDK integrations and CI/CD workflows continue to work
+          without code changes. Existing API keys, webhooks, Selenium and Appium Grid
+          endpoints and 120+ third-party integrations function identically.</p>
+      </details>
+      <details>
+        <summary>What is actually different, then?</summary>
+        <p>What was added. On top of cross-browser testing, the real device cloud and
+          automation testing, TestMu AI introduces a full AI-native stack: Kane AI, Kane
+          CLI, agent testing for voice AI and chatbots, AI visual testing and autonomous
+          test orchestration.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- ============================ FINAL CTA ============================ -->
+  <section class="wrap" id="start">
+    <div class="final">
+      <span class="eyebrow">▪ Sixteen reasons down</span>
+      <h2>Start free. Bring one flaky suite.</h2>
+      <p class="lede" style="margin:0 auto">The fastest way to judge any of the sixteen is
+        to point Kane AI at the test that keeps failing for reasons nobody has time to
+        investigate.</p>
+      <div class="actions" style="margin-top:var(--sp7)">
+        <a class="btn btn--primary" href="https://www.testmuai.com/">Get started free →</a>
+        <a class="btn" href="https://www.testmuai.com/">Book a demo</a>
+      </div>
+      <span class="mono">No card required · 120+ integrations · Shared, private or on-premise</span>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <div>
+      <div class="wordmark" style="display:block;margin-bottom:var(--sp4)">TestMu<b> AI</b></div>
+      <div class="mono">[ Formerly LambdaTest ]<br>Agentic AI testing cloud<br>Rebranded 12 Jan 2026</div>
+    </div>
+    <ul>
+      <li><a href="https://www.testmuai.com/">Kane AI</a></li>
+      <li><a href="https://www.testmuai.com/">Kane CLI</a></li>
+      <li><a href="https://www.testmuai.com/">Agent testing</a></li>
+      <li><a href="https://www.testmuai.com/">HyperExecute</a></li>
+    </ul>
+    <ul>
+      <li><a href="https://www.testmuai.com/">Real device cloud</a></li>
+      <li><a href="https://www.testmuai.com/">Test manager</a></li>
+      <li><a href="https://www.testmuai.com/">Test insights</a></li>
+      <li><a href="https://www.testmuai.com/">MCP server</a></li>
+    </ul>
+    <ul>
+      <li><a href="https://www.testmuai.com/">Pricing</a></li>
+      <li><a href="https://www.testmuai.com/">Documentation</a></li>
+      <li><a href="https://www.testmuai.com/">Integrations</a></li>
+      <li><a href="https://www.testmuai.com/">Book a demo</a></li>
+    </ul>
+  </div>
+</footer>
+</body>
+</html>
