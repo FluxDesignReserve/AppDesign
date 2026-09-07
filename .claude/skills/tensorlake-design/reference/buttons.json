@@ -1,0 +1,30 @@
+[
+  {
+    "text": "GET STARTED FOR FREE\n→",
+    "bg": "rgb(130, 195, 140)",
+    "color": "rgb(22, 23, 21)",
+    "border": "1px solid rgb(130, 195, 140)",
+    "radius": "2px",
+    "padding": "10px 14px",
+    "font": "\"JetBrains Mono\"",
+    "size": "12px",
+    "ls": "-0.84px",
+    "tt": "uppercase",
+    "transition": "background 0.12s, color 0.12s, border-color 0.12s",
+    "weight": "500"
+  },
+  {
+    "text": "BOOK A DEMO",
+    "bg": "rgba(0, 0, 0, 0)",
+    "color": "rgb(255, 255, 255)",
+    "border": "1px solid rgb(57, 57, 57)",
+    "radius": "2px",
+    "padding": "10px 14px",
+    "font": "\"JetBrains Mono\"",
+    "size": "12px",
+    "ls": "-0.84px",
+    "tt": "uppercase",
+    "transition": "background 0.12s, color 0.12s, border-color 0.12s",
+    "weight": "500"
+  }
+]

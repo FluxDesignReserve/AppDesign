@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Starter — Tensorlake design language</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../reference/tokens.css">
+<style>
+/* Page scaffold built entirely from tokens.css. Copy this file as a starting point. */
+* { box-sizing: border-box; }
+body { margin: 0; }
+
+.wrap { max-width: var(--tl-container); margin: 0 auto; padding: 0 var(--tl-gutter); position: relative; }
+
+/* Signature: faint full-height column rules the content sits between. */
+.rules { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+.rules::before, .rules::after {
+  content: ""; position: absolute; top: 0; bottom: 0; width: 1px; background: var(--tl-stroke-dim);
+}
+.rules::before { left: max(var(--tl-gutter), calc(50% - var(--tl-container) / 2)); }
+.rules::after  { right: max(var(--tl-gutter), calc(50% - var(--tl-container) / 2)); }
+main, header { position: relative; z-index: 1; }
+
+/* ---- header ------------------------------------------------------- */
+header {
+  position: sticky; top: 0; z-index: 10;
+  background: color-mix(in srgb, var(--tl-ink) 82%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--tl-stroke);
+}
+.bar { display: flex; align-items: center; gap: var(--tl-sp-6); height: 66px; }
+.wordmark { font-size: 20px; letter-spacing: -0.03em; text-decoration: none; color: var(--tl-fg); }
+.wordmark span { color: var(--tl-green-2); }
+nav { display: flex; gap: var(--tl-sp-5); margin-inline: auto; height: 100%; align-items: center; }
+nav a {
+  font-family: var(--tl-font-mono); font-size: var(--tl-mono-sm); text-transform: uppercase;
+  letter-spacing: var(--tl-track-crunch); color: var(--tl-fg-4); text-decoration: none;
+  height: 100%; display: grid; place-items: center; border-bottom: 2px solid transparent;
+  transition: color var(--tl-dur-instant) var(--tl-ease), border-color var(--tl-dur-instant) var(--tl-ease);
+}
+nav a:hover { color: var(--tl-fg); }
+nav a[aria-current="page"] { color: var(--tl-fg); border-bottom-color: var(--tl-green); }
+
+/* ---- buttons ------------------------------------------------------ */
+.btn {
+  font-family: var(--tl-font-mono); font-size: var(--tl-mono-sm); font-weight: 500;
+  text-transform: uppercase; letter-spacing: var(--tl-track-crunch);
+  padding: 10px 14px; border-radius: var(--tl-radius-1); border: 1px solid var(--tl-stroke);
+  background: transparent; color: var(--tl-fg); text-decoration: none;
+  display: inline-flex; align-items: center; gap: var(--tl-sp-2); cursor: pointer;
+  transition: background var(--tl-dur-instant) var(--tl-ease), color var(--tl-dur-instant) var(--tl-ease), border-color var(--tl-dur-instant) var(--tl-ease);
+}
+.btn:hover { border-color: var(--tl-stroke-2); background: #ffffff0a; }
+.btn--primary { background: var(--tl-green-2); border-color: var(--tl-green-2); color: var(--tl-ink); }
+.btn--primary:hover { background: #94cf9d; border-color: #94cf9d; }
+.btn--solid { background: var(--tl-green); border-color: var(--tl-green); color: #fff; }
+.btn[aria-disabled="true"] { opacity: .45; pointer-events: none; }
+
+/* ---- type helpers ------------------------------------------------- */
+.eyebrow {
+  font-family: var(--tl-font-mono); font-size: 11px; text-transform: uppercase;
+  letter-spacing: var(--tl-track-crunch); color: var(--tl-green-2);
+  display: block; margin-bottom: var(--tl-sp-3);
+}
+.eyebrow--dim { color: var(--tl-fg-4); }
+.lede { font-size: var(--tl-body-lg); line-height: 1.45; color: var(--tl-fg-2); max-width: 52ch; }
+.accent { color: var(--tl-green-2); }
+.mono-meta {
+  font-family: var(--tl-font-mono); font-size: var(--tl-mono-sm); text-transform: uppercase;
+  letter-spacing: var(--tl-track-crunch); color: var(--tl-fg-4);
+}
+
+/* ---- sections ----------------------------------------------------- */
+section { padding-block: var(--tl-sp-9); border-bottom: 1px solid var(--tl-stroke-dim); }
+.hero { padding-block: var(--tl-sp-10) var(--tl-sp-9); }
+.hero h1 { margin: 0 0 var(--tl-sp-5); max-width: 14ch; }
+.actions { display: flex; gap: var(--tl-sp-3); margin-top: var(--tl-sp-7); }
+.section-head { display: flex; justify-content: space-between; align-items: flex-end; gap: var(--tl-sp-6); margin-bottom: var(--tl-sp-7); }
+.section-head h2 { margin: 0; }
+.taxonomy { text-align: right; }
+
+/* ---- split panel -------------------------------------------------- */
+.split { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--tl-stroke); }
+.split > * + * { border-left: 1px solid var(--tl-stroke); }
+.split__copy { padding: var(--tl-sp-6); }
+.split__copy > blockquote {
+  margin: 0 0 var(--tl-sp-7); padding-left: var(--tl-sp-4);
+  border-left: 2px solid var(--tl-green-2); font-size: 22px; line-height: 1.25; letter-spacing: -0.02em;
+}
+.pairs { display: grid; grid-template-columns: 1fr 1fr; gap: var(--tl-sp-6) var(--tl-sp-5); }
+.pairs p { font-size: 15px; line-height: 1.45; color: var(--tl-fg-3); margin: 0; }
+
+/* ---- terminal ----------------------------------------------------- */
+.term { background: var(--tl-ink-2); font-family: var(--tl-font-mono); font-size: 13px; line-height: 1.65; }
+.term__bar { display: flex; align-items: center; gap: var(--tl-sp-2); padding: 10px 14px; border-bottom: 1px solid var(--tl-stroke); color: var(--tl-fg-4); }
+.dot { width: 10px; height: 10px; border-radius: 50%; }
+.term__title { margin-left: var(--tl-sp-3); }
+.term__body { padding: 18px 20px; color: var(--tl-fg-2); overflow-x: auto; }
+.term__body .p { color: var(--tl-fg-4); }
+.ok { color: var(--tl-green-2); }
+.str { color: var(--tl-green-terminal); }
+
+/* ---- cards -------------------------------------------------------- */
+.cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--tl-sp-4); }
+.card {
+  background: var(--tl-ink-2); border: 1px solid var(--tl-stroke); border-radius: var(--tl-radius-1);
+  padding: var(--tl-sp-5); display: flex; flex-direction: column; gap: var(--tl-sp-3);
+  transition: background var(--tl-dur-instant) var(--tl-ease), border-color var(--tl-dur-instant) var(--tl-ease);
+}
+.card:hover { border-color: var(--tl-stroke-2); background: var(--tl-ink-3); }
+.card h3 { font-size: 22px; line-height: 1.1; letter-spacing: -0.02em; margin: 0; }
+.card p { font-size: 15px; line-height: 1.45; color: var(--tl-fg-3); margin: 0; }
+.card a { margin-top: auto; }
+
+/* ---- table -------------------------------------------------------- */
+table { width: 100%; border-collapse: collapse; font-family: var(--tl-font-mono); font-size: 13px; }
+caption { caption-side: bottom; text-align: left; padding-top: var(--tl-sp-3); font-size: 11px; color: var(--tl-fg-4); text-transform: uppercase; letter-spacing: var(--tl-track-crunch); }
+th { background: var(--tl-ink-2); color: var(--tl-fg-4); font-size: 11px; text-transform: uppercase; letter-spacing: var(--tl-track-crunch); text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--tl-stroke); font-weight: 500; }
+td { padding: 10px 14px; border-bottom: 1px solid var(--tl-stroke-dim); color: var(--tl-fg-2); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+tr.win td { background: var(--tl-green-wash); color: var(--tl-green-2); }
+
+/* ---- footer ------------------------------------------------------- */
+footer { border-top: 1px solid var(--tl-stroke); padding-block: var(--tl-sp-8); }
+.foot { display: flex; justify-content: space-between; gap: var(--tl-sp-7); }
+.foot ul { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--tl-sp-2); }
+.foot a { font-family: var(--tl-font-mono); font-size: var(--tl-mono-sm); text-transform: uppercase; letter-spacing: var(--tl-track-crunch); color: var(--tl-fg-2); text-decoration: none; }
+.foot a:hover { color: var(--tl-fg); }
+
+@media (max-width: 900px) {
+  .split, .pairs { grid-template-columns: 1fr; }
+  .split > * + * { border-left: 0; border-top: 1px solid var(--tl-stroke); }
+  .cards { grid-template-columns: 1fr 1fr; }
+  nav { display: none; }
+}
+@media (max-width: 560px) { .cards { grid-template-columns: 1fr; } .foot { flex-direction: column; } }
+</style>
+</head>
+<body>
+<div class="rules" aria-hidden="true"></div>
+
+<header>
+  <div class="wrap bar">
+    <a class="wordmark" href="#">Example<span>·</span></a>
+    <nav aria-label="Primary">
+      <a href="#" aria-current="page">Home</a>
+      <a href="#">Docs</a>
+      <a href="#">Pricing</a>
+      <a href="#">Changelog</a>
+    </nav>
+    <a class="btn" href="#">Talk to us</a>
+    <a class="btn btn--solid" href="#">Dashboard →</a>
+  </div>
+</header>
+
+<main>
+  <section class="hero wrap">
+    <span class="eyebrow">◆ Reference implementation</span>
+    <h1>Structure first, <span class="accent">then colour.</span></h1>
+    <p class="lede">A page skeleton built only from the tokens in this skill — hairline
+      structure, one accent, mono for every machine fact, display type at weight 500.</p>
+    <div class="actions">
+      <a class="btn btn--primary" href="#">Get started for free →</a>
+      <a class="btn" href="#">Read the docs</a>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow eyebrow--dim">Execution environments</span>
+        <h2>Give the reader a machine fact.</h2>
+      </div>
+      <div class="taxonomy mono-meta">Patterns<br><span style="color:var(--tl-fg-2)">Harness · Tool</span></div>
+    </div>
+    <div class="split">
+      <div class="split__copy">
+        <blockquote>Copy on the left, a live artefact on the right, one hairline between
+          them — no gap, no rounding.</blockquote>
+        <div class="pairs">
+          <div><span class="eyebrow">◆ Isolated runtime</span><p>Two-column mono-labelled paragraphs, not icon cards.</p></div>
+          <div><span class="eyebrow">◆ Stateful by default</span><p>Labels are mono and uppercase; the sentence beneath is not.</p></div>
+          <div><span class="eyebrow">◆ Real stacks</span><p>Concrete nouns, real numbers, no benefit copy.</p></div>
+          <div><span class="eyebrow">◆ Safe by design</span><p>Grey ramp carries hierarchy so the accent stays loud.</p></div>
+        </div>
+        <div class="actions"><a class="btn" href="#">Read the docs →</a></div>
+      </div>
+      <div class="term">
+        <div class="term__bar">
+          <span class="dot" style="background:#ff5f56"></span>
+          <span class="dot" style="background:#ffbd2e"></span>
+          <span class="dot" style="background:#27c93f"></span>
+          <span class="term__title">session — ssh example.dev</span>
+        </div>
+        <div class="term__body">
+<span class="p">$</span> cat run.py<br>
+<span class="p"># run.py · 42 lines</span><br>
+job = Runner.create(<span class="str">"python:3.12"</span>, persist=<span class="ok">True</span>)<br>
+out = job.run(<span class="str">"pytest -q"</span>)<br><br>
+<span class="p">$</span> python run.py<br>
+<span class="ok">✓</span> environment ready <span class="p">·</span> 460 ms<br>
+<span class="ok">✓</span> 143 packages installed <span class="p">·</span> 1.7 s<br>
+<span class="ok">✓</span> 212 tests passed <span class="p">·</span> 4.8 s
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow eyebrow--dim">Surfaces</span>
+        <h2>Cards are ruled, never floated.</h2>
+      </div>
+    </div>
+    <div class="cards">
+      <article class="card"><span class="eyebrow">◆ 01</span><h3>Equal height</h3><p>Grid, not margins. CTAs align on a baseline.</p><a class="mono-meta" href="#">Open →</a></article>
+      <article class="card"><span class="eyebrow">◆ 02</span><h3>2px radius</h3><p>No pills, no shadow, no hover lift.</p><a class="mono-meta" href="#">Open →</a></article>
+      <article class="card"><span class="eyebrow">◆ 03</span><h3>Hairline border</h3><p>Separation comes from the rule, not the fill.</p><a class="mono-meta" href="#">Open →</a></article>
+      <article class="card"><span class="eyebrow">◆ 04</span><h3>Three lines</h3><p>Body clamps; the frame never collapses.</p><a class="mono-meta" href="#">Open →</a></article>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow eyebrow--dim">Benchmarks</span>
+        <h2>Numbers get mono and tabular figures.</h2>
+      </div>
+      <div class="taxonomy mono-meta">Method<br><span style="color:var(--tl-fg-2)">fio · 4 KiB · 3 runs</span></div>
+    </div>
+    <table>
+      <caption>Median of three runs on identical hardware. Lower is better.</caption>
+      <thead><tr><th>Runtime</th><th class="num">Cold start</th><th class="num">Write IOPS</th><th class="num">p99 latency</th></tr></thead>
+      <tbody>
+        <tr class="win"><td>This system <span class="mono-meta" style="color:inherit">— fastest</span></td><td class="num">460 ms</td><td class="num">48,200</td><td class="num">1.2 ms</td></tr>
+        <tr><td>Baseline A</td><td class="num">1,340 ms</td><td class="num">21,900</td><td class="num">3.8 ms</td></tr>
+        <tr><td>Baseline B</td><td class="num">2,010 ms</td><td class="num">12,400</td><td class="num">6.1 ms</td></tr>
+      </tbody>
+    </table>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <div>
+      <div class="wordmark" style="margin-bottom:var(--tl-sp-4)">Example<span>·</span></div>
+      <div class="mono-meta">[ EXAMPLE INC. ] HQ: SF<br>TEAM: GLOBAL_<br>© 2026</div>
+    </div>
+    <ul><li><a href="#">Docs</a></li><li><a href="#">Changelog</a></li><li><a href="#">Status</a></li></ul>
+    <ul><li><a href="#">Careers</a></li><li><a href="#">Terms</a></li><li><a href="#">Privacy</a></li></ul>
+  </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,170 @@
+/* Tensorlake design tokens — read from the live site's computed styles, 2026-09-07.
+   Source: https://www.tensorlake.ai/  ·  Paste this block, then reference the vars.
+   Never write a raw hex, size, radius or duration that isn't here. */
+
+:root {
+  /* ---- Surfaces (dark, the default theme) ---------------------------- */
+  --tl-ink: #161715;        /* page background — near-black with green in it */
+  --tl-ink-2: #1e1f1c;      /* raised panel / card */
+  --tl-ink-3: #232b23;      /* green-tinted panel */
+  --tl-ink-4: #273228;      /* green-tinted panel, one step up */
+  --tl-ink-5: #171e17;      /* tag / chip background */
+
+  /* ---- Surfaces (paper, long-form reading only) ---------------------- */
+  --tl-paper: #f9f9f9;
+  --tl-paper-2: #f4f4f4;
+  --tl-paper-3: #efefef;
+  --tl-paper-4: #e9e7e7;
+
+  /* ---- Structure ----------------------------------------------------- */
+  --tl-stroke: #393939;         /* 1px hairline — the primary structural device */
+  --tl-stroke-2: #3e3e3e;       /* hairline, hover */
+  --tl-stroke-dim: #ffffff1a;   /* column rules, faint dividers */
+
+  /* ---- Foreground ramp ----------------------------------------------- */
+  --tl-fg: #fff;            /* headings, primary text */
+  --tl-fg-2: #ddd;          /* body copy, code */
+  --tl-fg-3: #c9c9c9;       /* secondary body */
+  --tl-fg-4: #989d9e;       /* mono metadata — ≥14px only (AA) */
+  --tl-fg-5: #889079;       /* de-emphasised mono */
+  --tl-fg-ink: #090808;     /* text on green / on paper */
+
+  /* ---- Accent (one hue, no second) ----------------------------------- */
+  --tl-green: #0aa67d;          /* fills, links, focus ring */
+  --tl-green-2: #82c38c;        /* accent text, primary CTA fill */
+  --tl-green-3: #a6c686;
+  --tl-green-4: #4c5143;
+  --tl-green-5: #394d3b;
+  --tl-green-mint: #a1ffe6;     /* terminal highlight */
+  --tl-green-terminal: #d3ffda; /* terminal text */
+  --tl-green-deep: #022a1f;
+  --tl-green-pill: #0aa67d33;   /* 20% — chip background */
+  --tl-green-wash: #82c38c1f;   /* 12% — row highlight */
+
+  /* ---- Rare secondary tints (syntax / diagrams only, never UI) -------- */
+  --tl-blue-deep: #0a2d35;
+  --tl-blue-ink: #192a43;
+
+  /* ---- Semantic aliases — use these in components -------------------- */
+  --tl-bg: var(--tl-ink);
+  --tl-bg-raised: var(--tl-ink-2);
+  --tl-link: var(--tl-green);
+  --tl-focus: var(--tl-green);
+  --tl-border: var(--tl-stroke);
+  --tl-border-soft: var(--tl-stroke-dim);
+  --tl-accent: var(--tl-green);
+  --tl-accent-2: var(--tl-green-2);
+  --tl-accent-pill: var(--tl-green-pill);
+
+  /* ---- Type ---------------------------------------------------------- */
+  --tl-font-display: "PP Neue Montreal", "Inter Tight", "Neue Haas Grotesk", system-ui, sans-serif;
+  --tl-font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --tl-display-xl: clamp(72px, 9vw, 125px);   /* biggest allowed; the site caps h1 below this */
+  --tl-display-hero: clamp(56px, 6.4vw, 125px); /* h1 — renders 92px at 1440 (measured) */
+  --tl-display-lg: clamp(56px, 5.5vw, 84px);
+  --tl-display-md: clamp(36px, 3.6vw, 58px);  /* h2 — renders 51.8px at 1440 (measured) */
+  --tl-display-sm-fluid: clamp(28px, 2.6vw, 42px); /* h3 — renders 37.4px at 1440 (measured) */
+  --tl-display-sm: 42px;
+  --tl-display-xs: 32px;
+
+  --tl-body-lg: 18px;   /* lede + section body */
+  --tl-body: 16px;      /* base */
+  --tl-body-sm: 14px;
+
+  --tl-mono-lg: 18px;
+  --tl-mono: 14px;
+  --tl-mono-sm: 12px;   /* buttons, nav, eyebrows */
+
+  --tl-weight: 500;     /* the only weight for display and body */
+  --tl-weight-mono-strong: 600;
+
+  --tl-track-tight: -0.02em;    /* body */
+  --tl-track-crunch: -0.07em;   /* mono labels, buttons */
+  --tl-track-wide: 0.02em;
+  --tl-track-mono: 0.04em;      /* terminal output */
+  --tl-track-display: -0.035em; /* h1 at 92px */
+
+  --tl-leading-tight: 1;     /* display */
+  --tl-leading-snug: 1.1;    /* h2–h4 */
+  --tl-leading-body: 1.5;    /* prose */
+
+  /* ---- Radius (square-ish; never a pill) ----------------------------- */
+  --tl-radius-0: 0px;
+  --tl-radius-1: 2px;   /* default — buttons, inputs, chips */
+  --tl-radius-2: 4px;
+  --tl-radius-3: 8px;
+  --tl-radius-lg: 12px; /* large panels only */
+
+  /* ---- Space --------------------------------------------------------- */
+  --tl-sp-1: 4px;
+  --tl-sp-2: 8px;
+  --tl-sp-3: 12px;
+  --tl-sp-4: 16px;
+  --tl-sp-5: 20px;
+  --tl-sp-6: 28px;
+  --tl-sp-7: 40px;
+  --tl-sp-8: 60px;
+  --tl-sp-9: 80px;    /* between major sections */
+  --tl-sp-10: 120px;  /* hero / section extremes */
+
+  --tl-container: 1320px;
+  --tl-gutter: 24px;
+
+  /* ---- Elevation — hairlines, not shadows ---------------------------- */
+  --tl-inset-stroke: inset 0 0 0 1px var(--tl-stroke);
+  --tl-glow-green: 0 0 0 1px #0aa67d66, 0 0 24px -4px #0aa67d59; /* active only */
+  --tl-shadow-paper: 0 1px 2px #0000000a, 0 4px 12px #0000000a;  /* paper theme only */
+
+  /* ---- Motion -------------------------------------------------------- */
+  --tl-dur-instant: 120ms;  /* background / color / border-color */
+  --tl-dur-fast: 140ms;     /* opacity */
+  --tl-dur-normal: 180ms;   /* layout, grid-template-rows, gap */
+  --tl-ease: ease;
+}
+
+/* Long-form / editorial light variant. Marketing and product UI stay dark. */
+[data-theme="paper"] {
+  --tl-bg: var(--tl-paper);
+  --tl-bg-raised: #fff;
+  --tl-fg: #090808;
+  --tl-fg-2: #2a2a28;
+  --tl-fg-3: #4b4f4e;
+  --tl-fg-4: #6a6f6e;
+  --tl-border: #d9d6d2;
+  --tl-border-soft: #edeae5;
+  --tl-accent: #0e8a69;   /* darkened for AA on paper */
+}
+
+/* Baseline every page should start from. */
+body {
+  background: var(--tl-bg);
+  color: var(--tl-fg);
+  font-family: var(--tl-font-display);
+  font-size: var(--tl-body);
+  font-weight: var(--tl-weight);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 { font-size: var(--tl-display-hero); line-height: 0.98; letter-spacing: var(--tl-track-display); font-weight: var(--tl-weight); }
+h2 { font-size: var(--tl-display-md); line-height: var(--tl-leading-snug); letter-spacing: -0.028em; font-weight: var(--tl-weight); }
+h3 { font-size: var(--tl-display-sm-fluid); line-height: 1.08; letter-spacing: -0.025em; font-weight: var(--tl-weight); }
+h4 { font-size: 22px; line-height: 1.1; letter-spacing: -0.02em; font-weight: var(--tl-weight); }
+p  { font-size: var(--tl-body-lg); line-height: 1.45; color: var(--tl-fg-2); }
+
+/* Every label, tag, stat, timestamp, button and nav item. */
+.mono, .eyebrow, button, .btn, nav a, th, code, pre, .tag, .stat {
+  font-family: var(--tl-font-mono);
+  font-size: var(--tl-mono-sm);
+  letter-spacing: var(--tl-track-crunch);
+  text-transform: uppercase;
+}
+
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--tl-focus);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 1ms !important; transition-duration: 1ms !important; }
+}

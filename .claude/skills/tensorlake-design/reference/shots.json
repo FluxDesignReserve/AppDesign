@@ -1,0 +1,194 @@
+{
+  "captured": "2026-09-07",
+  "source": "https://www.tensorlake.ai",
+  "shots": [
+    {
+      "file": "Tensorlake/pages/home-1440-full.jpg",
+      "route": "/",
+      "viewport": "1440x900",
+      "kind": "full page"
+    },
+    {
+      "file": "Tensorlake/pages/pricing-1440-full.jpg",
+      "route": "/pricing",
+      "viewport": "1440x900",
+      "kind": "full page"
+    },
+    {
+      "file": "Tensorlake/pages/blog-1440-full.jpg",
+      "route": "/blog",
+      "viewport": "1440x900",
+      "kind": "full page"
+    },
+    {
+      "file": "Tensorlake/pages/careers-1440-full.jpg",
+      "route": "/careers",
+      "viewport": "1440x900",
+      "kind": "full page"
+    },
+    {
+      "file": "Tensorlake/pages/faq-1440-full.jpg",
+      "route": "/faq",
+      "viewport": "1440x900",
+      "kind": "full page"
+    },
+    {
+      "file": "Tensorlake/pages/blog-post-1440-full.jpg",
+      "route": "/blog/claude-managed-agents",
+      "viewport": "1440x900",
+      "kind": "full page"
+    },
+    {
+      "file": "Tensorlake/sections/01-hero.png",
+      "route": "/",
+      "viewport": "1440x900",
+      "kind": "section",
+      "note": "Composable infrastructure for agents. Isolated sandboxes, hosted Git, and a ver"
+    },
+    {
+      "file": "Tensorlake/sections/02-product.png",
+      "route": "/",
+      "viewport": "1440x900",
+      "kind": "section",
+      "note": "EXECUTION ENVIRONMENTS Give your agent a computer. PATTERNS HARNESS · TOOL Run"
+    },
+    {
+      "file": "Tensorlake/sections/03-filesystem.png",
+      "route": "/",
+      "viewport": "1440x900",
+      "kind": "section",
+      "note": "POSIX directory mounts and hosted Git so your agents never lose the work they pr"
+    },
+    {
+      "file": "Tensorlake/sections/04-lifecycle.png",
+      "route": "/",
+      "viewport": "1440x900",
+      "kind": "section",
+      "note": "SNAPSHOT · RESUME · COPY Suspend, resume, and copy a whole machine. LIFECYCLE S"
+    },
+    {
+      "file": "Tensorlake/sections/05-bench.png",
+      "route": "/",
+      "viewport": "1440x900",
+      "kind": "section",
+      "note": "BENCHMARKS The fastest sandbox file system. METHOD FIO · SQLITE · P50 SQLite be"
+    },
+    {
+      "file": "Tensorlake/sections/06-harbor.png",
+      "route": "/",
+      "viewport": "1440x900",
+      "kind": "section",
+      "note": "HARBOR · EVALS & RL Harbor integration for agents evals and RL rollouts. BENCH "
+    },
+    {
+      "file": "Tensorlake/sections/07-section.png",
+      "route": "/",
+      "viewport": "1440x900",
+      "kind": "section",
+      "note": "ORCHESTRATION Sandbox-native orchestration for agents. LAYER ENDPOINTS · DURABI"
+    },
+    {
+      "file": "Tensorlake/sections/08-remote-dev.png",
+      "route": "/",
+      "viewport": "1440x900",
+      "kind": "section",
+      "note": "REMOTE DEV SSH in from any machine. The sandbox is your dev environment too. ACC"
+    },
+    {
+      "file": "Tensorlake/sections/09-integrations.png",
+      "route": "/",
+      "viewport": "1440x900",
+      "kind": "section",
+      "note": "Sandbox integrations for the agents and harnesses you already run. Claude Manage"
+    },
+    {
+      "file": "Tensorlake/sections/10-section-2.png",
+      "route": "/",
+      "viewport": "1440x900",
+      "kind": "section",
+      "note": "BACKED BY"
+    },
+    {
+      "file": "Tensorlake/sections/11-section-3.png",
+      "route": "/",
+      "viewport": "1440x900",
+      "kind": "section",
+      "note": "DEPLOY & TRUST Serverless developer experience in your cloud. COMPLIANCE SOC 2 "
+    },
+    {
+      "file": "Tensorlake/sections/12-news.png",
+      "route": "/",
+      "viewport": "1440x900",
+      "kind": "section",
+      "note": "▪ THE SANDBOX DIGEST Subscribe for release notes, benchmarks, deep dives. SUBSCR"
+    },
+    {
+      "file": "Tensorlake/sections/13-finalcta.png",
+      "route": "/",
+      "viewport": "1440x900",
+      "kind": "section",
+      "note": "▪ THE INFRASTRUCTURE LAYER FOR AGENTS Ship agents faster with Tensorlake. $ pip "
+    },
+    {
+      "file": "Tensorlake/sections/14-section-4.png",
+      "route": "/",
+      "viewport": "1440x900",
+      "kind": "section",
+      "note": "Tensorlake [ TENSORLAKE INC. ] HQ: SF / TEAM: GLOBAL_ © 2026 TENSORLAKE INC. ALL"
+    },
+    {
+      "file": "Tensorlake/components/nav-header.png",
+      "route": "/",
+      "viewport": "1440x900 @2x",
+      "kind": "component"
+    },
+    {
+      "file": "Tensorlake/components/hero-copy-and-buttons.png",
+      "route": "/",
+      "viewport": "1440x900 @2x",
+      "kind": "component"
+    },
+    {
+      "file": "Tensorlake/components/code-panel.png",
+      "route": "/",
+      "viewport": "1440x900 @2x",
+      "kind": "component"
+    },
+    {
+      "file": "Tensorlake/components/logo-wall.png",
+      "route": "/",
+      "viewport": "1440x900 @2x",
+      "kind": "component"
+    },
+    {
+      "file": "Tensorlake/components/feature-cards.png",
+      "route": "/",
+      "viewport": "1440x900 @2x",
+      "kind": "component"
+    },
+    {
+      "file": "Tensorlake/components/footer.png",
+      "route": "/",
+      "viewport": "1440x900 @2x",
+      "kind": "component"
+    },
+    {
+      "file": "Tensorlake/mobile/home-390-full.jpg",
+      "route": "/",
+      "viewport": "390x844 @2x",
+      "kind": "full page (mobile)"
+    },
+    {
+      "file": "Tensorlake/mobile/pricing-390-full.jpg",
+      "route": "/pricing",
+      "viewport": "390x844 @2x",
+      "kind": "full page (mobile)"
+    },
+    {
+      "file": "Tensorlake/mobile/blog-390-full.jpg",
+      "route": "/blog",
+      "viewport": "390x844 @2x",
+      "kind": "full page (mobile)"
+    }
+  ]
+}
