@@ -119,6 +119,9 @@ h1 .num{
   font-variant-numeric:tabular-nums;
   background:linear-gradient(transparent 66%,var(--pass-dim) 66%);
 }
+.dotword{display:inline-block;position:relative}
+.dotword canvas{display:inline-block;vertical-align:baseline}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .hero p.lede{font-size:clamp(15.5px,1.35vw,17.5px);margin-top:26px;max-width:52ch}
 .hero-cta{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:34px}
 .hero-note{font-family:var(--f-mono);font-size:11.5px;color:var(--faint);letter-spacing:.02em}
@@ -395,7 +398,7 @@ h1 .num{
   <div class="shell hero-in">
     <div>
       <span class="mono">one run · sixteen checks · all green</span>
-      <h1 style="margin-top:20px"><span class="num">16</span> reasons to trust TestMu AI.</h1>
+      <h1 style="margin-top:20px"><span class="num">16</span> <span class="dotword" data-word="reasons"><span class="sr">reasons</span><canvas aria-hidden="true"></canvas></span> to trust TestMu AI.</h1>
       <p class="lede">TestMu AI writes the test, runs it on real hardware, watches your AI agents for hallucinations, and hands back evidence anyone can open. Here is the whole case, laid out the way we'd report a run — sixteen checks, one pass each, every one green.</p>
       <div class="hero-cta">
         <a class="btn lg" href="#start">Start free</a>
@@ -895,6 +898,95 @@ h1 .num{
     requestAnimationFrame(frame);
   }
   runMatrix();
+
+  /* ── 1b. the word "reasons" as a settling dot lattice ───── */
+  (function(){
+    var host = document.querySelector(".dotword");
+    if(!host) return;
+    var cv = host.querySelector("canvas"), c = cv.getContext("2d");
+    var raf = null;
+
+    function build(){
+      if(raf) cancelAnimationFrame(raf);
+      var word = host.dataset.word;
+      var h1 = host.closest("h1"), cs = getComputedStyle(h1);
+      var fs = parseFloat(cs.fontSize);
+      var font = cs.fontWeight + " " + cs.fontSize + " " + cs.fontFamily;
+
+      var off = document.createElement("canvas"), o = off.getContext("2d");
+      o.font = font;
+      var m = o.measureText(word);
+      var asc = m.actualBoundingBoxAscent || fs * 0.72;
+      var desc = m.actualBoundingBoxDescent || fs * 0.2;
+      var pad = Math.ceil(fs * 0.14);
+      off.width = Math.ceil(m.width) + pad * 2;
+      off.height = Math.ceil(asc + desc) + pad * 2;
+      o.font = font; o.textBaseline = "alphabetic"; o.fillStyle = "#000";
+      o.fillText(word, pad, pad + asc);
+
+      var d = o.getImageData(0, 0, off.width, off.height).data;
+      var step = Math.max(3, Math.round(fs / 22));
+      var pts = [];
+      for(var y = 0; y < off.height; y += step){
+        for(var x = 0; x < off.width; x += step){
+          if(d[(y * off.width + x) * 4 + 3] > 128){
+            pts.push({
+              x: x, y: y,
+              ox: (Math.random() - 0.5) * fs * 1.7,
+              oy: (Math.random() - 0.5) * fs * 1.25,
+              lag: Math.random() * 0.45
+            });
+          }
+        }
+      }
+
+      var dpr = Math.min(2, window.devicePixelRatio || 1);
+      cv.width = off.width * dpr; cv.height = off.height * dpr;
+      cv.style.width = off.width + "px"; cv.style.height = off.height + "px";
+      cv.style.marginBottom = (-(desc + pad)) + "px";
+      c = cv.getContext("2d");
+      c.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      var r = Math.max(1.15, step * 0.47);
+      var ink = tok("--ink");
+
+      function paint(p){
+        c.clearRect(0, 0, off.width, off.height);
+        c.fillStyle = ink;
+        for(var i = 0; i < pts.length; i++){
+          var pt = pts[i];
+          var t = Math.max(0, Math.min(1, (p * 1.55 - pt.lag) / (1 - pt.lag * 0.5)));
+          var e = 1 - Math.pow(1 - t, 3);
+          c.globalAlpha = e;
+          c.beginPath();
+          c.arc(pt.x + pt.ox * (1 - e) + step / 2, pt.y + pt.oy * (1 - e) + step / 2, r, 0, 6.2832);
+          c.fill();
+        }
+        c.globalAlpha = 1;
+      }
+
+      if(reduce){ paint(1); return; }
+      // seed t0 from the first real rAF timestamp - starting with a manual
+      // call would compare performance.now() against 0 and finish instantly
+      var t0 = null, DUR = 1500;
+      function run(ts){
+        if(t0 === null) t0 = ts;
+        var p = Math.min(1, (ts - t0) / DUR);
+        paint(p);
+        if(p < 1) raf = requestAnimationFrame(run);
+      }
+      paint(0);
+      raf = requestAnimationFrame(run);
+    }
+
+    if(document.fonts && document.fonts.ready) document.fonts.ready.then(build);
+    else build();
+
+    var rt;
+    window.addEventListener("resize", function(){
+      clearTimeout(rt); rt = setTimeout(build, 220);
+    });
+  })();
 
   /* ── 2. footer wordmark as a sampled dot matrix ─────────── */
   (function(){
