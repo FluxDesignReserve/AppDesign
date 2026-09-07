@@ -62,6 +62,7 @@ img,canvas{max-width:100%;display:block}
 .shell{max-width:var(--shell);margin:0 auto;padding-inline:var(--gut)}
 
 /* type */
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .mono{font-family:var(--f-mono);font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--faint);font-weight:400}
 h1,h2,h3{font-family:var(--f-display);font-weight:300;letter-spacing:-.024em;margin:0;text-wrap:balance;line-height:1.04}
 p{margin:0}
@@ -288,6 +289,38 @@ h1 .num{
   .cards.two{grid-template-columns:1fr}
 }
 @media (max-width:430px){ .badges{grid-template-columns:repeat(2,1fr)} }
+
+/* ── integrations ─────────────────────────────────────────── */
+.integrations{border-bottom:1px solid var(--rule);padding-block:clamp(46px,5.6vw,76px);overflow:hidden}
+.int-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:60px;align-items:end}
+.int-head .mono{display:block;margin-bottom:14px}
+.int-head h2{font-size:clamp(26px,3.1vw,40px);letter-spacing:-.028em;max-width:17ch}
+.int-head p{color:var(--muted);max-width:46ch}
+.rails{margin-top:clamp(32px,4vw,48px);display:flex;flex-direction:column;gap:14px}
+.rail{
+  overflow:hidden;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent);
+  mask-image:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent);
+}
+.rail-track{display:flex;gap:14px;width:max-content;animation:rail 46s linear infinite}
+.rail.b .rail-track{animation-duration:58s;animation-direction:reverse}
+.rail.c .rail-track{animation-duration:52s}
+.rail:hover .rail-track,.rail:focus-within .rail-track{animation-play-state:paused}
+@keyframes rail{from{transform:translateX(0)}to{transform:translateX(calc(-50% - 7px))}}
+.chip{
+  display:flex;align-items:center;gap:9px;white-space:nowrap;
+  border:1px solid var(--rule);background:var(--card);border-radius:8px;
+  padding:11px 17px;font-size:14.5px;color:var(--ink);
+}
+.chip i{width:5px;height:5px;border-radius:1px;background:var(--rule);flex:none}
+.chip.on i{background:var(--pass)}
+@media (max-width:700px){
+  .int-head{grid-template-columns:1fr;gap:18px;align-items:start}
+}
+@media (prefers-reduced-motion:reduce){
+  .rail{-webkit-mask-image:none;mask-image:none}
+  .rail-track{animation:none;flex-wrap:wrap;width:100%}
+}
 
 /* ── custody band ─────────────────────────────────────────── */
 .custody{border-bottom:1px solid var(--rule);padding-block:clamp(44px,5.5vw,72px)}
@@ -692,6 +725,25 @@ h1 .num{
           </div>
       </div>
     </div>
+  </div>
+</section>
+
+<!-- ── INTEGRATIONS ───────────────────────────────────────── -->
+<section class="integrations" id="integrations">
+  <div class="shell">
+    <div class="int-head">
+      <div>
+        <span class="mono">Integrations</span>
+        <h2>It plugs into the stack you already run.</h2>
+      </div>
+      <p>Keep your framework, your pipeline and your tracker. TestMu AI slots in beside them — exporting to the runners your repo already speaks, reporting into the tools your team already watches.</p>
+    </div>
+    <div class="rails">
+      <div class="rail " aria-hidden="true"><div class="rail-track"><span class="chip"><i></i>Selenium</span><span class="chip"><i></i>Playwright</span><span class="chip"><i></i>Cypress</span><span class="chip"><i></i>Appium</span><span class="chip"><i></i>Puppeteer</span><span class="chip"><i></i>TestNG</span><span class="chip"><i></i>JUnit</span><span class="chip"><i></i>Pytest</span><span class="chip"><i></i>Mocha</span><span class="chip"><i></i>Robot Framework</span><span class="chip"><i></i>Selenium</span><span class="chip"><i></i>Playwright</span><span class="chip"><i></i>Cypress</span><span class="chip"><i></i>Appium</span><span class="chip"><i></i>Puppeteer</span><span class="chip"><i></i>TestNG</span><span class="chip"><i></i>JUnit</span><span class="chip"><i></i>Pytest</span><span class="chip"><i></i>Mocha</span><span class="chip"><i></i>Robot Framework</span></div></div>
+      <div class="rail b" aria-hidden="true"><div class="rail-track"><span class="chip"><i></i>GitHub Actions</span><span class="chip"><i></i>GitLab CI</span><span class="chip"><i></i>Jenkins</span><span class="chip"><i></i>CircleCI</span><span class="chip"><i></i>Azure DevOps</span><span class="chip"><i></i>Bitbucket Pipelines</span><span class="chip"><i></i>Travis CI</span><span class="chip"><i></i>Bamboo</span><span class="chip"><i></i>TeamCity</span><span class="chip"><i></i>GitHub Actions</span><span class="chip"><i></i>GitLab CI</span><span class="chip"><i></i>Jenkins</span><span class="chip"><i></i>CircleCI</span><span class="chip"><i></i>Azure DevOps</span><span class="chip"><i></i>Bitbucket Pipelines</span><span class="chip"><i></i>Travis CI</span><span class="chip"><i></i>Bamboo</span><span class="chip"><i></i>TeamCity</span></div></div>
+      <div class="rail c" aria-hidden="true"><div class="rail-track"><span class="chip on"><i></i>Claude Code</span><span class="chip on"><i></i>Cursor</span><span class="chip on"><i></i>OpenAI Codex</span><span class="chip on"><i></i>Gemini CLI</span><span class="chip on"><i></i>Perplexity</span><span class="chip"><i></i>Jira</span><span class="chip"><i></i>Slack</span><span class="chip"><i></i>Asana</span><span class="chip"><i></i>Trello</span><span class="chip"><i></i>Microsoft Teams</span><span class="chip on"><i></i>Claude Code</span><span class="chip on"><i></i>Cursor</span><span class="chip on"><i></i>OpenAI Codex</span><span class="chip on"><i></i>Gemini CLI</span><span class="chip on"><i></i>Perplexity</span><span class="chip"><i></i>Jira</span><span class="chip"><i></i>Slack</span><span class="chip"><i></i>Asana</span><span class="chip"><i></i>Trello</span><span class="chip"><i></i>Microsoft Teams</span></div></div>
+    </div>
+    <p class="sr">Integrates with Appium, Asana, Azure DevOps, Bamboo, Bitbucket Pipelines, CircleCI, Claude Code, Cursor, Cypress, Gemini CLI, GitHub Actions, GitLab CI, JUnit, Jenkins, Jira, Microsoft Teams, Mocha, OpenAI Codex, Perplexity, Playwright, Puppeteer, Pytest, Robot Framework, Selenium, Slack, TeamCity, TestNG, Travis CI, Trello.</p>
   </div>
 </section>
 
