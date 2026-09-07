@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Sixteen Passing Reasons</title>
-<meta name="description" content="Sixteen reasons to try TestMu AI, laid out as a 4×4 coverage matrix — author, execute, cover, trust." />
+<meta name="description" content="Sixteen reasons to try TestMu AI, laid out as a 4×4 coverage matrix — the way a passing test run reports itself." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" />
@@ -111,7 +111,7 @@ p{margin:0}
 }
 .hero-in{position:relative;z-index:1}
 .hero-in{
-  display:grid;grid-template-columns:minmax(0,1fr) 420px;gap:64px;
+  display:grid;grid-template-columns:minmax(0,1fr) 460px;gap:60px;
   align-items:center;padding-block:clamp(48px,7vw,88px);
 }
 h1{font-size:clamp(40px,5.9vw,76px);line-height:.98;letter-spacing:-.042em;max-width:14ch}
@@ -174,18 +174,12 @@ h1 .num{
 
 /* ── chapters ─────────────────────────────────────────────── */
 .chapter{border-bottom:1px solid var(--rule)}
-.chapter-head{
-  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:64px;
-  align-items:end;padding-block:clamp(40px,5vw,64px) 30px;
-}
-.chapter-head h2{font-size:clamp(26px,3.1vw,40px);letter-spacing:-.035em}
-.chapter-head .mono{display:block;margin-bottom:14px}
-.chapter-head p{color:var(--muted);font-size:15px;max-width:46ch;padding-bottom:5px}
 
 /* lead reason */
 .lead{
   display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.06fr);gap:56px;
-  align-items:center;padding-bottom:clamp(40px,5vw,62px);
+  align-items:center;
+  padding-block:clamp(48px,5.6vw,76px) clamp(40px,5vw,62px);
 }
 .reason-no{
   font-family:var(--f-mono);font-size:12px;letter-spacing:.1em;color:var(--pass);
@@ -234,7 +228,7 @@ h1 .num{
 .bar-row{display:grid;grid-template-columns:112px minmax(0,1fr) 62px;align-items:center;gap:13px}
 .bar-row .lbl{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
 .bar-track{height:12px;background:var(--rule-soft);border-radius:2px;overflow:hidden}
-.bar-fill{height:100%;background:var(--rule);border-radius:2px}
+.bar-fill{display:block;height:100%;background:var(--rule);border-radius:2px}
 .bar-fill.win{background:var(--pass)}
 .bar-row .val{font-family:var(--f-mono);font-size:11.5px;text-align:right;font-variant-numeric:tabular-nums;color:var(--ink)}
 .bars-foot{
@@ -307,9 +301,7 @@ h1 .num{
 @media (max-width:1080px){
   .hero-in{grid-template-columns:1fr;gap:44px}
   .lead{grid-template-columns:1fr;gap:34px}
-  .chapter-head{grid-template-columns:1fr;gap:18px;align-items:start}
-  .chapter-head p{padding-bottom:0}
-  .proof-in{grid-template-columns:repeat(3,1fr)}
+      .proof-in{grid-template-columns:repeat(3,1fr)}
   .proof-in div:nth-child(3n){border-right:0}
   .proof-in div:nth-child(-n+3){border-bottom:1px solid var(--rule-soft)}
   .cards{grid-template-columns:1fr 1fr}
@@ -371,7 +363,7 @@ h1 .num{
     <div>
       <span class="mono">16 reasons · one run · all green</span>
       <h1 style="margin-top:20px">Your QA team, <span class="num">16</span> arguments shorter.</h1>
-      <p class="lede">TestMu AI writes the test, runs it on real hardware, watches your AI agents for hallucinations, and hands back evidence anyone can open. Here is the whole case, laid out the way we'd report a run — sixteen checks, four groups, every one passing.</p>
+      <p class="lede">TestMu AI writes the test, runs it on real hardware, watches your AI agents for hallucinations, and hands back evidence anyone can open. Here is the whole case, laid out the way we'd report a run — sixteen checks, one pass each, every one green.</p>
       <div class="hero-cta">
         <a class="btn lg" href="#start">Start free</a>
         <a class="btn ghost lg" href="#author">Read the sixteen</a>
@@ -386,12 +378,12 @@ h1 .num{
         <span>run · why-testmu.evidence</span>
         <span class="ok">16/16 passed</span>
       </div>
-      <canvas id="matrix" width="840" height="840" aria-label="A four by four matrix of sixteen checks, each resolving from noise into a passing checkmark."></canvas>
+      <canvas id="matrix" width="900" height="1020" aria-label="A four by four matrix of sixteen checks, each resolving from noise into a passing checkmark."></canvas>
       <div class="matrix-legend">
-        <div>Row I · <b>Author</b></div>
-        <div>Row II · <b>Execute</b></div>
-        <div>Row III · <b>Cover</b></div>
-        <div>Row IV · <b>Trust</b></div>
+        <div>Checks · <b>16</b></div>
+        <div>Failed · <b>0</b></div>
+        <div>Duration · <b>4m 41s</b></div>
+        <div>Sealed · <b>sha256</b></div>
       </div>
     </div>
   </div>
@@ -421,14 +413,6 @@ h1 .num{
 <!-- ── I. AUTHOR ──────────────────────────────────────────── -->
 <section class="chapter" id="author" data-row="0">
   <div class="shell">
-    <div class="chapter-head">
-      <div>
-        <span class="mono">Group I — Author</span>
-        <h2>Writing the test stops being the expensive part.</h2>
-      </div>
-      <p>Four reasons the first hour of a test suite no longer costs a week. You describe the journey; the agent produces the automation, in the framework you already use.</p>
-    </div>
-
     <div class="lead">
       <div>
         <div class="reason-no">Reason 01</div>
@@ -473,14 +457,6 @@ h1 .num{
 <!-- ── II. EXECUTE ────────────────────────────────────────── -->
 <section class="chapter" id="execute" data-row="1">
   <div class="shell">
-    <div class="chapter-head">
-      <div>
-        <span class="mono">Group II — Execute</span>
-        <h2>The answer arrives before you lose the thread.</h2>
-      </div>
-      <p>Four reasons your pipeline stops being the slowest reviewer on the team. HyperExecute collapses the grid architecture instead of adding machines to it.</p>
-    </div>
-
     <div class="lead">
       <div>
         <div class="reason-no">Reason 05</div>
@@ -547,14 +523,6 @@ h1 .num{
 <!-- ── III. COVER ─────────────────────────────────────────── -->
 <section class="chapter" id="cover" data-row="2">
   <div class="shell">
-    <div class="chapter-head">
-      <div>
-        <span class="mono">Group III — Cover</span>
-        <h2>Run it where your users actually are.</h2>
-      </div>
-      <p>Four reasons "works on my machine" stops being a defensible position. Real hardware, real browsers, real networks, real geography.</p>
-    </div>
-
     <div class="lead">
       <div>
         <div class="reason-no">Reason 09</div>
@@ -608,14 +576,6 @@ h1 .num{
 <!-- ── IV. TRUST ──────────────────────────────────────────── -->
 <section class="chapter" id="trust" data-row="3">
   <div class="shell">
-    <div class="chapter-head">
-      <div>
-        <span class="mono">Group IV — Trust</span>
-        <h2>The part where you prove it held.</h2>
-      </div>
-      <p>Four reasons shipping an AI feature stops being an act of faith. Agents get tested like software, and the result is evidence rather than a screenshot in Slack.</p>
-    </div>
-
     <div class="lead">
       <div>
         <div class="reason-no">Reason 13</div>
@@ -764,18 +724,60 @@ h1 .num{
     return n - Math.floor(n);
   }
 
+  /* Ambient halftone: a smooth wave field, densest at the lower left and
+     thinning toward the upper right, so the grid reads as emerging from it.
+     This is the hero artwork — drawn, not photographed, so it stays crisp
+     at any size and costs the page nothing. */
+  function drawField(progress, gridBox){
+    var W = cv.width, H = cv.height, step = 15, maxR = 6.6;
+    var dotC = tok("--dot");
+    ctx.fillStyle = dotC;
+    for(var x = step*0.5; x < W; x += step){
+      for(var y = step*0.5; y < H; y += step){
+        // two layered waves, long wavelength — a flowing tonal form
+        var w1 = Math.sin(x*0.0062 + Math.sin(y*0.0049)*2.6);
+        var w2 = Math.cos(y*0.0071 - x*0.0022 - 0.6);
+        var v = 0.42 + 0.58 * (w1 * 0.6 + w2 * 0.4);
+        // diagonal falloff: heavy lower-left, thinning to the upper right
+        var g = 1 - Math.max(0, Math.min(1, (x/W*0.85 + (1 - y/H)*1.15) / 2));
+        var amp = Math.max(0, Math.min(1, v * (0.62 + g * 0.78)));
+
+        // clear the field where the grid resolves, so the checks emerge
+        var inset = 30;
+        var near = (x > gridBox.x - inset && x < gridBox.x + gridBox.w + inset &&
+                    y > gridBox.y - inset && y < gridBox.y + gridBox.h + inset);
+        if(near) amp *= (1 - progress * 0.86);
+
+        var r = maxR * amp;
+        if(r < 0.30) continue;
+        ctx.globalAlpha = 0.26 + amp * 0.52;
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI*2);
+        ctx.fill();
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
+
   function drawMatrix(progress){
-    var W = cv.width, pad = 26, gap = 10;
+    var W = cv.width, H = cv.height, pad = 96, gap = 10;
     var cell = (W - pad*2 - gap*(CELLS-1)) / CELLS;
     var dot = cell / N;
     var inkC = tok("--ink"), passC = tok("--pass"), dotC = tok("--dot"), cardC = tok("--card");
 
     ctx.fillStyle = cardC;
-    ctx.fillRect(0,0,W,cv.height);
+    ctx.fillRect(0,0,W,H);
+
+    var gridTop = (H - (cell*CELLS + gap*(CELLS-1))) / 2;
+    drawField(progress, {
+      x: pad, y: gridTop,
+      w: cell*CELLS + gap*(CELLS-1),
+      h: cell*CELLS + gap*(CELLS-1)
+    });
 
     for(var c=0;c<CELLS*CELLS;c++){
       var cx = pad + (c % CELLS) * (cell + gap);
-      var cy = pad + Math.floor(c / CELLS) * (cell + gap);
+      var cy = gridTop + Math.floor(c / CELLS) * (cell + gap);
 
       // per-cell resolve: staggered, 0 → 1
       var t = Math.max(0, Math.min(1, (progress * (CELLS*CELLS + 7)) - c));
