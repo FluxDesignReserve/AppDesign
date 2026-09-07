@@ -1,0 +1,804 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sixteen Reasons in Ink</title>
+<meta name="description" content="Sixteen reasons to trust TestMu AI on an ink ground, laid out as a 4×4 coverage matrix." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" />
+<style>
+/* ─────────────────────────────────────────────────────────────
+   Token system adapted from tensorlake.ai's --tl-* / --bl-* scale,
+   rendered in its DARK values (ink #161715, accent #0aa67d) - the
+   theme tensorlake.ai actually ships,
+   with TestMu's own spacing and content on top.
+
+   Display face: Tensorlake sets PP Neue Montreal, a licensed face.
+   Their own declared fallback is Inter Tight, which is what runs here.
+   ───────────────────────────────────────────────────────────── */
+:root{
+  color-scheme:dark;
+
+  /* ground + surface — --tl-ink scale */
+  --paper:#161715;
+  --paper-2:#1e1f1c;
+  --paper-3:#232b23;
+  --surface:#1e1f1c;
+
+  /* ink — --tl-fg scale */
+  --fg:#ffffff;
+  --fg-2:#dddddd;
+  --fg-3:#c9c9c9;
+  --fg-4:#989d9e;
+
+  /* rules */
+  --stroke:#393939;
+  --stroke-2:#3e3e3e;
+  --stroke-soft:#ffffff0f;
+
+  /* accent — tensorlake green, dark-mode value */
+  --accent:#0aa67d;
+  --accent-2:#82c38c;
+  --accent-pill:#0aa67d33;
+  --accent-wash:#82c38c1f;
+  --glow:0 0 0 1px #0aa67d66, 0 0 24px -4px #0aa67d59;
+
+  /* deeper band for the footer */
+  --ink:#101110;
+  --ink-2:#171817;
+  --ink-fg:#ffffff;
+  --ink-fg-3:#c9c9c9;
+  --ink-fg-4:#989d9e;
+  --ink-stroke:#2c2d2b;
+
+  /* type scale */
+  --display-xl:clamp(48px,6.4vw,92px);
+  --display-md:clamp(40px,4vw,58px);
+  --display-sm:clamp(28px,3vw,42px);
+  --body:16px;
+  --body-sm:14px;
+  --mono:14px;
+  --mono-sm:12px;
+
+  --track-crunch:-.07em;
+  --track-tight:-.02em;
+  --track-wide:.02em;
+
+  --r-1:2px;
+  --r-2:4px;
+
+  --sp-4:16px; --sp-6:28px; --sp-7:40px; --sp-8:60px; --sp-9:80px; --sp-10:120px;
+
+  --shell:1320px;
+  --gut:clamp(20px,4vw,40px);
+
+  --f-display:"Inter Tight","Neue Haas Grotesk Display",-apple-system,BlinkMacSystemFont,sans-serif;
+  --f-body:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--paper);color:var(--fg-2);
+  font-family:var(--f-body);font-size:var(--body);line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+a{color:inherit}
+img,canvas{max-width:100%;display:block}
+::selection{background:var(--accent-pill)}
+:focus-visible{outline:1px solid var(--accent-2);outline-offset:3px}
+p{margin:0}
+h1,h2,h3,h4{
+  font-family:var(--f-display);font-weight:500;margin:0;
+  letter-spacing:var(--track-tight);color:var(--fg);text-wrap:balance;
+}
+.shell{max-width:var(--shell);margin:0 auto;padding-inline:var(--gut)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+
+/* eyebrow — tensorlake's signature crunched mono label */
+.eyebrow{
+  font-family:var(--f-mono);font-size:11px;letter-spacing:var(--track-crunch);
+  text-transform:uppercase;color:var(--fg-4);display:block;margin-bottom:14px;
+}
+.eyebrow b{color:var(--fg);font-weight:500}
+
+/* ── buttons ──────────────────────────────────────────────── */
+.btn{
+  font-family:var(--f-body);font-size:14px;font-weight:500;
+  padding:10px 18px;border-radius:var(--r-1);text-decoration:none;
+  border:1px solid var(--stroke);background:transparent;color:var(--fg);
+  display:inline-flex;align-items:center;gap:8px;
+  transition:background .12s,border-color .12s,color .12s;
+}
+.btn:hover{border-color:var(--fg-4);background:#ffffff08}
+.btn--solid{background:var(--accent);border-color:var(--accent);color:var(--paper)}
+.btn--solid:hover{background:var(--accent-2);border-color:var(--accent-2);color:var(--paper)}
+.btn--green{color:var(--accent);border-color:var(--accent);background:var(--accent-pill)}
+.btn--green:hover{background:var(--accent);color:var(--paper)}
+.btn .arr{font-family:var(--f-mono)}
+
+/* ── announce + nav ───────────────────────────────────────── */
+.announce{
+  background:var(--ink);color:var(--ink-fg-4);
+  font-family:var(--f-mono);font-size:11px;letter-spacing:var(--track-wide);
+  text-align:center;padding:9px 16px;
+}
+.announce b{color:var(--ink-fg);font-weight:500}
+.announce a{color:var(--accent-2);text-decoration:none;border-bottom:1px solid transparent}
+.announce a:hover{border-bottom-color:currentColor}
+
+.nav{
+  position:sticky;top:0;z-index:50;
+  border-bottom:1px solid var(--stroke);
+  background:#161715d1;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+}
+.nav__inner{
+  display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:32px;
+  max-width:var(--shell);margin:0 auto;padding:14px var(--gut);
+}
+.nav__brand{
+  font-family:var(--f-display);font-weight:500;font-size:18px;
+  letter-spacing:-.03em;text-decoration:none;display:inline-flex;align-items:baseline;gap:9px;
+}
+.nav__brand em{
+  font-style:normal;font-family:var(--f-mono);font-size:9.5px;
+  letter-spacing:var(--track-crunch);text-transform:uppercase;color:var(--fg-4);
+}
+.nav__links{display:flex;gap:24px}
+.nav__links a{font-size:14px;color:var(--fg-3);text-decoration:none}
+.nav__links a:hover{color:var(--fg)}
+.nav__cta{display:flex;align-items:center;gap:10px}
+
+/* ── hero ─────────────────────────────────────────────────── */
+.hero{border-bottom:1px solid var(--stroke)}
+.hero__inner{
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.82fr);gap:var(--sp-8);
+  align-items:center;padding-block:clamp(48px,6vw,90px);
+}
+.hero__h1{
+  font-size:var(--display-xl);font-weight:500;line-height:.98;
+  letter-spacing:-.035em;margin:0 0 24px;max-width:13ch;
+}
+.hero__h1 em{color:var(--accent);font-style:normal}
+.hero__lede{color:var(--fg-3);font-size:18px;line-height:1.5;max-width:52ch}
+.hero__cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:32px}
+.hero__note{
+  font-family:var(--f-mono);font-size:var(--mono-sm);color:var(--fg-4);
+  letter-spacing:var(--track-crunch);text-transform:uppercase;margin-top:20px;
+}
+
+/* ── code panel ───────────────────────────────────────────── */
+.panel{
+  border:1px solid var(--stroke);background:var(--surface);
+  display:flex;flex-direction:column;box-shadow:inset 0 0 0 1px #0000001a;
+}
+.hero .panel{box-shadow:inset 0 0 0 1px #0000001a, var(--glow)}
+.panel__bar{
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  padding:12px 16px;border-bottom:1px solid var(--stroke);
+  font-family:var(--f-mono);font-size:11px;letter-spacing:var(--track-crunch);
+  text-transform:uppercase;color:var(--fg-4);
+}
+.runpill{
+  display:inline-flex;align-items:center;gap:6px;padding:3px 8px;font-size:10px;
+  font-family:var(--f-mono);letter-spacing:var(--track-crunch);text-transform:uppercase;
+  color:var(--accent);border:1px solid var(--accent);border-radius:var(--r-1);
+}
+.runpill__dot{
+  width:5px;height:5px;border-radius:50%;background:var(--accent);
+  box-shadow:0 0 8px var(--accent);animation:pulse 1.6s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+#matrix{width:100%;height:auto;display:block}
+.panel__foot{
+  display:grid;grid-template-columns:repeat(2,1fr);
+  border-top:1px solid var(--stroke);font-family:var(--f-mono);font-size:11px;
+}
+.panel__foot div{padding:10px 16px;color:var(--fg-4);letter-spacing:var(--track-wide)}
+.panel__foot div:nth-child(odd){border-right:1px solid var(--stroke)}
+.panel__foot div:nth-child(-n+2){border-bottom:1px solid var(--stroke)}
+.panel__foot b{color:var(--fg);font-weight:500}
+
+.term{
+  font-family:var(--f-mono);font-size:13px;line-height:1.85;padding:20px;
+  color:var(--fg-3);overflow-x:auto;flex:1;
+}
+.term .in{color:var(--fg)}
+.term .ok{color:var(--accent)}
+.term .dim{color:var(--fg-4)}
+
+/* ── stat strip ───────────────────────────────────────────── */
+.stats{border-bottom:1px solid var(--stroke);background:var(--surface)}
+.stats__grid{display:grid;grid-template-columns:repeat(6,1fr)}
+.stats__grid div{padding:24px 20px;border-right:1px solid var(--stroke-soft)}
+.stats__grid div:last-child{border-right:0}
+.stats__grid b{
+  display:block;font-family:var(--f-display);font-weight:500;font-size:28px;
+  letter-spacing:var(--track-tight);color:var(--fg);font-variant-numeric:tabular-nums;
+}
+.stats__grid span{
+  display:block;font-family:var(--f-mono);font-size:10px;margin-top:6px;
+  letter-spacing:var(--track-crunch);text-transform:uppercase;color:var(--fg-4);
+}
+
+/* ── section scaffold ─────────────────────────────────────── */
+.section{border-bottom:1px solid var(--stroke);padding-block:clamp(48px,5.5vw,80px)}
+.section__head{
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:var(--sp-8);align-items:end;margin-bottom:var(--sp-7);
+}
+.section__title{font-size:var(--display-sm);line-height:1.05;max-width:18ch}
+.section__aside{color:var(--fg-3);font-size:15px;max-width:46ch}
+
+/* ── the 16 cards — one hairline grid ─────────────────────── */
+.cards{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  border-top:1px solid var(--stroke);border-left:1px solid var(--stroke);
+}
+.card{
+  display:flex;flex-direction:column;gap:10px;
+  border-right:1px solid var(--stroke);border-bottom:1px solid var(--stroke);
+  background:var(--surface);min-height:230px;padding:28px 24px;
+}
+.card__idx{
+  font-family:var(--f-mono);font-size:10px;letter-spacing:var(--track-crunch);
+  text-transform:uppercase;color:var(--accent);
+}
+.card__title{font-size:21px;font-weight:500;line-height:1.12;letter-spacing:var(--track-tight)}
+.card__body{color:var(--fg-3);font-size:14px;line-height:1.5;margin:0}
+.card__meta{
+  margin-top:auto;padding-top:14px;border-top:1px solid var(--stroke-soft);
+  font-family:var(--f-mono);font-size:10px;letter-spacing:var(--track-crunch);
+  text-transform:uppercase;color:var(--fg-4);
+}
+.card__meta b{color:var(--fg);font-weight:500}
+
+/* ── split spotlight ──────────────────────────────────────── */
+.split{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:var(--sp-8);align-items:center}
+.split__title{font-size:var(--display-sm);line-height:1.06;margin-bottom:16px}
+.split__lede{color:var(--fg-3);font-size:15px;max-width:48ch}
+.taglist{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.tag{
+  font-family:var(--f-mono);font-size:10px;letter-spacing:var(--track-crunch);
+  text-transform:uppercase;border:1px solid var(--stroke);border-radius:var(--r-1);
+  padding:5px 10px;color:var(--fg-3);
+}
+
+/* ── bench ────────────────────────────────────────────────── */
+.bench{border:1px solid var(--stroke);background:var(--surface)}
+.bench__head{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:14px 20px;border-bottom:1px solid var(--stroke);
+}
+.bench__head h3{font-size:14px;font-weight:500;letter-spacing:-.01em}
+.bench__head span{font-family:var(--f-mono);font-size:11px;color:var(--accent);letter-spacing:var(--track-crunch);text-transform:uppercase}
+.bench__body{padding:14px 20px}
+.bench__row{
+  display:grid;grid-template-columns:132px 1fr 84px;align-items:center;gap:16px;
+  padding:11px 0;border-bottom:1px dashed var(--stroke);
+}
+.bench__row:last-child{border-bottom:0}
+.bench__name{
+  font-family:var(--f-mono);font-size:12px;letter-spacing:var(--track-crunch);
+  text-transform:uppercase;color:var(--fg-3);
+}
+.bench__track{height:10px;background:var(--paper-3);border-radius:var(--r-1);overflow:hidden}
+.bench__fill{display:block;height:100%;background:var(--stroke);border-radius:var(--r-1)}
+.bench__fill.win{background:var(--accent)}
+.bench__val{font-family:var(--f-mono);font-size:12px;text-align:right;color:var(--fg);font-variant-numeric:tabular-nums}
+.bench__foot{
+  border-top:1px solid var(--stroke);padding:12px 20px;
+  font-family:var(--f-mono);font-size:10px;color:var(--fg-4);letter-spacing:var(--track-wide);
+}
+
+/* ── k/v list ─────────────────────────────────────────────── */
+.kv{border-top:1px solid var(--stroke);display:flex;flex-direction:column}
+.kv__row{display:grid;grid-template-columns:88px 1fr 56px;gap:16px;padding:15px 0;border-bottom:1px solid var(--stroke);align-items:center}
+.kv__k{font-family:var(--f-mono);font-size:12px;color:var(--fg-3);letter-spacing:var(--track-crunch);text-transform:uppercase;grid-column:1/3}
+.kv__row .kv__k{grid-column:auto}
+.kv__meter{height:5px;background:var(--paper-3);border-radius:3px;overflow:hidden}
+.kv__meter i{display:block;height:100%;background:var(--accent);border-radius:3px}
+.kv__v{font-family:var(--f-mono);font-size:12px;text-align:right;color:var(--fg-4);font-variant-numeric:tabular-nums}
+
+/* ── compliance badges ────────────────────────────────────── */
+.badges{display:grid;grid-template-columns:repeat(7,1fr);gap:16px;margin-top:var(--sp-7)}
+.badge{display:flex;flex-direction:column;align-items:center;gap:12px}
+.badge__tile{
+  width:100%;aspect-ratio:1/1;background:var(--surface);
+  border:1px solid var(--stroke);border-radius:var(--r-1);
+  display:grid;place-items:center;padding:15%;
+}
+.badge__tile svg{width:100%;height:100%;color:var(--fg-2);display:block}
+.badge__tile svg text{font-family:var(--f-body);font-weight:400;fill:currentColor;stroke:none;text-anchor:middle}
+.badge__cap{
+  font-family:var(--f-mono);font-size:9.5px;letter-spacing:var(--track-crunch);
+  text-transform:uppercase;color:var(--fg-4);text-align:center;line-height:1.35;
+}
+
+/* ── integrations rails ───────────────────────────────────── */
+.rails{display:flex;flex-direction:column;gap:12px;margin-top:var(--sp-7)}
+.rail{overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent);mask-image:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent)}
+.rail__track{display:flex;gap:12px;width:max-content;animation:rail 46s linear infinite}
+.rail.b .rail__track{animation-duration:58s;animation-direction:reverse}
+.rail.c .rail__track{animation-duration:52s}
+.rail:hover .rail__track,.rail:focus-within .rail__track{animation-play-state:paused}
+@keyframes rail{from{transform:translateX(0)}to{transform:translateX(calc(-50% - 6px))}}
+.chip{
+  display:flex;align-items:center;gap:9px;white-space:nowrap;
+  border:1px solid var(--stroke);background:var(--surface);border-radius:var(--r-1);
+  padding:11px 16px;font-size:14px;color:var(--fg-2);
+}
+.chip i{width:5px;height:5px;border-radius:1px;background:var(--stroke);flex:none}
+.chip.on i{background:var(--accent)}
+
+/* ── custody ──────────────────────────────────────────────── */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--stroke);margin-top:var(--sp-7)}
+.steps div{padding:24px 20px 0;border-right:1px solid var(--stroke-soft);position:relative}
+.steps div:last-child{border-right:0}
+.steps div::before{content:"";position:absolute;top:-4px;left:20px;width:7px;height:7px;background:var(--paper);border:1px solid var(--accent);border-radius:50%}
+.steps b{
+  display:block;font-family:var(--f-mono);font-size:11px;letter-spacing:var(--track-crunch);
+  text-transform:uppercase;color:var(--fg);margin-bottom:9px;font-weight:500;
+}
+.steps p{color:var(--fg-3);font-size:14px;line-height:1.5}
+
+/* ── final cta ────────────────────────────────────────────── */
+.finalcta{padding-block:clamp(60px,7vw,110px);text-align:center;border-bottom:1px solid var(--stroke)}
+.finalcta h2{font-size:var(--display-md);line-height:1.02;letter-spacing:-.035em;max-width:16ch;margin:0 auto}
+.finalcta h2 em{color:var(--accent);font-style:normal}
+.finalcta p{color:var(--fg-3);margin:20px auto 0;max-width:48ch}
+.finalcta__ctas{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:32px}
+
+/* ── footer ───────────────────────────────────────────────── */
+.foot{background:var(--ink);color:var(--ink-fg-4)}
+.foot__cols{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:32px;
+  padding-block:clamp(40px,4.5vw,64px);
+}
+.foot__cols h5{
+  font-family:var(--f-mono);font-size:10px;letter-spacing:var(--track-crunch);
+  text-transform:uppercase;color:var(--ink-fg);margin:0 0 14px;font-weight:500;
+}
+.foot__cols ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px}
+.foot__cols a{font-size:14px;color:var(--ink-fg-4);text-decoration:none}
+.foot__cols a:hover{color:var(--ink-fg)}
+.bigmark{border-top:1px solid var(--ink-stroke);overflow:hidden}
+.bigmark__track{display:flex;width:max-content;animation:bigmark 40s linear infinite}
+.bigmark__track span{
+  font-family:var(--f-display);font-weight:500;font-size:clamp(64px,11vw,150px);
+  letter-spacing:-.05em;color:transparent;-webkit-text-stroke:1px #3a3b39;
+  padding:18px 40px 26px;white-space:nowrap;line-height:1;
+}
+@keyframes bigmark{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.foot__base{
+  border-top:1px solid var(--ink-stroke);padding-block:20px 26px;
+  display:flex;flex-wrap:wrap;gap:12px 22px;align-items:center;
+  font-family:var(--f-mono);font-size:10px;letter-spacing:var(--track-wide);
+}
+.foot__base .sp{margin-left:auto}
+
+/* ── responsive ───────────────────────────────────────────── */
+@media (max-width:1080px){
+  .hero__inner,.split,.section__head{grid-template-columns:1fr;gap:var(--sp-6)}
+  .section__head{align-items:start}
+  .cards{grid-template-columns:repeat(2,1fr)}
+  .stats__grid{grid-template-columns:repeat(3,1fr)}
+  .stats__grid div:nth-child(3n){border-right:0}
+  .stats__grid div:nth-child(-n+3){border-bottom:1px solid var(--stroke-soft)}
+  .badges{grid-template-columns:repeat(4,1fr)}
+  .steps{grid-template-columns:1fr 1fr}
+  .steps div:nth-child(2n){border-right:0}
+  .steps div:nth-child(-n+2){padding-bottom:24px}
+  .nav__links{display:none}
+}
+@media (max-width:640px){
+  .cards{grid-template-columns:1fr}
+  .stats__grid{grid-template-columns:1fr 1fr}
+  .stats__grid div:nth-child(2n){border-right:0}
+  .badges{grid-template-columns:repeat(3,1fr)}
+  .steps{grid-template-columns:1fr}
+  .steps div{border-right:0;padding-bottom:24px}
+  .foot__cols{grid-template-columns:1fr 1fr}
+  .bench__row{grid-template-columns:96px 1fr 62px;gap:10px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.001ms !important;transition-duration:.001ms !important}
+  .rail{-webkit-mask-image:none;mask-image:none}
+  .rail__track{animation:none;flex-wrap:wrap;width:100%}
+}
+</style>
+</head>
+<body>
+
+<div class="announce">
+  <b>LambdaTest is now TestMu AI.</b> Start free and get a $100 credit — <a href="#start">see what changed</a>
+</div>
+
+<header class="nav">
+  <div class="nav__inner">
+    <a class="nav__brand" href="#top">TestMu&nbsp;AI <em>formerly LambdaTest</em></a>
+    <nav class="nav__links">
+      <a href="#sixteen">Product</a>
+      <a href="#author">KaneAI</a>
+      <a href="#execute">HyperExecute</a>
+      <a href="#trust">AI Agents</a>
+      <a href="#integrations">Integrations</a>
+    </nav>
+    <div class="nav__cta">
+      <a class="btn" href="#start">Sign in</a>
+      <a class="btn btn--solid" href="#start">Book a demo</a>
+    </div>
+  </div>
+</header>
+
+<!-- ── HERO ───────────────────────────────────────────────── -->
+<section class="hero" id="top">
+  <div class="shell hero__inner">
+    <div>
+      <span class="eyebrow">One run · sixteen checks · all green</span>
+      <h1 class="hero__h1">16 reasons to <em>trust</em> TestMu AI.</h1>
+      <p class="hero__lede">TestMu AI writes the test, runs it on real hardware, watches your AI agents for hallucinations, and hands back evidence anyone can open. Here is the whole case, laid out the way we would report a run.</p>
+      <div class="hero__cta">
+        <a class="btn btn--solid" href="#start">Start free <span class="arr">→</span></a>
+        <a class="btn" href="#sixteen">Read the sixteen</a>
+      </div>
+      <p class="hero__note">No credit card · 3M+ engineers · 18,000+ enterprises</p>
+    </div>
+
+    <div class="panel">
+      <div class="panel__bar">
+        <span>run · why-testmu.evidence</span>
+        <span class="runpill"><i class="runpill__dot"></i>16/16 passed</span>
+      </div>
+      <canvas id="matrix" width="900" height="1020" aria-label="A four by four matrix of sixteen checks, each resolving from noise into a passing checkmark."></canvas>
+      <div class="panel__foot">
+        <div>Checks · <b>16</b></div>
+        <div>Failed · <b>0</b></div>
+        <div>Duration · <b>4m 41s</b></div>
+        <div>Sealed · <b>sha256</b></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── STATS ──────────────────────────────────────────────── -->
+<section class="stats">
+  <div class="shell stats__grid">
+    <div><b>3M+</b><span>Engineers</span></div>
+    <div><b>18,000+</b><span>Enterprises</span></div>
+    <div><b>10,000+</b><span>Real devices</span></div>
+    <div><b>3,000+</b><span>Browser &amp; OS</span></div>
+    <div><b>132+</b><span>Countries</span></div>
+    <div><b>70%</b><span>Faster runs</span></div>
+  </div>
+</section>
+
+<!-- ── THE SIXTEEN ────────────────────────────────────────── -->
+<section class="section" id="sixteen">
+  <div class="shell">
+    <div class="section__head">
+      <div>
+        <span class="eyebrow">The sixteen</span>
+        <h2 class="section__title">Four rows. Four columns. Every one green.</h2>
+      </div>
+      <p class="section__aside">Sixteen reasons is a coverage matrix, which is the real artifact of a test run. Read it as one grid, then take the four that matter to you in depth below.</p>
+    </div>
+
+    <div class="cards">
+      <div class="card"><div class="card__idx">Reason 01</div><h3 class="card__title">Describe the test. Kane AI writes it.</h3><p class="card__body">KaneAI turns a plain-English description of a journey into production-grade test steps, then exports them to the framework your repo already speaks.</p><div class="card__meta"><b>Selenium · Playwright · Cypress</b></div></div>
+      <div class="card"><div class="card__idx">Reason 02</div><h3 class="card__title">Your terminal learned to test.</h3><p class="card__body">Kane CLI brings natural-language browser automation to the command line. Script a regression sweep the way you would explain it to a colleague.</p><div class="card__meta"><b>npm i -g kane-cli</b></div></div>
+      <div class="card"><div class="card__idx">Reason 03</div><h3 class="card__title">Tests that repair themselves.</h3><p class="card__body">The Auto-Heal agent rebinds locators when the UI moves underneath them. Flaky failures and the rework they drag behind them stop landing in your morning.</p><div class="card__meta"><b>Self-healing</b> locators</div></div>
+      <div class="card"><div class="card__idx">Reason 04</div><h3 class="card__title">Anyone can add coverage.</h3><p class="card__body">Product managers and support leads author real tests in plain language. Coverage stops being gated on who can write a selector.</p><div class="card__meta"><b>No code</b> required</div></div>
+
+      <div class="card"><div class="card__idx">Reason 05</div><h3 class="card__title">CI hours become CI minutes.</h3><p class="card__body">HyperExecute schedules, shards and streams your suite instead of scattering it across a hub-and-node grid. Same tests, up to 70% faster.</p><div class="card__meta"><b>Up to 70%</b> faster</div></div>
+      <div class="card"><div class="card__idx">Reason 06</div><h3 class="card__title">Suites that split themselves.</h3><p class="card__body">Auto-Split discovers test entities and distributes them across VMs, balancing load so the longest machine stops setting your wall-clock time.</p><div class="card__meta"><b>2.8M</b> tests split</div></div>
+      <div class="card"><div class="card__idx">Reason 07</div><h3 class="card__title">Doomed runs stop early.</h3><p class="card__body">Run high-value scenarios first and abort automatically once failures pass a threshold. You stop paying compute for a run you already know the answer to.</p><div class="card__meta"><b>89k</b> jobs halted early</div></div>
+      <div class="card"><div class="card__idx">Reason 08</div><h3 class="card__title">Failures arrive pre-diagnosed.</h3><p class="card__body">The Root Cause Analysis agent triages a red build and says what broke and what to do next. Flaky detection separates a regression from noise.</p><div class="card__meta"><b>156k</b> jobs prioritized</div></div>
+
+      <div class="card"><div class="card__idx">Reason 09</div><h3 class="card__title">10,000+ real devices, not emulators.</h3><p class="card__body">Test on the hardware your users actually hold — every flagship, every aging model still in use, every regional variant. Real chipsets, real sensors.</p><div class="card__meta"><b>Real Android · Real iOS</b></div></div>
+      <div class="card"><div class="card__idx">Reason 10</div><h3 class="card__title">3,000+ browser and OS combinations.</h3><p class="card__body">Every major browser and OS, legacy through latest, pre-configured and parallel-ready. No Selenium Grid for anyone on your team to babysit.</p><div class="card__meta"><b>Driver-free</b></div></div>
+      <div class="card"><div class="card__idx">Reason 11</div><h3 class="card__title">Every request looks local.</h3><p class="card__body">Test across 180+ geolocations so pricing, consent banners and latency resolve the way a local user sees them. No VPN juggling, no IP rotation scripts.</p><div class="card__meta"><b>180+</b> geolocations</div></div>
+      <div class="card"><div class="card__idx">Reason 12</div><h3 class="card__title">A real Chrome for your AI agents.</h3><p class="card__body">Give Claude, Cursor, Gemini or OpenAI Computer Use a full cloud Chrome with persistent state, tunneling and full debugging transparency.</p><div class="card__meta"><b>Claude · Cursor · Gemini</b></div></div>
+
+      <div class="card"><div class="card__idx">Reason 13</div><h3 class="card__title">Catch hallucinations before your users do.</h3><p class="card__body">AI evaluators test chat, voice and calling agents for invented facts, bias, toxicity and incomplete answers — across unlimited scenarios.</p><div class="card__meta"><b>Nine</b> quality dimensions</div></div>
+      <div class="card"><div class="card__idx">Reason 14</div><h3 class="card__title">Every agent type, one platform.</h3><p class="card__body">Chat, voice and calling agents evaluated the same way, across phone, chat, email and WhatsApp. See what your agent saw before a customer does.</p><div class="card__meta"><b>Agent-to-agent</b> testing</div></div>
+      <div class="card"><div class="card__idx">Reason 15</div><h3 class="card__title">Evidence anyone can open.</h3><p class="card__body">Every run seals into one portable pack — steps, verdicts, screenshots, a sha256 checksum. It opens offline, byte for byte, months later.</p><div class="card__meta"><b>Open format</b>, not a lock-in</div></div>
+      <div class="card"><div class="card__idx">Reason 16</div><h3 class="card__title">Go to market with confidence.</h3><p class="card__body">The attestations your security review will ask for, and a deployment model that keeps regulated data inside your own cloud.</p><div class="card__meta"><b>SOC 2 · GDPR · HIPAA</b></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SPOTLIGHT: KANE AI ─────────────────────────────────── -->
+<section class="section" id="author">
+  <div class="shell split">
+    <div>
+      <span class="eyebrow">Reason 01 · <b>Author</b></span>
+      <h2 class="split__title">Describe the test. Kane AI writes it.</h2>
+      <p class="split__lede">KaneAI turns a plain-English description of a journey into detailed, production-grade test steps — then exports them to Selenium, Playwright, Cypress or Appium in the language your repo already speaks. Your team reviews intent, not brittle selectors.</p>
+      <div class="taglist">
+        <span class="tag">Selenium</span><span class="tag">Playwright</span>
+        <span class="tag">Cypress</span><span class="tag">Appium</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel__bar">
+        <span>kane-ai · authoring</span>
+        <span class="runpill"><i class="runpill__dot"></i>live</span>
+      </div>
+      <div class="term"><span class="dim">you ›</span> <span class="in">search "wireless earphones", open the first result,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add to cart, check the order summary price matches</span><br /><br /><span class="dim">↳ planning 6 steps · resolving intent</span><br /><span class="ok">✓</span> <span class="dim">navigate → search → open result → add → assert</span><br /><span class="ok">✓</span> <span class="dim">locators bound with self-healing fallbacks</span><br /><span class="ok">✓</span> <span class="dim">exported</span> <span class="in">checkout.spec.ts</span> <span class="dim">· playwright</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SPOTLIGHT: HYPEREXECUTE ────────────────────────────── -->
+<section class="section" id="execute">
+  <div class="shell split">
+    <div>
+      <span class="eyebrow">Reason 05 · <b>Execute</b></span>
+      <h2 class="split__title">CI hours become CI minutes.</h2>
+      <p class="split__lede">HyperExecute is AI-native orchestration: it schedules, shards and streams your suite instead of scattering it across a hub-and-node grid. The same tests, up to 70% faster — and a fraction of the waiting that made everyone stop watching the pipeline.</p>
+      <div class="taglist">
+        <span class="tag">Auto-split</span><span class="tag">Smart retries</span>
+        <span class="tag">Rich artifacts</span><span class="tag">Reusable workflows</span>
+      </div>
+    </div>
+    <div class="bench">
+      <div class="bench__head"><h3>Wall-clock · same suite</h3><span>▼ 70%</span></div>
+      <div class="bench__body">
+        <div class="bench__row"><span class="bench__name">Selenium grid</span><span class="bench__track"><span class="bench__fill" style="width:100%"></span></span><span class="bench__val">48m 10s</span></div>
+        <div class="bench__row"><span class="bench__name">Self-hosted</span><span class="bench__track"><span class="bench__fill" style="width:78%"></span></span><span class="bench__val">37m 32s</span></div>
+        <div class="bench__row"><span class="bench__name">Container pool</span><span class="bench__track"><span class="bench__fill" style="width:61%"></span></span><span class="bench__val">29m 24s</span></div>
+        <div class="bench__row"><span class="bench__name">HyperExecute</span><span class="bench__track"><span class="bench__fill win" style="width:30%"></span></span><span class="bench__val">14m 27s</span></div>
+      </div>
+      <div class="bench__foot">Illustrative — a 2,400-test suite. Your ratio depends on suite shape.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SPOTLIGHT: AGENT EVAL ──────────────────────────────── -->
+<section class="section" id="trust">
+  <div class="shell split">
+    <div>
+      <span class="eyebrow">Reason 13 · <b>Trust</b></span>
+      <h2 class="split__title">Catch hallucinations before your users do.</h2>
+      <p class="split__lede">AI evaluators test your chat, voice and calling agents for invented facts, biased responses, toxicity and incomplete answers — with the precision your best QA engineer brings, across unlimited scenarios. A hallucinating healthcare chatbot is a liability, not a bug you triage next sprint.</p>
+      <div class="taglist">
+        <span class="tag">Hallucination</span><span class="tag">Bias</span>
+        <span class="tag">Toxicity</span><span class="tag">Compliance</span>
+      </div>
+    </div>
+    <div class="bench">
+      <div class="bench__head"><h3>Agent eval · nine dimensions</h3><span>1,248 scenarios</span></div>
+      <div class="bench__body">
+        <div class="bench__row"><span class="bench__name">Factual accuracy</span><span class="bench__track"><span class="bench__fill win" style="width:96%"></span></span><span class="bench__val">96%</span></div>
+        <div class="bench__row"><span class="bench__name">Hallucination</span><span class="bench__track"><span class="bench__fill win" style="width:92%"></span></span><span class="bench__val">1.4%</span></div>
+        <div class="bench__row"><span class="bench__name">Bias &amp; fairness</span><span class="bench__track"><span class="bench__fill win" style="width:94%"></span></span><span class="bench__val">94%</span></div>
+        <div class="bench__row"><span class="bench__name">Toxicity</span><span class="bench__track"><span class="bench__fill win" style="width:99%"></span></span><span class="bench__val">0.1%</span></div>
+        <div class="bench__row"><span class="bench__name">Instruction</span><span class="bench__track"><span class="bench__fill win" style="width:91%"></span></span><span class="bench__val">91%</span></div>
+        <div class="bench__row"><span class="bench__name">Task completion</span><span class="bench__track"><span class="bench__fill win" style="width:88%"></span></span><span class="bench__val">88%</span></div>
+      </div>
+      <div class="bench__foot">Sample scorecard. Nine dimensions run per scenario.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── COMPLIANCE ─────────────────────────────────────────── -->
+<section class="section" id="secure">
+  <div class="shell">
+    <div class="section__head">
+      <div>
+        <span class="eyebrow">Reason 16 · <b>Assurance</b></span>
+        <h2 class="section__title">Go to market with confidence — protected at every step.</h2>
+      </div>
+      <p class="section__aside">The launch does not slip because legal is still reading. TestMu AI arrives with the attestations your security review is going to ask for, and a deployment model that keeps regulated data inside your own cloud.</p>
+    </div>
+    <div class="badges">
+      <div class="badge">
+        <div class="badge__tile"><svg viewBox="0 0 96 96" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><defs><path id="eu-star" d="M0 -5.2 1.22 -1.6 4.95 -1.6 1.93 .61 3.06 4.2 0 1.98 -3.06 4.2 -1.93 .61 -4.95 -1.6 -1.22 -1.6Z" fill="currentColor" stroke="none"/></defs><use href="#eu-star" x="48" y="15"/><use href="#eu-star" x="64.5" y="19.4"/><use href="#eu-star" x="76.6" y="31.5"/><use href="#eu-star" x="81" y="48"/><use href="#eu-star" x="76.6" y="64.5"/><use href="#eu-star" x="64.5" y="76.6"/><use href="#eu-star" x="48" y="81"/><use href="#eu-star" x="31.5" y="76.6"/><use href="#eu-star" x="19.4" y="64.5"/><use href="#eu-star" x="15" y="48"/><use href="#eu-star" x="19.4" y="31.5"/><use href="#eu-star" x="31.5" y="19.4"/><text x="48" y="53" font-size="13">GDPR</text></svg></div>
+        <div class="badge__cap">GDPR</div>
+      </div>
+      <div class="badge">
+        <div class="badge__tile"><svg viewBox="0 0 96 96" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M48 14c-7 5.2-17 7.8-27 7.8V48c0 18.4 11 29.6 27 35.6 16-6 27-17.2 27-35.6V21.8c-10 0-20-2.6-27-7.8z"/><text x="48" y="47" font-size="13.5">SOC</text><text x="48" y="63" font-size="13.5">1</text></svg></div>
+        <div class="badge__cap">SOC 1</div>
+      </div>
+      <div class="badge">
+        <div class="badge__tile"><svg viewBox="0 0 96 96" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M48 14c-7 5.2-17 7.8-27 7.8V48c0 18.4 11 29.6 27 35.6 16-6 27-17.2 27-35.6V21.8c-10 0-20-2.6-27-7.8z"/><text x="48" y="47" font-size="13.5">SOC</text><text x="48" y="63" font-size="13.5">2</text></svg></div>
+        <div class="badge__cap">SOC 2</div>
+      </div>
+      <div class="badge">
+        <div class="badge__tile"><svg viewBox="0 0 96 96" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="16" y="16" width="64" height="64" rx="6"/><rect x="41.5" y="33" width="13" height="9.5" rx="1.6"/><path d="M44 33v-3.2a4 4 0 0 1 8 0"/><text x="48" y="60" font-size="13">HIPAA</text></svg></div>
+        <div class="badge__cap">HIPAA</div>
+      </div>
+      <div class="badge">
+        <div class="badge__tile"><svg viewBox="0 0 96 96" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="48" cy="48" r="32"/><circle cx="48" cy="48" r="27.5"/><text x="48" y="46" font-size="13">CSA</text><text x="48" y="60" font-size="13">STAR</text></svg></div>
+        <div class="badge__cap">CSA STAR</div>
+      </div>
+      <div class="badge">
+        <div class="badge__tile"><svg viewBox="0 0 96 96" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="48" cy="48" r="31"/><text x="48" y="46" font-size="13">FSQS</text><text x="48" y="60" font-size="13">REG.</text></svg></div>
+        <div class="badge__cap">FSQS registered</div>
+      </div>
+      <div class="badge">
+        <div class="badge__tile"><svg viewBox="0 0 96 96" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="17" y="17" width="62" height="62" rx="3"/><rect x="23" y="23" width="50" height="50" rx="2" transform="rotate(45 48 48)"/><text x="48" y="45" font-size="12.5">EU AI</text><text x="48" y="59" font-size="12.5">ACT</text></svg></div>
+        <div class="badge__cap">EU AI Act</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── INTEGRATIONS ───────────────────────────────────────── -->
+<section class="section" id="integrations">
+  <div class="shell">
+    <div class="section__head">
+      <div>
+        <span class="eyebrow">Integrations</span>
+        <h2 class="section__title">It plugs into the stack you already run.</h2>
+      </div>
+      <p class="section__aside">Keep your framework, your pipeline and your tracker. TestMu AI slots in beside them — exporting to the runners your repo already speaks, reporting into the tools your team already watches.</p>
+    </div>
+    <div class="rails">
+      <div class="rail" aria-hidden="true"><div class="rail__track"><span class="chip"><i></i>Selenium</span><span class="chip"><i></i>Playwright</span><span class="chip"><i></i>Cypress</span><span class="chip"><i></i>Appium</span><span class="chip"><i></i>Puppeteer</span><span class="chip"><i></i>TestNG</span><span class="chip"><i></i>JUnit</span><span class="chip"><i></i>Pytest</span><span class="chip"><i></i>Mocha</span><span class="chip"><i></i>Robot Framework</span><span class="chip"><i></i>Selenium</span><span class="chip"><i></i>Playwright</span><span class="chip"><i></i>Cypress</span><span class="chip"><i></i>Appium</span><span class="chip"><i></i>Puppeteer</span><span class="chip"><i></i>TestNG</span><span class="chip"><i></i>JUnit</span><span class="chip"><i></i>Pytest</span><span class="chip"><i></i>Mocha</span><span class="chip"><i></i>Robot Framework</span></div></div>
+      <div class="rail b" aria-hidden="true"><div class="rail__track"><span class="chip"><i></i>GitHub Actions</span><span class="chip"><i></i>GitLab CI</span><span class="chip"><i></i>Jenkins</span><span class="chip"><i></i>CircleCI</span><span class="chip"><i></i>Azure DevOps</span><span class="chip"><i></i>Bitbucket Pipelines</span><span class="chip"><i></i>Travis CI</span><span class="chip"><i></i>Bamboo</span><span class="chip"><i></i>TeamCity</span><span class="chip"><i></i>GitHub Actions</span><span class="chip"><i></i>GitLab CI</span><span class="chip"><i></i>Jenkins</span><span class="chip"><i></i>CircleCI</span><span class="chip"><i></i>Azure DevOps</span><span class="chip"><i></i>Bitbucket Pipelines</span><span class="chip"><i></i>Travis CI</span><span class="chip"><i></i>Bamboo</span><span class="chip"><i></i>TeamCity</span></div></div>
+      <div class="rail c" aria-hidden="true"><div class="rail__track"><span class="chip on"><i></i>Claude Code</span><span class="chip on"><i></i>Cursor</span><span class="chip on"><i></i>OpenAI Codex</span><span class="chip on"><i></i>Gemini CLI</span><span class="chip on"><i></i>Perplexity</span><span class="chip"><i></i>Jira</span><span class="chip"><i></i>Slack</span><span class="chip"><i></i>Asana</span><span class="chip"><i></i>Trello</span><span class="chip"><i></i>Microsoft Teams</span><span class="chip on"><i></i>Claude Code</span><span class="chip on"><i></i>Cursor</span><span class="chip on"><i></i>OpenAI Codex</span><span class="chip on"><i></i>Gemini CLI</span><span class="chip on"><i></i>Perplexity</span><span class="chip"><i></i>Jira</span><span class="chip"><i></i>Slack</span><span class="chip"><i></i>Asana</span><span class="chip"><i></i>Trello</span><span class="chip"><i></i>Microsoft Teams</span></div></div>
+    </div>
+    <p class="sr">Integrates with Appium, Asana, Azure DevOps, Bamboo, Bitbucket Pipelines, CircleCI, Claude Code, Cursor, Cypress, Gemini CLI, GitHub Actions, GitLab CI, Jenkins, Jira, JUnit, Microsoft Teams, Mocha, OpenAI Codex, Perplexity, Playwright, Puppeteer, Pytest, Robot Framework, Selenium, Slack, TeamCity, TestNG, Travis CI, Trello.</p>
+  </div>
+</section>
+
+<!-- ── CUSTODY ────────────────────────────────────────────── -->
+<section class="section">
+  <div class="shell">
+    <span class="eyebrow">Chain of custody</span>
+    <h2 class="section__title">What a run leaves behind, after everyone has gone home.</h2>
+    <div class="steps">
+      <div><b>Produced</b><p>The runner writes each step as it happens — inputs, timings, the page as the agent saw it.</p></div>
+      <div><b>Sealed</b><p>Finalize hashes the pack with sha256. Tamper-evident, and the checksum travels with it.</p></div>
+      <div><b>Carried</b><p>One file. Slack, S3, a USB stick. No server, no account, no expiring report link.</p></div>
+      <div><b>Opened</b><p>Read back offline, byte for byte — by a human, an agent or an auditor, months later.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FINAL CTA ──────────────────────────────────────────── -->
+<section class="finalcta" id="start">
+  <div class="shell">
+    <span class="eyebrow">Start free</span>
+    <h2>Sixteen reasons. One free run to <em>check them</em>.</h2>
+    <p>Point TestMu AI at a journey you already care about and see what comes back. No credit card, no grid to stand up, and the evidence pack is yours to keep either way.</p>
+    <div class="finalcta__ctas">
+      <a class="btn btn--solid" href="#start">Start free <span class="arr">→</span></a>
+      <a class="btn" href="#start">Book a demo</a>
+    </div>
+    <p class="hero__note">Trusted by teams at Microsoft, OpenAI and Nvidia · 132+ countries</p>
+  </div>
+</section>
+
+<!-- ── FOOTER ─────────────────────────────────────────────── -->
+<footer class="foot">
+  <div class="shell">
+    <div class="foot__cols">
+      <div>
+        <h5>Author</h5>
+        <ul><li><a href="#author">KaneAI</a></li><li><a href="#author">Kane CLI</a></li><li><a href="#author">Auto-Heal agent</a></li><li><a href="#author">Test case generator</a></li></ul>
+      </div>
+      <div>
+        <h5>Execute</h5>
+        <ul><li><a href="#execute">HyperExecute</a></li><li><a href="#execute">Auto-Split</a></li><li><a href="#execute">Root cause analysis</a></li><li><a href="#execute">Flaky detection</a></li></ul>
+      </div>
+      <div>
+        <h5>Cover</h5>
+        <ul><li><a href="#sixteen">Real Device Cloud</a></li><li><a href="#sixteen">Browser &amp; OS grid</a></li><li><a href="#sixteen">Geolocation testing</a></li><li><a href="#sixteen">Agent browser</a></li></ul>
+      </div>
+      <div>
+        <h5>Trust</h5>
+        <ul><li><a href="#trust">Agent testing</a></li><li><a href="#trust">Evidence packs</a></li><li><a href="#secure">Security &amp; compliance</a></li><li><a href="#secure">Deployment options</a></li></ul>
+      </div>
+    </div>
+  </div>
+  <div class="bigmark" aria-hidden="true">
+    <div class="bigmark__track"><span>TESTMU AI</span><span>TESTMU AI</span><span>TESTMU AI</span><span>TESTMU AI</span></div>
+  </div>
+  <div class="shell">
+    <div class="foot__base">
+      <span>TestMu AI — formerly LambdaTest</span>
+      <span class="sp">SOC 2 · GDPR · HIPAA · CSA · FSQS · EU AI Act</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function tok(n){ return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+
+  var cv = document.getElementById("matrix");
+  if(!cv) return;
+  var ctx = cv.getContext("2d");
+  var N = 11, CELLS = 4;
+
+  var glyph = (function(){
+    var set = {};
+    function put(x,y){ if(x>=0&&x<N&&y>=0&&y<N) set[x+","+y]=1; }
+    for(var i=0;i<4;i++){ put(1+i,5+i); put(2+i,5+i); }
+    for(var j=0;j<7;j++){ put(4+j,8-j); put(5+j,8-j); }
+    return set;
+  })();
+
+  function noise(x,y,c){
+    var n = Math.sin(x*127.1 + y*311.7 + c*74.7) * 43758.5453;
+    return n - Math.floor(n);
+  }
+
+  function drawField(progress, box){
+    var W = cv.width, H = cv.height, step = 15, maxR = 6.6;
+    ctx.fillStyle = tok("--stroke");
+    for(var x = step*0.5; x < W; x += step){
+      for(var y = step*0.5; y < H; y += step){
+        var w1 = Math.sin(x*0.0062 + Math.sin(y*0.0049)*2.6);
+        var w2 = Math.cos(y*0.0071 - x*0.0022 - 0.6);
+        var v = 0.42 + 0.58 * (w1 * 0.6 + w2 * 0.4);
+        var g = 1 - Math.max(0, Math.min(1, (x/W*0.85 + (1 - y/H)*1.15) / 2));
+        var amp = Math.max(0, Math.min(1, v * (0.62 + g * 0.78)));
+        var inset = 30;
+        if(x > box.x - inset && x < box.x + box.w + inset &&
+           y > box.y - inset && y < box.y + box.h + inset) amp *= (1 - progress * 0.86);
+        var r = maxR * amp;
+        if(r < 0.30) continue;
+        ctx.globalAlpha = 0.26 + amp * 0.52;
+        ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI*2); ctx.fill();
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function drawMatrix(progress){
+    var W = cv.width, H = cv.height, pad = 96, gap = 10;
+    var cell = (W - pad*2 - gap*(CELLS-1)) / CELLS;
+    var dot = cell / N;
+    var inkC = tok("--fg"), passC = tok("--accent"), dotC = tok("--stroke"), cardC = tok("--surface");
+
+    ctx.fillStyle = cardC; ctx.fillRect(0,0,W,H);
+    var gridTop = (H - (cell*CELLS + gap*(CELLS-1))) / 2;
+    drawField(progress, {x:pad, y:gridTop, w:cell*CELLS+gap*(CELLS-1), h:cell*CELLS+gap*(CELLS-1)});
+
+    for(var c=0;c<CELLS*CELLS;c++){
+      var cx = pad + (c % CELLS) * (cell + gap);
+      var cy = gridTop + Math.floor(c / CELLS) * (cell + gap);
+      var t = Math.max(0, Math.min(1, (progress * (CELLS*CELLS + 7)) - c));
+
+      for(var x=0;x<N;x++){
+        for(var y=0;y<N;y++){
+          var on = glyph[x+","+y] === 1;
+          var r = noise(x,y,c);
+          var a, col;
+          if(on){ a = t; col = passC; }
+          else { a = r < 0.42 ? (0.55 * (1 - t) + 0.14) : 0; col = dotC; }
+          if(a <= 0.01) continue;
+          ctx.globalAlpha = a; ctx.fillStyle = col;
+          var s = dot * (on ? 0.80 : 0.58);
+          ctx.fillRect(cx + x*dot + (dot-s)/2, cy + y*dot + (dot-s)/2, s, s);
+        }
+      }
+      ctx.globalAlpha = 0.14 * Math.max(0, Math.min(1, t*1.4));
+      ctx.strokeStyle = inkC; ctx.lineWidth = 2;
+      ctx.strokeRect(cx - 6, cy - 6, cell + 12, cell + 12);
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  if(reduce){ drawMatrix(1); return; }
+  var t0 = null, DUR = 2100;
+  function frame(ts){
+    if(t0 === null) t0 = ts;
+    var p = Math.min(1, (ts - t0) / DUR);
+    drawMatrix(1 - Math.pow(1 - p, 2.2));
+    if(p < 1) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
