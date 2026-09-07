@@ -1,0 +1,939 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sixteen Passing Reasons</title>
+<meta name="description" content="Sixteen reasons to try TestMu AI, laid out as a 4×4 coverage matrix — author, execute, cover, trust." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" />
+<style>
+/* ─────────────────────────────────────────────────────────────
+   Tokens — lifted from the TestMu Figma variable set
+   Bg/default #f5f4f0 · Fg/default #121212 · Fg/muted #4d4d4d
+   Border/default #d3d2cd · bg/success-emphasis #1f883d
+   Heading/H2 Manrope Medium 48/58 ls -2 · Text sm Inter Medium 14/20
+   ───────────────────────────────────────────────────────────── */
+:root{
+  --paper:#f5f4f0;
+  --card:#ffffff;
+  --ink:#121212;
+  --muted:#4d4d4d;
+  --faint:#8b897f;
+  --rule:#d3d2cd;
+  --rule-soft:#e4e2db;
+  --pass:#1f883d;
+  --pass-dim:#1f883d24;
+  --warn:#b54708;
+  --band:#121212;
+  --band-ink:#f5f4f0;
+  --band-muted:#b8b7b4;
+  --band-rule:#2c2c2c;
+  --dot:#c9c7bd;
+
+  --shell:1240px;
+  --gut:clamp(20px,4.4vw,104px);
+
+  --f-display:"Manrope",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --f-body:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#121212;
+    --card:#191919;
+    --ink:#f2f0ea;
+    --muted:#a8a69d;
+    --faint:#77756c;
+    --rule:#2e2e2c;
+    --rule-soft:#242423;
+    --pass:#3fb950;
+    --pass-dim:#3fb95024;
+    --warn:#d98634;
+    --band:#0b0b0b;
+    --band-ink:#f2f0ea;
+    --band-muted:#8f8d85;
+    --band-rule:#242424;
+    --dot:#33332f;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#121212;
+  --card:#191919;
+  --ink:#f2f0ea;
+  --muted:#a8a69d;
+  --faint:#77756c;
+  --rule:#2e2e2c;
+  --rule-soft:#242423;
+  --pass:#3fb950;
+  --pass-dim:#3fb95024;
+  --warn:#d98634;
+  --band:#0b0b0b;
+  --band-ink:#f2f0ea;
+  --band-muted:#8f8d85;
+  --band-rule:#242424;
+  --dot:#33332f;
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--f-body);
+  font-size:15.5px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+a{color:inherit}
+img,canvas{max-width:100%;display:block}
+::selection{background:var(--pass-dim)}
+:focus-visible{outline:2px solid var(--pass);outline-offset:3px;border-radius:2px}
+
+.shell{max-width:var(--shell);margin:0 auto;padding-inline:var(--gut)}
+
+/* type */
+.mono{font-family:var(--f-mono);font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--faint);font-weight:500}
+h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:-.032em;margin:0;text-wrap:balance;line-height:1.04}
+p{margin:0}
+.lede{color:var(--muted);max-width:62ch}
+
+/* ── announcement ─────────────────────────────────────────── */
+.announce{
+  background:var(--band);color:var(--band-muted);
+  font-family:var(--f-mono);font-size:11.5px;letter-spacing:.04em;
+  text-align:center;padding:9px 16px;
+}
+.announce b{color:var(--band-ink);font-weight:500}
+.announce a{color:var(--pass);text-decoration:none;border-bottom:1px solid transparent}
+.announce a:hover{border-bottom-color:currentColor}
+
+/* ── nav ──────────────────────────────────────────────────── */
+.nav{border-bottom:1px solid var(--rule);position:sticky;top:0;z-index:60;background:color-mix(in srgb,var(--paper) 88%,transparent);backdrop-filter:blur(10px)}
+.nav-in{display:flex;align-items:center;gap:30px;height:60px}
+.brand{display:flex;align-items:baseline;gap:8px;font-family:var(--f-display);font-weight:700;letter-spacing:-.03em;font-size:17px;text-decoration:none}
+.brand em{font-style:normal;font-family:var(--f-mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);font-weight:400}
+.nav-links{display:flex;gap:22px;margin-left:6px}
+.nav-links a{font-size:13.5px;color:var(--muted);text-decoration:none}
+.nav-links a:hover{color:var(--ink)}
+.nav-act{margin-left:auto;display:flex;align-items:center;gap:14px}
+
+.btn{
+  font-family:var(--f-body);font-size:13.5px;font-weight:500;
+  padding:9px 15px;border-radius:6px;text-decoration:none;
+  border:1px solid var(--ink);background:var(--ink);color:var(--paper);
+  display:inline-block;transition:opacity .16s ease;
+}
+.btn:hover{opacity:.85}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--rule)}
+.btn.ghost:hover{border-color:var(--ink);opacity:1}
+.btn.lg{padding:13px 22px;font-size:14.5px}
+
+/* ── hero ─────────────────────────────────────────────────── */
+.hero{
+  border-bottom:1px solid var(--rule);position:relative;overflow:hidden;
+  background-image:radial-gradient(var(--dot) 1px,transparent 1px);
+  background-size:22px 22px;background-position:-1px -1px;
+}
+.hero::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(105deg,var(--paper) 34%,transparent 62%),
+             linear-gradient(0deg,var(--paper) 4%,transparent 34%);
+}
+.hero-in{position:relative;z-index:1}
+.hero-in{
+  display:grid;grid-template-columns:minmax(0,1fr) 420px;gap:64px;
+  align-items:center;padding-block:clamp(48px,7vw,88px);
+}
+h1{font-size:clamp(40px,5.9vw,76px);line-height:.98;letter-spacing:-.042em;max-width:14ch}
+h1 .num{
+  font-variant-numeric:tabular-nums;
+  background:linear-gradient(transparent 66%,var(--pass-dim) 66%);
+}
+.hero p.lede{font-size:clamp(15.5px,1.35vw,17.5px);margin-top:26px;max-width:52ch}
+.hero-cta{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:34px}
+.hero-note{font-family:var(--f-mono);font-size:11.5px;color:var(--faint);letter-spacing:.02em}
+
+/* matrix panel */
+.panel{position:relative;background:var(--card);border:1px solid var(--rule)}
+.tick{position:absolute;width:5px;height:5px;background:var(--ink);z-index:2}
+.tick.tl{top:-1px;left:-1px}.tick.tr{top:-1px;right:-1px}
+.tick.bl{bottom:-1px;left:-1px}.tick.br{bottom:-1px;right:-1px}
+.panel-bar{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:9px 13px;border-bottom:1px solid var(--rule);
+  font-family:var(--f-mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);
+}
+.panel-bar .ok{color:var(--pass);letter-spacing:.06em}
+#matrix{width:100%;height:auto;display:block}
+.matrix-legend{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:0;
+  border-top:1px solid var(--rule);font-family:var(--f-mono);font-size:10.5px;
+}
+.matrix-legend div{padding:9px 13px;color:var(--faint);letter-spacing:.05em}
+.matrix-legend div:nth-child(odd){border-right:1px solid var(--rule)}
+.matrix-legend div:nth-child(-n+2){border-bottom:1px solid var(--rule)}
+.matrix-legend b{color:var(--ink);font-weight:500}
+
+/* ── proof strip ──────────────────────────────────────────── */
+.proof{border-bottom:1px solid var(--rule);background:var(--card)}
+.proof-in{display:grid;grid-template-columns:repeat(6,1fr);}
+.proof-in div{
+  padding:22px 18px;border-right:1px solid var(--rule-soft);
+}
+.proof-in div:last-child{border-right:0}
+.proof-in b{
+  display:block;font-family:var(--f-display);font-weight:600;font-size:23px;
+  letter-spacing:-.03em;font-variant-numeric:tabular-nums;
+}
+.proof-in span{display:block;font-family:var(--f-mono);font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--faint);margin-top:5px}
+
+/* ── sticky minimap ───────────────────────────────────────── */
+.minimap{
+  position:fixed;left:22px;top:50%;transform:translateY(-50%);z-index:50;
+  display:none;gap:7px;flex-direction:column;
+  padding:12px 11px;border:1px solid var(--rule);background:var(--card);border-radius:4px;
+}
+.minimap-row{display:flex;gap:7px}
+.minimap button{
+  width:9px;height:9px;padding:0;border:1px solid var(--rule);background:transparent;
+  border-radius:1px;cursor:pointer;transition:background .3s ease,border-color .3s ease;
+}
+.minimap button.on{background:var(--pass);border-color:var(--pass)}
+.minimap-cap{font-family:var(--f-mono);font-size:9px;letter-spacing:.1em;color:var(--faint);text-align:center;margin-top:3px}
+@media (min-width:1500px){.minimap{display:flex}}
+
+/* ── chapters ─────────────────────────────────────────────── */
+.chapter{border-bottom:1px solid var(--rule)}
+.chapter-head{
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:64px;
+  align-items:end;padding-block:clamp(40px,5vw,64px) 30px;
+}
+.chapter-head h2{font-size:clamp(26px,3.1vw,40px);letter-spacing:-.035em}
+.chapter-head .mono{display:block;margin-bottom:14px}
+.chapter-head p{color:var(--muted);font-size:15px;max-width:46ch;padding-bottom:5px}
+
+/* lead reason */
+.lead{
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.06fr);gap:56px;
+  align-items:center;padding-bottom:clamp(40px,5vw,62px);
+}
+.reason-no{
+  font-family:var(--f-mono);font-size:12px;letter-spacing:.1em;color:var(--pass);
+  display:flex;align-items:center;gap:11px;margin-bottom:16px;
+}
+.reason-no::after{content:"";height:1px;flex:1;background:var(--rule);max-width:120px}
+.lead h3{font-size:clamp(23px,2.5vw,33px);letter-spacing:-.034em;line-height:1.08}
+.lead p{color:var(--muted);margin-top:16px;max-width:48ch}
+.tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:22px}
+.tag{
+  font-family:var(--f-mono);font-size:10px;letter-spacing:.09em;text-transform:uppercase;
+  border:1px solid var(--rule);border-radius:999px;padding:4px 10px;color:var(--muted);
+}
+
+/* supporting cards */
+.cards{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--rule)}
+.card{
+  padding:30px 28px 32px;border-right:1px solid var(--rule);
+  display:flex;flex-direction:column;gap:12px;
+}
+.card:last-child{border-right:0}
+.card h4{
+  font-family:var(--f-display);font-weight:600;font-size:19px;letter-spacing:-.028em;
+  margin:0;line-height:1.2;text-wrap:balance;
+}
+.card p{color:var(--muted);font-size:14.5px}
+.card .metric{
+  margin-top:auto;padding-top:16px;border-top:1px solid var(--rule-soft);
+  font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;color:var(--faint);
+  display:flex;align-items:center;gap:8px;
+}
+.card .metric b{color:var(--ink);font-weight:500;font-variant-numeric:tabular-nums}
+.dotmark{width:6px;height:6px;background:var(--pass);border-radius:1px;flex:none}
+
+/* ── artifacts (panel innards) ────────────────────────────── */
+.term{
+  font-family:var(--f-mono);font-size:12.5px;line-height:1.85;padding:20px 22px;
+  color:var(--muted);overflow-x:auto;
+}
+.term .pr{color:var(--faint)}
+.term .in{color:var(--ink)}
+.term .ok{color:var(--pass)}
+.term .dim{color:var(--faint)}
+
+.bars{padding:24px 24px 18px;display:flex;flex-direction:column;gap:15px}
+.bar-row{display:grid;grid-template-columns:112px minmax(0,1fr) 62px;align-items:center;gap:13px}
+.bar-row .lbl{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.bar-track{height:12px;background:var(--rule-soft);border-radius:2px;overflow:hidden}
+.bar-fill{height:100%;background:var(--rule);border-radius:2px}
+.bar-fill.win{background:var(--pass)}
+.bar-row .val{font-family:var(--f-mono);font-size:11.5px;text-align:right;font-variant-numeric:tabular-nums;color:var(--ink)}
+.bars-foot{
+  border-top:1px solid var(--rule);margin-top:4px;padding:11px 24px 0;
+  font-family:var(--f-mono);font-size:10px;letter-spacing:.06em;color:var(--faint);
+}
+
+.grid-art{display:grid;grid-template-columns:repeat(4,1fr)}
+.grid-art div{
+  padding:17px 16px;border-right:1px solid var(--rule-soft);border-bottom:1px solid var(--rule-soft);
+}
+.grid-art div:nth-child(4n){border-right:0}
+.grid-art div:nth-child(n+9){border-bottom:0}
+.grid-art b{display:block;font-family:var(--f-display);font-size:17px;font-weight:600;letter-spacing:-.028em}
+.grid-art span{display:block;font-family:var(--f-mono);font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);margin-top:3px}
+
+.score{padding:6px 0}
+.score-row{
+  display:grid;grid-template-columns:minmax(0,1fr) 84px 46px;align-items:center;gap:12px;
+  padding:10px 22px;border-bottom:1px solid var(--rule-soft);font-size:13.5px;
+}
+.score-row:last-child{border-bottom:0}
+.score-row .nm{color:var(--ink)}
+.score-track{height:5px;background:var(--rule-soft);border-radius:3px;overflow:hidden}
+.score-track i{display:block;height:100%;background:var(--pass);border-radius:3px}
+.score-row .sc{font-family:var(--f-mono);font-size:11.5px;text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
+
+/* ── custody band ─────────────────────────────────────────── */
+.custody{border-bottom:1px solid var(--rule);padding-block:clamp(44px,5.5vw,72px)}
+.custody h2{font-size:clamp(24px,2.8vw,36px);max-width:20ch}
+.custody .mono{display:block;margin-bottom:14px}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);margin-top:40px;border-top:1px solid var(--rule)}
+.steps div{padding:24px 22px 0;border-right:1px solid var(--rule-soft);position:relative}
+.steps div:last-child{border-right:0}
+.steps div::before{
+  content:"";position:absolute;top:-4px;left:22px;width:7px;height:7px;
+  background:var(--paper);border:1px solid var(--pass);border-radius:50%;
+}
+.steps b{display:block;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink);margin-bottom:9px}
+.steps p{color:var(--muted);font-size:14px}
+
+/* ── close ────────────────────────────────────────────────── */
+.close{padding-block:clamp(56px,7vw,96px);text-align:center}
+.close h2{font-size:clamp(30px,4.2vw,54px);letter-spacing:-.04em;max-width:17ch;margin-inline:auto}
+.close p{color:var(--muted);margin:20px auto 0;max-width:50ch}
+.close-cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:32px}
+
+/* ── footer ───────────────────────────────────────────────── */
+.foot{background:var(--band);color:var(--band-muted);padding-top:clamp(40px,5vw,64px)}
+#wordmark{width:100%;height:auto;display:block;opacity:.85}
+.foot-cols{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:32px;
+  padding-block:clamp(34px,4vw,52px);border-top:1px solid var(--band-rule);margin-top:36px;
+}
+.foot-cols h5{
+  font-family:var(--f-mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--band-ink);margin:0 0 14px;font-weight:500;
+}
+.foot-cols ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px}
+.foot-cols a{font-size:13.5px;color:var(--band-muted);text-decoration:none}
+.foot-cols a:hover{color:var(--band-ink)}
+.foot-base{
+  border-top:1px solid var(--band-rule);padding-block:20px 26px;
+  display:flex;flex-wrap:wrap;gap:12px 22px;align-items:center;
+  font-family:var(--f-mono);font-size:10.5px;letter-spacing:.07em;color:var(--band-muted);
+}
+.foot-base .sp{margin-left:auto}
+
+/* ── responsive ───────────────────────────────────────────── */
+@media (max-width:1080px){
+  .hero-in{grid-template-columns:1fr;gap:44px}
+  .lead{grid-template-columns:1fr;gap:34px}
+  .chapter-head{grid-template-columns:1fr;gap:18px;align-items:start}
+  .chapter-head p{padding-bottom:0}
+  .proof-in{grid-template-columns:repeat(3,1fr)}
+  .proof-in div:nth-child(3n){border-right:0}
+  .proof-in div:nth-child(-n+3){border-bottom:1px solid var(--rule-soft)}
+  .cards{grid-template-columns:1fr 1fr}
+  .card:nth-child(2n){border-right:0}
+  .card:nth-child(-n+2){border-bottom:1px solid var(--rule)}
+  .steps{grid-template-columns:1fr 1fr}
+  .steps div:nth-child(2n){border-right:0}
+  .steps div:nth-child(-n+2){padding-bottom:24px}
+  .nav-links{display:none}
+}
+@media (max-width:720px){
+  .proof-in{grid-template-columns:1fr 1fr}
+  .proof-in div:nth-child(2n){border-right:0}
+  .proof-in div{border-bottom:1px solid var(--rule-soft)}
+  .cards{grid-template-columns:1fr}
+  .card{border-right:0;border-bottom:1px solid var(--rule)}
+  .card:last-child{border-bottom:0}
+  .steps{grid-template-columns:1fr}
+  .steps div{border-right:0;padding-bottom:24px}
+  .grid-art{grid-template-columns:repeat(2,1fr)}
+  .grid-art div:nth-child(2n){border-right:0}
+  .grid-art div:nth-child(4n){border-right:0}
+  .grid-art div{border-bottom:1px solid var(--rule-soft)}
+  .foot-cols{grid-template-columns:1fr 1fr}
+  .bar-row{grid-template-columns:88px minmax(0,1fr) 54px;gap:9px}
+  .announce{font-size:10.5px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.001ms !important;transition-duration:.001ms !important}
+}
+</style>
+</head>
+<body>
+
+<div class="announce">
+  <b>LambdaTest is now TestMu AI.</b> Start free and get a $100 credit — <a href="#start">see what changed</a>
+</div>
+
+<header class="nav">
+  <div class="shell nav-in">
+    <a class="brand" href="#top">TestMu&nbsp;AI <em>formerly LambdaTest</em></a>
+    <nav class="nav-links">
+      <a href="#author">Product</a>
+      <a href="#cover">Solutions</a>
+      <a href="#trust">AI Agents</a>
+      <a href="#execute">HyperExecute</a>
+      <a href="#start">Pricing</a>
+    </nav>
+    <div class="nav-act">
+      <a class="btn ghost" href="#start">Sign in</a>
+      <a class="btn" href="#start">Book a demo</a>
+    </div>
+  </div>
+</header>
+
+<!-- ── HERO ───────────────────────────────────────────────── -->
+<section class="hero" id="top">
+  <div class="shell hero-in">
+    <div>
+      <span class="mono">16 reasons · one run · all green</span>
+      <h1 style="margin-top:20px">Your QA team, <span class="num">16</span> arguments shorter.</h1>
+      <p class="lede">TestMu AI writes the test, runs it on real hardware, watches your AI agents for hallucinations, and hands back evidence anyone can open. Here is the whole case, laid out the way we'd report a run — sixteen checks, four groups, every one passing.</p>
+      <div class="hero-cta">
+        <a class="btn lg" href="#start">Start free</a>
+        <a class="btn ghost lg" href="#author">Read the sixteen</a>
+      </div>
+      <p class="hero-note" style="margin-top:18px">No credit card · 3M+ engineers · 18,000+ enterprises</p>
+    </div>
+
+    <div class="panel">
+      <span class="tick tl"></span><span class="tick tr"></span>
+      <span class="tick bl"></span><span class="tick br"></span>
+      <div class="panel-bar">
+        <span>run · why-testmu.evidence</span>
+        <span class="ok">16/16 passed</span>
+      </div>
+      <canvas id="matrix" width="840" height="840" aria-label="A four by four matrix of sixteen checks, each resolving from noise into a passing checkmark."></canvas>
+      <div class="matrix-legend">
+        <div>Row I · <b>Author</b></div>
+        <div>Row II · <b>Execute</b></div>
+        <div>Row III · <b>Cover</b></div>
+        <div>Row IV · <b>Trust</b></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PROOF STRIP ────────────────────────────────────────── -->
+<section class="proof">
+  <div class="shell proof-in">
+    <div><b>3M+</b><span>Engineers</span></div>
+    <div><b>18,000+</b><span>Enterprises</span></div>
+    <div><b>10,000+</b><span>Real devices</span></div>
+    <div><b>3,000+</b><span>Browser &amp; OS</span></div>
+    <div><b>132+</b><span>Countries</span></div>
+    <div><b>70%</b><span>Faster runs</span></div>
+  </div>
+</section>
+
+<!-- ── MINIMAP ────────────────────────────────────────────── -->
+<nav class="minimap" id="minimap" aria-label="Jump to a group of reasons">
+  <div class="minimap-row" data-row="0"></div>
+  <div class="minimap-row" data-row="1"></div>
+  <div class="minimap-row" data-row="2"></div>
+  <div class="minimap-row" data-row="3"></div>
+  <div class="minimap-cap" id="mmcap">00/16</div>
+</nav>
+
+<!-- ── I. AUTHOR ──────────────────────────────────────────── -->
+<section class="chapter" id="author" data-row="0">
+  <div class="shell">
+    <div class="chapter-head">
+      <div>
+        <span class="mono">Group I — Author</span>
+        <h2>Writing the test stops being the expensive part.</h2>
+      </div>
+      <p>Four reasons the first hour of a test suite no longer costs a week. You describe the journey; the agent produces the automation, in the framework you already use.</p>
+    </div>
+
+    <div class="lead">
+      <div>
+        <div class="reason-no">Reason 01</div>
+        <h3>Describe the test. Kane AI writes it.</h3>
+        <p>KaneAI turns a plain-English description of a journey into detailed, production-grade test steps — then exports them to Selenium, Playwright, Cypress or Appium in the language your repo already speaks. Your team reviews intent, not brittle selectors.</p>
+        <div class="tags">
+          <span class="tag">Selenium</span><span class="tag">Playwright</span>
+          <span class="tag">Cypress</span><span class="tag">Appium</span>
+        </div>
+      </div>
+      <div class="panel">
+        <span class="tick tl"></span><span class="tick tr"></span>
+        <span class="tick bl"></span><span class="tick br"></span>
+        <div class="panel-bar"><span>kane-ai · authoring</span><span class="ok">● live</span></div>
+        <div class="term"><span class="pr">you ›</span> <span class="in">search "wireless earphones", open the first result,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add to cart, check the order summary price matches</span><br /><br /><span class="dim">↳ planning 6 steps · resolving intent</span><br /><span class="ok">✓</span> <span class="dim">navigate → search → open result → add → assert</span><br /><span class="ok">✓</span> <span class="dim">locators bound with self-healing fallbacks</span><br /><span class="ok">✓</span> <span class="dim">exported</span> <span class="in">checkout.spec.ts</span> <span class="dim">· playwright</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="shell"><div class="cards" style="border-left:0;border-right:0">
+    <div class="card">
+      <div class="reason-no">Reason 02</div>
+      <h4>Your terminal learned to test.</h4>
+      <p>Kane CLI brings natural-language browser automation to the command line. Script a regression sweep the way you'd explain it to a colleague — without leaving your shell.</p>
+      <div class="metric"><i class="dotmark"></i><b>npm i -g kane-cli</b></div>
+    </div>
+    <div class="card">
+      <div class="reason-no">Reason 03</div>
+      <h4>Tests that repair themselves.</h4>
+      <p>The Auto-Heal agent rebinds locators when the UI moves underneath them. Flaky failures and the rework they drag behind them stop landing in your morning.</p>
+      <div class="metric"><i class="dotmark"></i><b>Self-healing</b> locators</div>
+    </div>
+    <div class="card">
+      <div class="reason-no">Reason 04</div>
+      <h4>Anyone can add coverage.</h4>
+      <p>Product managers and support leads author real tests in plain language. Coverage stops being gated on who can write a selector, and the people closest to the journey describe it themselves.</p>
+      <div class="metric"><i class="dotmark"></i><b>No code</b> required</div>
+    </div>
+  </div></div>
+</section>
+
+<!-- ── II. EXECUTE ────────────────────────────────────────── -->
+<section class="chapter" id="execute" data-row="1">
+  <div class="shell">
+    <div class="chapter-head">
+      <div>
+        <span class="mono">Group II — Execute</span>
+        <h2>The answer arrives before you lose the thread.</h2>
+      </div>
+      <p>Four reasons your pipeline stops being the slowest reviewer on the team. HyperExecute collapses the grid architecture instead of adding machines to it.</p>
+    </div>
+
+    <div class="lead">
+      <div>
+        <div class="reason-no">Reason 05</div>
+        <h3>CI hours become CI minutes.</h3>
+        <p>HyperExecute is AI-native orchestration: it schedules, shards and streams your suite instead of scattering it across a hub-and-node grid. The same tests, up to 70% faster — and a fraction of the waiting that made everyone stop watching the pipeline.</p>
+        <div class="tags">
+          <span class="tag">Auto-split</span><span class="tag">Smart retries</span>
+          <span class="tag">Rich artifacts</span><span class="tag">Reusable workflows</span>
+        </div>
+      </div>
+      <div class="panel">
+        <span class="tick tl"></span><span class="tick tr"></span>
+        <span class="tick bl"></span><span class="tick br"></span>
+        <div class="panel-bar"><span>wall-clock · same suite</span><span class="ok">▼ 70%</span></div>
+        <div class="bars">
+          <div class="bar-row">
+            <span class="lbl">Selenium grid</span>
+            <span class="bar-track"><span class="bar-fill" style="width:100%"></span></span>
+            <span class="val">48m 10s</span>
+          </div>
+          <div class="bar-row">
+            <span class="lbl">Self-hosted</span>
+            <span class="bar-track"><span class="bar-fill" style="width:78%"></span></span>
+            <span class="val">37m 32s</span>
+          </div>
+          <div class="bar-row">
+            <span class="lbl">Container pool</span>
+            <span class="bar-track"><span class="bar-fill" style="width:61%"></span></span>
+            <span class="val">29m 24s</span>
+          </div>
+          <div class="bar-row">
+            <span class="lbl">HyperExecute</span>
+            <span class="bar-track"><span class="bar-fill win" style="width:30%"></span></span>
+            <span class="val">14m 27s</span>
+          </div>
+        </div>
+        <div class="bars-foot">Illustrative — a 2,400-test suite. Your ratio depends on suite shape.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="shell"><div class="cards">
+    <div class="card">
+      <div class="reason-no">Reason 06</div>
+      <h4>Suites that split themselves.</h4>
+      <p>Auto-Split discovers test entities and distributes them across VMs for parallel execution, balancing load so the longest machine stops setting your wall-clock time.</p>
+      <div class="metric"><i class="dotmark"></i><b>2.8M</b> tests split</div>
+    </div>
+    <div class="card">
+      <div class="reason-no">Reason 07</div>
+      <h4>Doomed runs stop early.</h4>
+      <p>Prioritize the tests that matter, run high-value scenarios first, and abort automatically once failures pass a threshold. You stop paying compute for a run you already know the answer to.</p>
+      <div class="metric"><i class="dotmark"></i><b>89k</b> jobs halted early</div>
+    </div>
+    <div class="card">
+      <div class="reason-no">Reason 08</div>
+      <h4>Failures arrive pre-diagnosed.</h4>
+      <p>The Root Cause Analysis agent triages a red build and tells you what broke and what to do next. Flaky-test detection separates a real regression from noise before it reaches a human.</p>
+      <div class="metric"><i class="dotmark"></i><b>156k</b> jobs prioritized</div>
+    </div>
+  </div></div>
+</section>
+
+<!-- ── III. COVER ─────────────────────────────────────────── -->
+<section class="chapter" id="cover" data-row="2">
+  <div class="shell">
+    <div class="chapter-head">
+      <div>
+        <span class="mono">Group III — Cover</span>
+        <h2>Run it where your users actually are.</h2>
+      </div>
+      <p>Four reasons "works on my machine" stops being a defensible position. Real hardware, real browsers, real networks, real geography.</p>
+    </div>
+
+    <div class="lead">
+      <div>
+        <div class="reason-no">Reason 09</div>
+        <h3>10,000+ real devices, not emulators.</h3>
+        <p>Test on the hardware your users are actually holding — every flagship, every aging model still in active use, every regional variant. Real chipsets, real sensors, real OS builds, with full video recordings and logs for each run. No emulator shortcuts and no waitlist.</p>
+        <div class="tags">
+          <span class="tag">Real Android</span><span class="tag">Real iOS</span>
+          <span class="tag">Video + logs</span><span class="tag">All sensors</span>
+        </div>
+      </div>
+      <div class="panel">
+        <span class="tick tl"></span><span class="tick tr"></span>
+        <span class="tick bl"></span><span class="tick br"></span>
+        <div class="panel-bar"><span>coverage matrix</span><span class="ok">pre-configured</span></div>
+        <div class="grid-art">
+          <div><b>10,000+</b><span>Real devices</span></div>
+          <div><b>3,000+</b><span>Browser × OS</span></div>
+          <div><b>180+</b><span>Geolocations</span></div>
+          <div><b>132+</b><span>Countries</span></div>
+          <div><b>Legacy</b><span>To latest</span></div>
+          <div><b>Zero</b><span>Drivers</span></div>
+          <div><b>No grid</b><span>To maintain</span></div>
+          <div><b>Parallel</b><span>By default</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="shell"><div class="cards">
+    <div class="card">
+      <div class="reason-no">Reason 10</div>
+      <h4>3,000+ browser and OS combinations.</h4>
+      <p>Every major browser and OS, legacy through latest, pre-configured and parallel-ready. Driver-free, and there is no Selenium Grid for anyone on your team to babysit.</p>
+      <div class="metric"><i class="dotmark"></i><b>Driver-free</b></div>
+    </div>
+    <div class="card">
+      <div class="reason-no">Reason 11</div>
+      <h4>Every request looks local.</h4>
+      <p>Test across 180+ geolocations so pricing, consent banners, latency and content all resolve the way a local user would see them. No VPN juggling, no IP rotation scripts.</p>
+      <div class="metric"><i class="dotmark"></i><b>180+</b> geolocations</div>
+    </div>
+    <div class="card">
+      <div class="reason-no">Reason 12</div>
+      <h4>A real Chrome for your AI agents.</h4>
+      <p>Give Claude, Cursor, Gemini or OpenAI Computer Use a full-featured cloud Chrome with persistent state, private-environment tunneling and full debugging transparency — no headless constraints.</p>
+      <div class="metric"><i class="dotmark"></i><b>Claude · Cursor · Gemini · GPT</b></div>
+    </div>
+  </div></div>
+</section>
+
+<!-- ── IV. TRUST ──────────────────────────────────────────── -->
+<section class="chapter" id="trust" data-row="3">
+  <div class="shell">
+    <div class="chapter-head">
+      <div>
+        <span class="mono">Group IV — Trust</span>
+        <h2>The part where you prove it held.</h2>
+      </div>
+      <p>Four reasons shipping an AI feature stops being an act of faith. Agents get tested like software, and the result is evidence rather than a screenshot in Slack.</p>
+    </div>
+
+    <div class="lead">
+      <div>
+        <div class="reason-no">Reason 13</div>
+        <h3>Catch hallucinations before your users do.</h3>
+        <p>AI evaluators test your chat, voice and calling agents for invented facts, biased responses, toxicity and incomplete answers — with the precision your best QA engineer brings, across unlimited scenarios. A hallucinating healthcare chatbot or a biased financial advisor is a liability, not a bug you triage next sprint.</p>
+        <div class="tags">
+          <span class="tag">Hallucination</span><span class="tag">Bias</span>
+          <span class="tag">Toxicity</span><span class="tag">Compliance</span>
+        </div>
+      </div>
+      <div class="panel">
+        <span class="tick tl"></span><span class="tick tr"></span>
+        <span class="tick bl"></span><span class="tick br"></span>
+        <div class="panel-bar"><span>agent eval · 9 dimensions</span><span class="ok">1,248 scenarios</span></div>
+        <div class="score">
+          <div class="score-row"><span class="nm">Factual accuracy</span><span class="score-track"><i style="width:96%"></i></span><span class="sc">96%</span></div>
+          <div class="score-row"><span class="nm">Hallucination rate</span><span class="score-track"><i style="width:92%"></i></span><span class="sc">1.4%</span></div>
+          <div class="score-row"><span class="nm">Bias &amp; fairness</span><span class="score-track"><i style="width:94%"></i></span><span class="sc">94%</span></div>
+          <div class="score-row"><span class="nm">Toxicity</span><span class="score-track"><i style="width:99%"></i></span><span class="sc">0.1%</span></div>
+          <div class="score-row"><span class="nm">Instruction following</span><span class="score-track"><i style="width:91%"></i></span><span class="sc">91%</span></div>
+          <div class="score-row"><span class="nm">Task completion</span><span class="score-track"><i style="width:88%"></i></span><span class="sc">88%</span></div>
+          <div class="score-row"><span class="nm">Tone &amp; consistency</span><span class="score-track"><i style="width:93%"></i></span><span class="sc">93%</span></div>
+        </div>
+        <div class="bars-foot" style="margin-top:0">Sample scorecard. Nine dimensions run per scenario.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="shell"><div class="cards">
+    <div class="card">
+      <div class="reason-no">Reason 14</div>
+      <h4>Every agent type, one platform.</h4>
+      <p>Chat, voice and calling agents evaluated the same way, across phone, chat, email and WhatsApp. Simulate real conversations and see what your agent saw before it reaches a customer.</p>
+      <div class="metric"><i class="dotmark"></i><b>Agent-to-agent</b> testing</div>
+    </div>
+    <div class="card">
+      <div class="reason-no">Reason 15</div>
+      <h4>Evidence anyone can open.</h4>
+      <p>Every run seals into one portable pack — steps, verdicts, screenshots, a sha256 checksum. Send it over Slack or S3 and it opens offline, byte for byte, for a human, an agent or an auditor.</p>
+      <div class="metric"><i class="dotmark"></i><b>Open format</b>, not a lock-in</div>
+    </div>
+    <div class="card">
+      <div class="reason-no">Reason 16</div>
+      <h4>Enterprise-grade from day one.</h4>
+      <p>SOC 2, GDPR, HIPAA, CSA, FSQS and EU AI Act alignment, with flexible deployment that keeps your data in your own cloud. Security review stops being the reason the rollout slipped a quarter.</p>
+      <div class="metric"><i class="dotmark"></i><b>SOC 2 · GDPR · HIPAA · EU AI Act</b></div>
+    </div>
+  </div></div>
+</section>
+
+<!-- ── CUSTODY ────────────────────────────────────────────── -->
+<section class="custody">
+  <div class="shell">
+    <span class="mono">Chain of custody</span>
+    <h2>What a run leaves behind, after everyone has gone home.</h2>
+    <div class="steps">
+      <div><b>Produced</b><p>The runner writes each step as it happens — inputs, timings, the page as the agent saw it.</p></div>
+      <div><b>Sealed</b><p>Finalize hashes the pack with sha256. Tamper-evident, and the checksum travels with it.</p></div>
+      <div><b>Carried</b><p>One file. Slack, S3, a USB stick. No server, no account, no expiring report link.</p></div>
+      <div><b>Opened</b><p>Read back offline, byte for byte — by a human, an agent or an auditor, months later.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CLOSE ──────────────────────────────────────────────── -->
+<section class="close" id="start">
+  <div class="shell">
+    <h2>Sixteen reasons. One free run to check them.</h2>
+    <p>Point TestMu AI at a journey you already care about and see what comes back. No credit card, no grid to stand up, and the evidence pack is yours to keep either way.</p>
+    <div class="close-cta">
+      <a class="btn lg" href="#start">Start free</a>
+      <a class="btn ghost lg" href="#start">Book a demo</a>
+    </div>
+    <p class="hero-note" style="margin-top:22px">Trusted by teams at Microsoft, OpenAI and Nvidia · 132+ countries</p>
+  </div>
+</section>
+
+<!-- ── FOOTER ─────────────────────────────────────────────── -->
+<footer class="foot">
+  <div class="shell">
+    <canvas id="wordmark" width="1600" height="230" aria-label="TestMu AI rendered as a dot matrix"></canvas>
+    <div class="foot-cols">
+      <div>
+        <h5>Author</h5>
+        <ul>
+          <li><a href="#author">KaneAI</a></li><li><a href="#author">Kane CLI</a></li>
+          <li><a href="#author">Auto-Heal agent</a></li><li><a href="#author">Test case generator</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Execute</h5>
+        <ul>
+          <li><a href="#execute">HyperExecute</a></li><li><a href="#execute">Auto-Split</a></li>
+          <li><a href="#execute">Root cause analysis</a></li><li><a href="#execute">Flaky detection</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Cover</h5>
+        <ul>
+          <li><a href="#cover">Real Device Cloud</a></li><li><a href="#cover">Browser &amp; OS grid</a></li>
+          <li><a href="#cover">Geolocation testing</a></li><li><a href="#cover">Agent browser</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Trust</h5>
+        <ul>
+          <li><a href="#trust">Agent testing</a></li><li><a href="#trust">Evidence packs</a></li>
+          <li><a href="#trust">Security &amp; compliance</a></li><li><a href="#trust">Deployment options</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-base">
+      <span>TestMu AI — formerly LambdaTest</span>
+      <span class="sp">SOC 2 · GDPR · HIPAA · CSA · FSQS · EU AI Act</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ── read theme colors from the live tokens ─────────────── */
+  function tok(name){
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  }
+
+  /* ── 1. hero matrix: 4×4 cells, each an 11×11 dot glyph ─── */
+  var cv = document.getElementById("matrix");
+  var ctx = cv.getContext("2d");
+  var N = 11, CELLS = 4;
+
+  // check glyph: two strokes on an 11×11 lattice
+  var glyph = (function(){
+    var set = {};
+    function put(x,y){ if(x>=0&&x<N&&y>=0&&y<N) set[x+","+y]=1; }
+    for(var i=0;i<4;i++){ put(1+i,5+i); put(2+i,5+i); }        // short down-stroke → (4,8)
+    for(var j=0;j<7;j++){ put(4+j,8-j); put(5+j,8-j); }        // long up-stroke → (10,2)
+    return set;
+  })();
+
+  // deterministic noise so the dither is stable across redraws
+  function noise(x,y,c){
+    var n = Math.sin(x*127.1 + y*311.7 + c*74.7) * 43758.5453;
+    return n - Math.floor(n);
+  }
+
+  function drawMatrix(progress){
+    var W = cv.width, pad = 26, gap = 10;
+    var cell = (W - pad*2 - gap*(CELLS-1)) / CELLS;
+    var dot = cell / N;
+    var inkC = tok("--ink"), passC = tok("--pass"), dotC = tok("--dot"), cardC = tok("--card");
+
+    ctx.fillStyle = cardC;
+    ctx.fillRect(0,0,W,cv.height);
+
+    for(var c=0;c<CELLS*CELLS;c++){
+      var cx = pad + (c % CELLS) * (cell + gap);
+      var cy = pad + Math.floor(c / CELLS) * (cell + gap);
+
+      // per-cell resolve: staggered, 0 → 1
+      var t = Math.max(0, Math.min(1, (progress * (CELLS*CELLS + 7)) - c));
+
+      for(var x=0;x<N;x++){
+        for(var y=0;y<N;y++){
+          var on = glyph[x+","+y] === 1;
+          var r = noise(x,y,c);
+          var a, col;
+          if(on){
+            // glyph dots fade up to solid green
+            a = t;
+            col = passC;
+          } else {
+            // noise dots start scattered and dissolve to a faint resting field
+            a = r < 0.42 ? (0.55 * (1 - t) + 0.14) : 0;
+            col = dotC;
+          }
+          if(a <= 0.01) continue;
+          ctx.globalAlpha = a;
+          ctx.fillStyle = col;
+          var s = dot * (on ? 0.80 : 0.58);
+          ctx.fillRect(cx + x*dot + (dot-s)/2, cy + y*dot + (dot-s)/2, s, s);
+        }
+      }
+
+      // cell frame, drawn once the cell has resolved
+      ctx.globalAlpha = 0.16 * Math.max(0, Math.min(1, t*1.4));
+      ctx.strokeStyle = inkC;
+      ctx.lineWidth = 2;
+      ctx.strokeRect(cx - 6, cy - 6, cell + 12, cell + 12);
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function runMatrix(){
+    if(reduce){ drawMatrix(1); return; }
+    var t0 = null, DUR = 2100;
+    function frame(ts){
+      if(t0 === null) t0 = ts;
+      var p = Math.min(1, (ts - t0) / DUR);
+      // ease-out so the last cells settle rather than snap
+      drawMatrix(1 - Math.pow(1 - p, 2.2));
+      if(p < 1) requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  }
+  runMatrix();
+
+  /* ── 2. footer wordmark as a sampled dot matrix ─────────── */
+  (function(){
+    var wm = document.getElementById("wordmark");
+    var w = wm.width, h = wm.height;
+    var off = document.createElement("canvas");
+    off.width = w; off.height = h;
+    var octx = off.getContext("2d");
+    octx.fillStyle = "#fff";
+    octx.textBaseline = "middle";
+    octx.textAlign = "left";
+    var size = 190;
+    octx.font = "700 " + size + "px Manrope, sans-serif";
+    var text = "TESTMU AI";
+    // fit the text to the canvas width
+    var mw = octx.measureText(text).width;
+    if(mw > w - 20){
+      size = Math.floor(size * (w - 20) / mw);
+      octx.font = "700 " + size + "px Manrope, sans-serif";
+    }
+    octx.fillText(text, 4, h/2);
+
+    var data = octx.getImageData(0,0,w,h).data;
+    var wctx = wm.getContext("2d");
+    var step = 7, r = 2.1;
+    wctx.clearRect(0,0,w,h);
+    wctx.fillStyle = tok("--band-ink");
+    for(var y=0;y<h;y+=step){
+      for(var x=0;x<w;x+=step){
+        if(data[(y*w + x)*4 + 3] > 128){
+          wctx.globalAlpha = 0.92;
+          wctx.fillRect(x, y, r, r);
+        }
+      }
+    }
+    wctx.globalAlpha = 1;
+  })();
+
+  /* ── 3. minimap: 16 cells tracking the four groups ──────── */
+  var rows = document.querySelectorAll(".minimap-row");
+  var cap = document.getElementById("mmcap");
+  var sections = ["author","execute","cover","trust"];
+  var btns = [];
+  rows.forEach(function(row, ri){
+    for(var i=0;i<4;i++){
+      var b = document.createElement("button");
+      b.type = "button";
+      b.setAttribute("aria-label", "Reason " + (ri*4 + i + 1));
+      b.addEventListener("click", function(){
+        document.getElementById(sections[ri]).scrollIntoView({
+          behavior: reduce ? "auto" : "smooth", block: "start"
+        });
+      });
+      row.appendChild(b);
+      btns.push(b);
+    }
+  });
+
+  function syncMinimap(){
+    var done = 0;
+    sections.forEach(function(id, ri){
+      var el = document.getElementById(id);
+      var seen = el.getBoundingClientRect().top < window.innerHeight * 0.55;
+      for(var i=0;i<4;i++) btns[ri*4 + i].classList.toggle("on", seen);
+      if(seen) done += 4;
+    });
+    cap.textContent = String(done).padStart(2,"0") + "/16";
+  }
+  syncMinimap();
+  window.addEventListener("scroll", syncMinimap, {passive:true});
+  window.addEventListener("resize", syncMinimap);
+
+  /* ── 4. redraw the canvases when the theme flips ────────── */
+  var mq = window.matchMedia("(prefers-color-scheme: dark)");
+  var onTheme = function(){ drawMatrix(1); };
+  if(mq.addEventListener) mq.addEventListener("change", onTheme);
+})();
+</script>
+</body>
+</html>
