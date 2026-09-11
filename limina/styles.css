@@ -743,8 +743,8 @@ h3 { font-size: clamp(20px, 2vw, 25px); line-height: 1.2; }
 .foot__disclaim { max-width: 68ch; line-height: 1.55; }
 
 /* ---------- reveal ---------- */
-.rv { opacity: 0; transform: translateY(18px); transition: opacity 0.8s var(--ease-out), transform 0.8s var(--ease-out); }
-.rv.in { opacity: 1; transform: none; }
+.js .rv { opacity: 0; transform: translateY(18px); transition: opacity 0.8s var(--ease-out), transform 0.8s var(--ease-out); }
+.js .rv.in { opacity: 1; transform: none; }
 .rv-d1 { transition-delay: 0.08s; }
 .rv-d2 { transition-delay: 0.16s; }
 .rv-d3 { transition-delay: 0.24s; }

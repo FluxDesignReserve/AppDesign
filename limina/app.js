@@ -1,6 +1,12 @@
 /* Limina landing — interactions. No dependencies. */
 (() => {
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // Reveal styles only apply once JS is running; anything already in the first
+  // viewport is marked visible synchronously so the page's first frame is complete.
+  document.documentElement.classList.add("js");
+  document.querySelectorAll(".rv").forEach((el) => {
+    if (el.getBoundingClientRect().top < window.innerHeight) el.classList.add("in");
+  });
 
   /* ---------- nav: stuck state + mobile menu ---------- */
   const nav = document.getElementById("nav");
