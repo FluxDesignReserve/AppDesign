@@ -105,3 +105,8 @@ never contacted. Submit an address on `@error.` to exercise the network-error st
   pointer parallax disabled. Navigation and information architecture are unchanged.
 
 Not affiliated with Stripe. Built for study.
+
+## Also in this repo
+
+- [`limina/`](limina/) — a standalone, dependency-free landing page for a fictional
+  pre-closing automation brand, built as a design-system exercise. See its own README.

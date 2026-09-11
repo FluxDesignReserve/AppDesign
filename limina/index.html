@@ -1,0 +1,645 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Limina — Agents that carry a file from contract to keys</title>
+  <meta name="description" content="Limina works the pre-closing queue like a great processor: reads every inbound document, clears title, and keeps lender, agent and buyer aligned. Your team approves; the busywork is already done." />
+  <meta name="color-scheme" content="dark" />
+  <meta property="og:title" content="Limina — Agents that carry a file from contract to keys" />
+  <meta property="og:description" content="Pre-closing automation for title and escrow teams, with a human checkpoint on every decision." />
+  <link rel="icon" href="assets/mark.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!-- ============================== NAV ============================== -->
+<header class="nav" id="nav">
+  <div class="shell nav__inner">
+    <a class="brand" href="#top" aria-label="Limina home">
+      <svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true">
+        <defs>
+          <linearGradient id="lm-g" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#f0dcb6"/>
+            <stop offset="1" stop-color="#9c7c45"/>
+          </linearGradient>
+        </defs>
+        <rect x="1" y="1" width="30" height="30" rx="8" fill="#13171c" stroke="rgba(243,240,234,.16)"/>
+        <path d="M10 24V9.5h3.4V21H22v3z" fill="url(#lm-g)"/>
+        <path d="M17.5 9.5h4.5v7.2h-4.5z" fill="url(#lm-g)" opacity=".55"/>
+      </svg>
+      <span class="brand__word">Limina</span>
+    </a>
+
+    <nav class="nav__links" id="navLinks" aria-label="Primary">
+      <a href="#platform">Platform</a>
+      <a href="#workflow">How a file moves</a>
+      <a href="#checkpoint">Oversight</a>
+      <a href="#trust">Trust</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+
+    <div class="nav__spacer"></div>
+
+    <div class="nav__actions">
+      <a class="btn btn--ghost btn--sm" href="#">Sign in</a>
+      <a class="btn btn--primary btn--sm" href="#demo">Book a walkthrough</a>
+      <button class="nav__burger" id="burger" aria-label="Toggle menu" aria-expanded="false" aria-controls="navLinks">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- ============================== HERO ============================== -->
+<section class="hero">
+  <div class="hero__glow" aria-hidden="true"></div>
+  <div class="hero__grid-bg" aria-hidden="true"></div>
+
+  <div class="shell">
+    <div class="hero__tag rv">
+      <span class="pip">New</span>
+      <span>Browser agents now pull county tax &amp; municipal lien data in 41 states</span>
+    </div>
+
+    <h1 class="rv rv-d1">Agents that carry a file from contract to <span class="serif-em">keys.</span></h1>
+
+    <p class="lede rv rv-d2">
+      Limina works the pre-closing queue the way your best processor does — reading every document
+      the moment it lands, clearing title, and keeping lender, agent and buyer on the same page.
+      Your team gives the yes. The busywork is already done.
+    </p>
+
+    <div class="hero__cta rv rv-d3">
+      <a class="btn btn--primary" href="#demo">Book a walkthrough
+        <svg class="arw" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+      </a>
+      <a class="btn btn--ghost" href="#workflow">See how a file moves</a>
+    </div>
+    <p class="hero__note rv rv-d3">Built for independent title shops · Works alongside your production system</p>
+
+    <!-- product visual: the file lane -->
+    <div class="lane rv rv-d3" role="img" aria-label="Limina intake view: inbound documents are sorted and key fields are extracted from a purchase agreement.">
+      <div class="lane__bar">
+        <div class="lane__dots" aria-hidden="true"><i></i><i></i><i></i></div>
+        <span class="lane__path">limina / orders / LM-24-0418 / intake</span>
+        <span class="lane__live">agents active</span>
+      </div>
+
+      <div class="lane__body">
+        <div class="lane__left">
+          <div class="lane__label">Inbound · last 4 minutes</div>
+
+          <div class="doc">
+            <div class="doc__top">
+              <div class="doc__ico" aria-hidden="true"></div>
+              <div>
+                <div class="doc__name">Purchase &amp; Sale Agreement — 118 Corwin St.</div>
+                <div class="doc__meta">14 pp · from listing agent · 09:41</div>
+              </div>
+              <span class="chip chip--ok">new order</span>
+            </div>
+          </div>
+
+          <div class="doc">
+            <div class="doc__top">
+              <div class="doc__ico" aria-hidden="true"></div>
+              <div>
+                <div class="doc__name">Revised Closing Disclosure</div>
+                <div class="doc__meta">5 pp · from lender · 09:43</div>
+              </div>
+              <span class="chip chip--warn">2 changes</span>
+            </div>
+          </div>
+
+          <div class="doc">
+            <div class="doc__top">
+              <div class="doc__ico" aria-hidden="true"></div>
+              <div>
+                <div class="doc__name">Payoff statement — Harbor Federal</div>
+                <div class="doc__meta">2 pp · fax gateway · 09:44</div>
+              </div>
+              <span class="chip chip--brass">matched · LM-24-0402</span>
+            </div>
+          </div>
+
+          <div class="doc">
+            <div class="doc__top">
+              <div class="doc__ico" aria-hidden="true"></div>
+              <div>
+                <div class="doc__name">HOA estoppel — Ridgeline Commons</div>
+                <div class="doc__meta">3 pp · portal download · 09:45</div>
+              </div>
+              <span class="chip chip--brass">matched · LM-24-0396</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="lane__right">
+          <div class="lane__label">Extracted from the agreement</div>
+          <div class="extract">
+            <div class="extract__row"><span class="extract__k">Property</span><span class="extract__v">118 Corwin St, Unit 2 <small>parcel 0417-22-118</small></span></div>
+            <div class="extract__row"><span class="extract__k">Buyer</span><span class="extract__v">Dana &amp; Priya Okafor-Sen</span></div>
+            <div class="extract__row"><span class="extract__k">Seller</span><span class="extract__v">Marguerite Ellsworth, Trustee</span></div>
+            <div class="extract__row"><span class="extract__k">Price</span><span class="extract__v">$612,500 <small>earnest $18,000</small></span></div>
+            <div class="extract__row"><span class="extract__k">Lender</span><span class="extract__v">Northgate Mortgage <small>LO: R. Vance</small></span></div>
+            <div class="extract__row"><span class="extract__k">Close by</span><span class="extract__v">Nov 14 <small>31 days</small></span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lane__foot">
+        <span class="chip chip--ok">order opened</span>
+        <span>Title search queued · lender welcome sent · 3 items waiting for your review</span>
+        <button class="btn btn--ghost btn--sm" type="button">Open review queue</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== MARQUEE ============================== -->
+<div class="marquee" aria-label="Teams using Limina">
+  <div class="marquee__head">Working the queue at independent shops &amp; regional underwriters</div>
+  <div class="marquee__track" id="marquee">
+    <!-- items duplicated by script for seamless loop -->
+    <span class="marquee__item"><svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><rect width="14" height="14" rx="3"/></svg>Harbor Line Title</span>
+    <span class="marquee__item"><svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><circle cx="7" cy="7" r="7"/></svg>Fenwick &amp; Dale Settlement</span>
+    <span class="marquee__item"><svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><path d="M7 0l7 7-7 7-7-7z"/></svg>Northlake Abstract Co.</span>
+    <span class="marquee__item"><svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><path d="M0 14L7 0l7 14z"/></svg>Sable Ridge Escrow</span>
+    <span class="marquee__item"><svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><rect width="14" height="14" rx="7" /></svg>Old Post Road Title</span>
+    <span class="marquee__item"><svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><path d="M2 0h10v14H2z"/></svg>Meridian Underwriters</span>
+    <span class="marquee__item"><svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><path d="M7 0a7 7 0 100 14V0z"/></svg>Coastline Closing Group</span>
+    <span class="marquee__item"><svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><path d="M0 0h14v7H0z"/></svg>Bellwether Title Agency</span>
+  </div>
+</div>
+
+<!-- ============================== STAKES ============================== -->
+<section class="band" id="platform">
+  <div class="shell split">
+    <div class="rv">
+      <p class="eyebrow">Why it's hard</p>
+      <h2>A closing is forty small deadlines wearing one <span class="serif-em">trench coat.</span></h2>
+      <p class="lede" style="margin-top:20px">
+        Every file is a relay between people who don't share a system: agents, lenders, counties,
+        HOAs, payoff departments. Processors hold it together by reading, re-keying and reminding.
+        That's the work Limina takes.
+      </p>
+    </div>
+
+    <div class="stakes__list rv rv-d1">
+      <div class="stakes__item">
+        <span class="stakes__n">01</span>
+        <div>
+          <h3>The inbox is the system of record</h3>
+          <p>Contracts, CDs, payoffs and estoppels arrive by email, fax and portal — unlabeled, out of order, and often attached to the wrong thread.</p>
+        </div>
+      </div>
+      <div class="stakes__item">
+        <span class="stakes__n">02</span>
+        <div>
+          <h3>Comparison by squint</h3>
+          <p>A revised disclosure means two PDFs side by side and a hope that nothing moved. Lenders change figures without changing the filename.</p>
+        </div>
+      </div>
+      <div class="stakes__item">
+        <span class="stakes__n">03</span>
+        <div>
+          <h3>Public records live behind logins</h3>
+          <p>Tax, water and assessment data sits in county portals with no API. Someone has to log in, search, screenshot, and type it into a proration sheet.</p>
+        </div>
+      </div>
+      <div class="stakes__item">
+        <span class="stakes__n">04</span>
+        <div>
+          <h3>Capacity is headcount</h3>
+          <p>The only way to take more files has been to hire more processors — right when the market turns and you can least afford to.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="rule" />
+
+<!-- ============================== FEATURES ============================== -->
+<section class="band" id="workflow">
+  <div class="shell">
+    <div class="rv" style="max-width:62ch; margin-bottom: clamp(48px, 6vw, 84px)">
+      <p class="eyebrow">How a file moves</p>
+      <h2>Five jobs a processor does by hand. Limina does them before the coffee's <span class="serif-em">poured.</span></h2>
+    </div>
+
+    <!-- 1. Intake -->
+    <div class="feature">
+      <div class="feature__copy rv">
+        <p class="eyebrow">01 · Intake</p>
+        <h3 style="font-size:clamp(24px,2.6vw,34px)">Every inbound document, filed before you open it</h3>
+        <p class="lede">Drop in a purchase agreement — any standard form — and Limina reads it, opens the order, and populates the file. Everything else that arrives is matched to the order it belongs to, with a confidence score you can see.</p>
+        <ul class="ticks">
+          <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3 3 7-7"/></svg><span>Email, fax gateway and portal downloads handled the same way</span></li>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3 3 7-7"/></svg><span>Revised lender documents are diffed line by line — no side-by-side PDFs</span></li>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3 3 7-7"/></svg><span>Uncertain matches wait in a queue instead of guessing</span></li>
+        </ul>
+      </div>
+
+      <div class="feature__art rv rv-d1">
+        <div class="card">
+          <div class="card__head">
+            <span class="card__title">Revised Closing Disclosure · diff</span>
+            <span class="chip chip--warn">2 changes</span>
+          </div>
+          <div class="tabs" role="tablist" aria-label="Diff view">
+            <button class="tab" role="tab" aria-selected="true" aria-controls="tp-changes" id="tab-changes">What changed</button>
+            <button class="tab" role="tab" aria-selected="false" aria-controls="tp-impact" id="tab-impact">Impact on file</button>
+            <button class="tab" role="tab" aria-selected="false" aria-controls="tp-next" id="tab-next">Next actions</button>
+          </div>
+
+          <div class="tabpanel" id="tp-changes" role="tabpanel" aria-labelledby="tab-changes">
+            <div class="extract">
+              <div class="extract__row" style="animation:none;opacity:1;transform:none"><span class="extract__k">Loan amount</span><span class="extract__v"><s class="dim">$490,000</s> → $486,500 <small>§ Loan Terms</small></span></div>
+              <div class="extract__row" style="animation:none;opacity:1;transform:none"><span class="extract__k">Lender credit</span><span class="extract__v"><s class="dim">$0</s> → $1,250 <small>§ J</small></span></div>
+              <div class="extract__row" style="animation:none;opacity:1;transform:none"><span class="extract__k">Cash to close</span><span class="extract__v">Unchanged · $131,204 <small>verified</small></span></div>
+            </div>
+          </div>
+
+          <div class="tabpanel" id="tp-impact" role="tabpanel" aria-labelledby="tab-impact" hidden>
+            <div class="extract">
+              <div class="extract__row" style="animation:none;opacity:1;transform:none"><span class="extract__k">Settlement stmt</span><span class="extract__v">Needs regeneration <small>auto-drafted</small></span></div>
+              <div class="extract__row" style="animation:none;opacity:1;transform:none"><span class="extract__k">Wire instructions</span><span class="extract__v">No change</span></div>
+              <div class="extract__row" style="animation:none;opacity:1;transform:none"><span class="extract__k">Funding</span><span class="extract__v">Shortfall check passed</span></div>
+            </div>
+          </div>
+
+          <div class="tabpanel" id="tp-next" role="tabpanel" aria-labelledby="tab-next" hidden>
+            <ul class="steps">
+              <li><span class="step__dot">1</span><div><div class="step__t">Regenerate settlement statement</div><div class="step__d">Drafted and waiting for approval</div></div></li>
+              <li><span class="step__dot">2</span><div><div class="step__t">Notify buyer's agent</div><div class="step__d">Message drafted — cash to close unchanged</div></div></li>
+              <li><span class="step__dot">3</span><div><div class="step__t">Log revision in file history</div><div class="step__d">Done automatically</div></div></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Search -->
+    <div class="feature feature--flip">
+      <div class="feature__copy rv">
+        <p class="eyebrow">02 · Search &amp; abstract</p>
+        <h3 style="font-size:clamp(24px,2.6vw,34px)">A title search that finishes while the call is still on hold</h3>
+        <p class="lede">Limina runs the chain, pulls the vesting deed, and flags open mortgages, judgments and easements — then writes the abstract in your house format. Most searches come back in under half an hour, with every source cited.</p>
+        <ul class="ticks">
+          <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3 3 7-7"/></svg><span>Plant and county records, searched in parallel</span></li>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3 3 7-7"/></svg><span>Each finding links to the recorded instrument it came from</span></li>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3 3 7-7"/></svg><span>Examiner notes carry forward into the commitment</span></li>
+        </ul>
+      </div>
+
+      <div class="feature__art rv rv-d1">
+        <div class="card">
+          <div class="card__head">
+            <span class="card__title">Search · 118 Corwin St</span>
+            <span class="chip chip--ok">complete · 26m</span>
+          </div>
+          <ul class="steps">
+            <li><span class="step__dot">✓</span><div><div class="step__t">Chain of title established</div><div class="step__d">4 conveyances since 1998 · vesting deed Bk 4412 Pg 207</div><div class="step__time">09:47 → 09:58</div></div></li>
+            <li><span class="step__dot">✓</span><div><div class="step__t">Open mortgage found</div><div class="step__d">Harbor Federal · $301,400 orig. · payoff requested automatically</div><div class="step__time">10:02</div></div></li>
+            <li><span class="step__dot">!</span><div><div class="step__t">Utility easement · rear 10 ft</div><div class="step__d">Recorded 2004 · flagged for Schedule B, examiner to confirm</div><div class="step__time">10:06</div></div></li>
+            <li><span class="step__dot">✓</span><div><div class="step__t">No judgments or liens against parties</div><div class="step__d">State and federal indexes · name variants searched</div><div class="step__time">10:11</div></div></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Coordination -->
+    <div class="feature">
+      <div class="feature__copy rv">
+        <p class="eyebrow">03 · Coordination</p>
+        <h3 style="font-size:clamp(24px,2.6vw,34px)">The follow-ups nobody wants to send, sent at the right time</h3>
+        <p class="lede">Payoff requests, lender status pings, agent updates, buyer reminders — Limina drafts each one from the file's actual state and holds it for a click, or sends it on a schedule you set. Replies are read and filed too.</p>
+        <ul class="ticks">
+          <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3 3 7-7"/></svg><span>Your voice, your templates — agents fill in the specifics</span></li>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3 3 7-7"/></svg><span>Threads stay attached to the order, not to someone's inbox</span></li>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3 3 7-7"/></svg><span>Escalates to a person the moment a reply needs judgment</span></li>
+        </ul>
+      </div>
+
+      <div class="feature__art rv rv-d1">
+        <div class="card">
+          <div class="card__head">
+            <span class="card__title">Thread · payoff, Harbor Federal</span>
+            <span class="chip chip--brass">awaiting reply</span>
+          </div>
+          <div class="thread">
+            <div class="msg msg--out">
+              <div class="msg__from">Limina · for Jess M. <span class="chip">sent 10:04</span></div>
+              <p>Requesting a payoff statement good through Nov 14 for loan ending 7731, borrower Ellsworth, 118 Corwin St. Authorization attached. Please reply to this thread.</p>
+            </div>
+            <div class="msg">
+              <div class="msg__from">Harbor Federal · Payoffs <span class="chip chip--ok">received 13:22</span></div>
+              <p>Statement attached. Per diem $41.18, good through 11/14. Wire instructions on page 2.</p>
+            </div>
+            <div class="msg msg--out">
+              <div class="msg__from">Limina · draft <span class="chip chip--warn">needs your ok</span></div>
+              <p>Payoff filed to LM-24-0418. Per diem and wire details extracted; settlement statement updated. Confirm the wire instructions against the callback log?</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Public records -->
+    <div class="feature feature--flip">
+      <div class="feature__copy rv">
+        <p class="eyebrow">04 · Public records</p>
+        <h3 style="font-size:clamp(24px,2.6vw,34px)">Agents that log in, look it up, and show their work</h3>
+        <p class="lede">County tax portals, water departments and HOA management sites don't have APIs — so Limina's browser agents use them the way a person would, then attach a screenshot of exactly what they saw next to every number in the proration.</p>
+        <ul class="ticks">
+          <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3 3 7-7"/></svg><span>Tax, water, sewer, assessment and HOA balances</span></li>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3 3 7-7"/></svg><span>Prorations computed on your fiscal-year rules</span></li>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3 3 7-7"/></svg><span>Evidence attached to the file for auditors and underwriters</span></li>
+        </ul>
+      </div>
+
+      <div class="feature__art rv rv-d1">
+        <div class="card">
+          <div class="card__head">
+            <span class="card__title">Prorations · 118 Corwin St</span>
+            <span class="chip chip--ok">3 of 3 sourced</span>
+          </div>
+          <div class="bars" id="bars">
+            <div>
+              <div class="bar__top"><span>County tax · FY24 paid through Dec 31</span><span>seller credit $2,174.30</span></div>
+              <div class="bar__track"><div class="bar__fill" data-w="86"></div></div>
+            </div>
+            <div>
+              <div class="bar__top"><span>Water &amp; sewer · final read requested</span><span>est. $118.90</span></div>
+              <div class="bar__track"><div class="bar__fill bar__fill--ledger" data-w="42"></div></div>
+            </div>
+            <div>
+              <div class="bar__top"><span>HOA · Ridgeline Commons, $310/mo</span><span>buyer debit $165.33</span></div>
+              <div class="bar__track"><div class="bar__fill" data-w="53"></div></div>
+            </div>
+          </div>
+          <p class="dim" style="font-size:12.5px;margin:18px 0 0;font-family:var(--mono);letter-spacing:.04em">3 screenshots attached · portal sessions logged</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. Commitment -->
+    <div class="feature">
+      <div class="feature__copy rv">
+        <p class="eyebrow">05 · Commitment</p>
+        <h3 style="font-size:clamp(24px,2.6vw,34px)">Schedules A and B, drafted for an examiner's red pen</h3>
+        <p class="lede">From the abstract and the contract, Limina assembles the title commitment — requirements, exceptions, vesting, legal description — in your underwriter's format. It arrives as a draft. It leaves as yours.</p>
+        <ul class="ticks">
+          <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3 3 7-7"/></svg><span>Standard and specific exceptions pulled from your library</span></li>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3 3 7-7"/></svg><span>Legal description checked against the vesting deed, character by character</span></li>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3 3 7-7"/></svg><span>Edits you make teach the next draft</span></li>
+        </ul>
+      </div>
+
+      <div class="feature__art rv rv-d1">
+        <div class="card">
+          <div class="card__head">
+            <span class="card__title">Commitment draft · Schedule B-II</span>
+            <span class="chip chip--brass">ready for review</span>
+          </div>
+          <div class="extract">
+            <div class="extract__row" style="animation:none;opacity:1;transform:none"><span class="extract__k">Exception 1</span><span class="extract__v">Taxes for FY2025, a lien not yet due and payable <small>standard</small></span></div>
+            <div class="extract__row" style="animation:none;opacity:1;transform:none"><span class="extract__k">Exception 2</span><span class="extract__v">Utility easement, rear 10 ft, recorded Bk 3901 Pg 44 <small>from search</small></span></div>
+            <div class="extract__row" style="animation:none;opacity:1;transform:none"><span class="extract__k">Exception 3</span><span class="extract__v">Ridgeline Commons declaration &amp; amendments <small>from HOA</small></span></div>
+            <div class="extract__row" style="animation:none;opacity:1;transform:none"><span class="extract__k">Requirement</span><span class="extract__v">Release of Harbor Federal mortgage, loan ending 7731 <small>payoff in file</small></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== CHECKPOINT ============================== -->
+<section class="band checkpoint" id="checkpoint">
+  <div class="shell split">
+    <div class="rv">
+      <p class="eyebrow">Human in the loop</p>
+      <h2>Nothing leaves the building without a person saying <span class="serif-em">yes.</span></h2>
+      <p class="lede" style="margin-top:20px">Every action Limina takes lands in a review queue first: the draft, the evidence behind it, and a one-click approve. You decide what's auto-approved as trust builds — per action type, per client, per processor.</p>
+      <div style="margin-top:28px">
+        <a class="link-quiet" href="#trust">How permissions and audit trails work
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <div class="review rv rv-d1" id="review">
+      <div class="review__row">
+        <div>
+          <div class="review__t">Send lender welcome · Northgate Mortgage</div>
+          <div class="review__d">Template “Lender intro v3” · contact verified against loan estimate</div>
+        </div>
+        <div class="review__actions"><button class="mini" type="button">Edit</button><button class="mini mini--go" type="button" data-approve>Approve</button></div>
+      </div>
+      <div class="review__row">
+        <div>
+          <div class="review__t">Confirm easement as Schedule B exception</div>
+          <div class="review__d">Recorded Bk 3901 Pg 44 · examiner note attached</div>
+        </div>
+        <div class="review__actions"><button class="mini" type="button">Open instrument</button><button class="mini mini--go" type="button" data-approve>Approve</button></div>
+      </div>
+      <div class="review__row">
+        <div>
+          <div class="review__t">Apply lender credit change to settlement statement</div>
+          <div class="review__d">$0 → $1,250 · cash to close unchanged · diff attached</div>
+        </div>
+        <div class="review__actions"><button class="mini" type="button">View diff</button><button class="mini mini--go" type="button" data-approve>Approve</button></div>
+      </div>
+      <div class="review__row">
+        <div>
+          <div class="review__t">Request final water read · City of Ashford</div>
+          <div class="review__d">Browser agent will submit form · confirmation screenshot on return</div>
+        </div>
+        <div class="review__actions"><button class="mini" type="button">Skip</button><button class="mini mini--go" type="button" data-approve>Approve</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== METRICS ============================== -->
+<section class="band band--tight">
+  <div class="shell">
+    <div class="metrics rv">
+      <div class="metric"><div class="metric__n" data-count="27" data-suffix="m">27m</div><div class="metric__l">Median time from contract in to search complete</div></div>
+      <div class="metric"><div class="metric__n" data-count="2.4" data-suffix="×" data-decimals="1">2.4×</div><div class="metric__l">Files per processor, per month, after one quarter</div></div>
+      <div class="metric"><div class="metric__n" data-count="94" data-suffix="%">94%</div><div class="metric__l">Inbound documents matched to an order without a human touch</div></div>
+      <div class="metric"><div class="metric__n" data-count="100" data-suffix="%">100%</div><div class="metric__l">Outbound actions with a named approver in the audit log</div></div>
+    </div>
+    <p class="dim" style="text-align:center;font-size:12.5px;margin:18px 0 0">Illustrative figures for a fictional product demo.</p>
+  </div>
+</section>
+
+<!-- ============================== QUOTE ============================== -->
+<section class="band quote">
+  <div class="shell rv">
+    <span class="quote__mark" aria-hidden="true">“</span>
+    <blockquote>We stopped hiring for volume and started hiring for <em>judgment.</em> The queue still gets worked. It just gets worked by three people instead of nine.</blockquote>
+    <p class="quote__by"><b>Corinne Adebayo-Hale</b> · Operations lead, Harbor Line Title (fictional)</p>
+  </div>
+</section>
+
+<!-- ============================== TRUST ============================== -->
+<section class="band" id="trust" style="border-top:1px solid var(--line)">
+  <div class="shell">
+    <div class="rv" style="max-width:60ch">
+      <p class="eyebrow">Trust &amp; control</p>
+      <h2>Built for an industry where the paperwork <span class="serif-em">is</span> the product.</h2>
+      <p class="lede" style="margin-top:20px">Closings move money and record ownership. Limina is designed so that every automated step can be inspected, attributed, and reversed.</p>
+    </div>
+
+    <div class="trust rv rv-d1">
+      <div class="trust__cell">
+        <h4><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 1.5l5.5 2.5v4c0 3.2-2.3 5.6-5.5 6.5C4.8 13.6 2.5 11.2 2.5 8V4z"/></svg>Named approver on every action</h4>
+        <p>Outbound messages, drafted documents and portal submissions carry the person who approved them and the evidence they saw.</p>
+      </div>
+      <div class="trust__cell">
+        <h4><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="7" width="12" height="7.5" rx="1.5"/><path d="M5 7V5a3 3 0 016 0v2"/></svg>Encrypted, segregated by shop</h4>
+        <p>Data is encrypted in transit and at rest, and each agency's files are isolated. Nothing you upload trains a shared model.</p>
+      </div>
+      <div class="trust__cell">
+        <h4><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 8h12M8 2v12"/><circle cx="8" cy="8" r="6"/></svg>Wire-fraud posture</h4>
+        <p>Agents never change or transmit wire instructions. Payoff wires are surfaced for callback verification, never acted on.</p>
+      </div>
+      <div class="trust__cell">
+        <h4><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3h10v10H3z"/><path d="M6 8h4M6 6h4M6 10h2"/></svg>Full-fidelity audit log</h4>
+        <p>Every read, draft, edit and send is logged with timestamps and source documents, exportable for underwriter and regulator review.</p>
+      </div>
+      <div class="trust__cell">
+        <h4><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="5.5" r="3"/><path d="M2.5 14a5.5 5.5 0 0111 0"/></svg>Role-based permissions</h4>
+        <p>Decide which action types are auto-approved, which need a processor, and which need an examiner — per client if you like.</p>
+      </div>
+      <div class="trust__cell">
+        <h4><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 12l4-4 3 3 5-6"/></svg>Independent security review</h4>
+        <p>Third-party penetration testing on a fixed cadence; a compliance attestation program is underway. Ask us for the current report.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== FAQ ============================== -->
+<section class="band" id="faq">
+  <div class="shell split split--faq">
+    <div class="rv">
+      <p class="eyebrow">Questions</p>
+      <h2>Things title people ask <span class="serif-em">first.</span></h2>
+    </div>
+    <div class="faq rv rv-d1" id="faqList">
+      <div class="faq__item">
+        <button class="faq__q" aria-expanded="false">Does it replace our production software?
+          <svg class="faq__sign" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 3v12M3 9h12"/></svg>
+        </button>
+        <div class="faq__a"><p>No. Limina sits in front of it. Orders, documents and figures flow into the system you already use for settlement statements and policy issuance. Think of it as the processor's desk, not the ledger.</p></div>
+      </div>
+      <div class="faq__item">
+        <button class="faq__q" aria-expanded="false">What happens when the agent isn't sure?
+          <svg class="faq__sign" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 3v12M3 9h12"/></svg>
+        </button>
+        <div class="faq__a"><p>It stops and asks. Low-confidence matches, unfamiliar document types and ambiguous replies go into the review queue with the agent's reasoning and the source attached. It never guesses on your behalf.</p></div>
+      </div>
+      <div class="faq__item">
+        <button class="faq__q" aria-expanded="false">Which counties and portals are covered?
+          <svg class="faq__sign" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 3v12M3 9h12"/></svg>
+        </button>
+        <div class="faq__a"><p>Browser agents work against the public-facing sites counties already run, so coverage grows quickly — we add a new jurisdiction in days, not quarters. Tell us your top counties during onboarding and we'll confirm each one before go-live.</p></div>
+      </div>
+      <div class="faq__item">
+        <button class="faq__q" aria-expanded="false">How long does it take to get running?
+          <svg class="faq__sign" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 3v12M3 9h12"/></svg>
+        </button>
+        <div class="faq__a"><p>Most shops are processing live files in about two weeks. We start with intake and matching — the safest, highest-volume work — and switch on search, coordination and drafting as your team approves the results it sees.</p></div>
+      </div>
+      <div class="faq__item">
+        <button class="faq__q" aria-expanded="false">How is it priced?
+          <svg class="faq__sign" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 3v12M3 9h12"/></svg>
+        </button>
+        <div class="faq__a"><p>Per closed file, with a monthly floor that scales with your team. No per-seat charges — we'd rather everyone in the shop have a login than ration them.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== FINAL CTA ============================== -->
+<section class="band final" id="demo">
+  <div class="final__glow" aria-hidden="true"></div>
+  <div class="shell rv">
+    <p class="eyebrow" style="justify-content:center">Walkthrough</p>
+    <h2>Bring a real file. We'll open it <span class="serif-em">together.</span></h2>
+    <p class="lede">Thirty minutes, your documents, your county. You'll watch an order open, a search run and a commitment draft land — and you'll tell us where it's wrong.</p>
+    <div class="final__cta">
+      <a class="btn btn--primary" href="mailto:hello@limina.example">Book a walkthrough
+        <svg class="arw" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+      </a>
+      <a class="btn btn--ghost" href="#platform">Read the platform overview</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ============================== FOOTER ============================== -->
+<footer class="foot">
+  <div class="shell">
+    <div class="foot__grid">
+      <div>
+        <a class="brand" href="#top" aria-label="Limina home">
+          <svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true">
+            <rect x="1" y="1" width="30" height="30" rx="8" fill="#13171c" stroke="rgba(243,240,234,.16)"/>
+            <path d="M10 24V9.5h3.4V21H22v3z" fill="url(#lm-g)"/>
+            <path d="M17.5 9.5h4.5v7.2h-4.5z" fill="url(#lm-g)" opacity=".55"/>
+          </svg>
+          <span class="brand__word">Limina</span>
+        </a>
+        <p class="foot__blurb">Pre-closing agents for title and escrow teams. From the Latin <i>limen</i> — the threshold you cross when the keys change hands.</p>
+      </div>
+      <div>
+        <h5>Platform</h5>
+        <ul>
+          <li><a href="#workflow">Intake &amp; matching</a></li>
+          <li><a href="#workflow">Search &amp; abstract</a></li>
+          <li><a href="#workflow">Coordination</a></li>
+          <li><a href="#workflow">Public records</a></li>
+          <li><a href="#workflow">Commitments</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Company</h5>
+        <ul>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Field notes</a></li>
+          <li><a href="#trust">Security</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Contact</h5>
+        <ul>
+          <li><a href="mailto:hello@limina.example">hello@limina.example</a></li>
+          <li><a href="#demo">Book a walkthrough</a></li>
+          <li><a href="#">Status</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot__base">
+      <span>© <span id="year">2026</span> Limina. All rights reserved.</span>
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <span class="sp foot__disclaim">Limina is a fictional brand created as a design exercise. Companies, people, figures and claims on this page are invented.</span>
+    </div>
+  </div>
+</footer>
+
+<script src="app.js" defer></script>
+</body>
+</html>
