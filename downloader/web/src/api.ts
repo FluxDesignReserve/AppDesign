@@ -55,9 +55,39 @@ export interface DownloadParams {
   audioFormat?: AudioFormat;
 }
 
-export function downloadUrl(params: DownloadParams): string {
-  const q = new URLSearchParams({ url: params.url, mode: params.mode });
-  if (params.quality) q.set("quality", String(params.quality));
-  if (params.audioFormat) q.set("audioFormat", params.audioFormat);
-  return `/api/download?${q.toString()}`;
+export type JobStatus = "downloading" | "processing" | "ready" | "error";
+
+export interface JobSnapshot {
+  id: string;
+  status: JobStatus;
+  phase: string;
+  percent: number | null;
+  downloaded: number | null;
+  total: number | null;
+  error: string | null;
+  fileName: string | null;
+}
+
+export async function startJob(params: DownloadParams): Promise<JobSnapshot> {
+  const res = await fetch("/api/jobs", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(params),
+  });
+  if (!res.ok) await readError(res);
+  return (await res.json()) as JobSnapshot;
+}
+
+export async function pollJob(id: string): Promise<JobSnapshot> {
+  const res = await fetch(`/api/jobs/${id}`);
+  if (!res.ok) await readError(res);
+  return (await res.json()) as JobSnapshot;
+}
+
+export function jobFileUrl(id: string): string {
+  return `/api/jobs/${id}/file`;
+}
+
+export function cancelJob(id: string): void {
+  void fetch(`/api/jobs/${id}`, { method: "DELETE" }).catch(() => {});
 }

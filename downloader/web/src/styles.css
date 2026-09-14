@@ -464,6 +464,73 @@ body {
   cursor: default;
 }
 
+/* ---------- progress ---------- */
+.progress {
+  margin-top: 16px;
+}
+.bar-track {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  position: relative;
+}
+.bar-fill {
+  height: 100%;
+  width: 0;
+  background: var(--accent);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+.bar-fill.ready {
+  width: 100% !important;
+  background: #35c26a;
+}
+.bar-track.indeterminate .bar-fill {
+  width: 40%;
+  animation: slide 1.1s ease-in-out infinite;
+}
+@keyframes slide {
+  0% {
+    transform: translateX(-110%);
+  }
+  100% {
+    transform: translateX(320%);
+  }
+}
+.progress-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 9px;
+}
+.progress-label {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: var(--text);
+}
+.progress-bytes {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--faint);
+}
+.cancel-btn {
+  margin-left: auto;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  font-size: 12.5px;
+  padding: 5px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+.cancel-btn:hover {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
 .result-note {
   margin: 12px 0 0;
   color: var(--faint);

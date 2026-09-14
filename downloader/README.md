@@ -62,9 +62,15 @@ whole app.
 
 1. `POST /api/info` runs `yt-dlp -J <url>` and returns curated metadata (title,
    thumbnail, duration, available heights) for the preview card.
-2. `GET /api/download?url=&mode=&quality=&audioFormat=` runs `yt-dlp` into a temp
-   directory with the right format selector, then streams the resulting file back with a
-   proper `Content-Disposition`, and cleans up.
+2. `POST /api/jobs` `{ url, mode, quality, audioFormat }` starts a background download
+   and returns a job id. The frontend polls `GET /api/jobs/:id` for live progress
+   (percent while downloading, then phase labels like *merging* / *converting*).
+3. When the job is `ready`, `GET /api/jobs/:id/file` streams the finished file with a
+   proper `Content-Disposition`, then disposes of the job and its temp files.
+   `DELETE /api/jobs/:id` cancels a job in flight. Jobs expire after 15 minutes.
+
+Download progress is parsed from `yt-dlp`'s `--progress-template` output, and
+postprocessor lines (`[Merger]`, `[ExtractAudio]`, …) drive the phase labels.
 
 Only `youtube.com`, `youtu.be`, `music.youtube.com`, and `instagram.com` hosts are
 accepted — the server is not a general-purpose fetch proxy. Commands are spawned with

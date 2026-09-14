@@ -1,10 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ApiError,
-  downloadUrl,
+  cancelJob,
   fetchHealth,
   fetchInfo,
+  jobFileUrl,
+  pollJob,
+  startJob,
   type AudioFormat,
+  type JobSnapshot,
   type MediaInfo,
   type Mode,
   type ToolStatus,
@@ -47,6 +51,18 @@ function formatDuration(seconds: number | null): string | null {
   return h ? `${h}:${mm}:${ss}` : `${mm}:${ss}`;
 }
 
+function formatBytes(bytes: number | null): string | null {
+  if (bytes === null) return null;
+  const units = ["B", "KB", "MB", "GB"];
+  let n = bytes;
+  let i = 0;
+  while (n >= 1024 && i < units.length - 1) {
+    n /= 1024;
+    i++;
+  }
+  return `${n.toFixed(n < 10 && i > 0 ? 1 : 0)} ${units[i]}`;
+}
+
 export function App() {
   const [theme, setTheme] = useState<Theme>(() => load<Theme>("dl.theme", "auto"));
   const [url, setUrl] = useState("");
@@ -60,7 +76,17 @@ export function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [tools, setTools] = useState<ToolStatus | null>(null);
+  const [job, setJob] = useState<JobSnapshot | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const pollRef = useRef<number | null>(null);
+
+  const stopPolling = () => {
+    if (pollRef.current !== null) {
+      clearInterval(pollRef.current);
+      pollRef.current = null;
+    }
+  };
+  useEffect(() => stopPolling, []);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -91,6 +117,8 @@ export function App() {
     setLoading(true);
     setError(null);
     setInfo(null);
+    stopPolling();
+    setJob(null);
     try {
       const result = await fetchInfo(trimmed);
       setInfo(result);
@@ -114,20 +142,54 @@ export function App() {
     }
   }
 
-  function handleDownload() {
-    if (!info) return;
-    const href = downloadUrl({
-      url: url.trim(),
-      mode,
-      quality: mode === "audio" ? undefined : effectiveQuality ?? undefined,
-      audioFormat: mode === "audio" ? audioFormat : undefined,
-    });
+  function saveFile(id: string) {
     const a = document.createElement("a");
-    a.href = href;
+    a.href = jobFileUrl(id);
     a.rel = "noopener";
     document.body.appendChild(a);
     a.click();
     a.remove();
+  }
+
+  async function handleDownload() {
+    if (!info || job) return;
+    setError(null);
+    try {
+      const started = await startJob({
+        url: url.trim(),
+        mode,
+        quality: mode === "audio" ? undefined : effectiveQuality ?? undefined,
+        audioFormat: mode === "audio" ? audioFormat : undefined,
+      });
+      setJob(started);
+      pollRef.current = window.setInterval(async () => {
+        try {
+          const s = await pollJob(started.id);
+          setJob(s);
+          if (s.status === "ready") {
+            stopPolling();
+            saveFile(s.id);
+            window.setTimeout(() => setJob(null), 1600);
+          } else if (s.status === "error") {
+            stopPolling();
+            setError(s.error ?? "The download failed.");
+            setJob(null);
+          }
+        } catch (err) {
+          stopPolling();
+          setError(err instanceof ApiError ? err.message : "Lost contact with the server.");
+          setJob(null);
+        }
+      }, 600);
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Could not start the download.");
+    }
+  }
+
+  function handleCancel() {
+    if (job) cancelJob(job.id);
+    stopPolling();
+    setJob(null);
   }
 
   const cycleTheme = () =>
@@ -265,12 +327,45 @@ export function App() {
                   <span className="opt-label muted">best available quality</span>
                 )}
 
-                <button className="download-btn" onClick={handleDownload} disabled={!toolsReady}>
-                  <DownloadIcon />
-                  download{" "}
-                  {mode === "audio" ? audioFormat : effectiveQuality ? `${effectiveQuality}p` : ""}
-                </button>
+                {!job && (
+                  <button className="download-btn" onClick={handleDownload} disabled={!toolsReady}>
+                    <DownloadIcon />
+                    download{" "}
+                    {mode === "audio" ? audioFormat : effectiveQuality ? `${effectiveQuality}p` : ""}
+                  </button>
+                )}
               </div>
+
+              {job && (
+                <div className="progress" role="status" aria-live="polite">
+                  <div className={`bar-track ${job.percent === null ? "indeterminate" : ""}`}>
+                    <div
+                      className={`bar-fill ${job.status === "ready" ? "ready" : ""}`}
+                      style={job.percent !== null ? { width: `${job.percent}%` } : undefined}
+                    />
+                  </div>
+                  <div className="progress-row">
+                    <span className="progress-label">
+                      {job.status === "ready"
+                        ? "saved ✓"
+                        : job.status === "downloading"
+                          ? `downloading${job.percent !== null ? ` ${Math.round(job.percent)}%` : "…"}`
+                          : `${job.phase}…`}
+                    </span>
+                    <span className="progress-bytes">
+                      {job.status === "downloading" && job.total
+                        ? `${formatBytes(job.downloaded)} / ${formatBytes(job.total)}`
+                        : ""}
+                    </span>
+                    {job.status !== "ready" && (
+                      <button className="cancel-btn" onClick={handleCancel}>
+                        cancel
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+
               <p className="result-note">
                 the server fetches and packages the file, then your browser saves it — large videos
                 may take a moment.

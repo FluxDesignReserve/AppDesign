@@ -151,11 +151,22 @@ export interface PreparedDownload {
   cleanup: () => Promise<void>;
 }
 
+/** Progress/phase updates emitted while a download runs. */
+export type DownloadEvent =
+  | { kind: "progress"; downloaded: number | null; total: number | null }
+  | { kind: "phase"; phase: string };
+
+const PROGRESS_TOKEN = "@@DLP@@";
+
 /**
  * Downloads the requested media into a temporary directory and returns the
- * resulting file. Callers must invoke cleanup() once the file is served.
+ * resulting file. `onEvent` receives progress and phase updates as yt-dlp
+ * works. Callers must invoke cleanup() once the file is served.
  */
-export async function prepareDownload(req: DownloadRequest): Promise<PreparedDownload> {
+export async function prepareDownload(
+  req: DownloadRequest,
+  onEvent?: (ev: DownloadEvent) => void,
+): Promise<PreparedDownload> {
   classifyUrl(req.url); // validate host before spawning anything
 
   const dir = await mkdtemp(path.join(tmpdir(), "dl-"));
@@ -164,9 +175,11 @@ export async function prepareDownload(req: DownloadRequest): Promise<PreparedDow
   const args = [
     "--no-playlist",
     "--no-warnings",
-    "--no-progress",
     "--restrict-filenames",
     "--no-part",
+    "--newline",
+    "--progress-template",
+    `download:${PROGRESS_TOKEN}%(progress.downloaded_bytes)s/%(progress.total_bytes)s/%(progress.total_bytes_estimate)s`,
     "-o",
     outTemplate,
   ];
@@ -186,7 +199,7 @@ export async function prepareDownload(req: DownloadRequest): Promise<PreparedDow
 
   args.push(req.url);
 
-  const { code, stderr } = await run(YTDLP, args, 30 * 60_000);
+  const { code, stderr } = await runDownload(args, 30 * 60_000, onEvent);
   const cleanup = () => rm(dir, { recursive: true, force: true });
 
   if (code !== 0) {
@@ -202,6 +215,89 @@ export async function prepareDownload(req: DownloadRequest): Promise<PreparedDow
 
   const fileName = files[0];
   return { filePath: path.join(dir, fileName), fileName, cleanup };
+}
+
+const toBytes = (s: string): number | null => {
+  const n = Number(s);
+  return Number.isFinite(n) && n > 0 ? n : null;
+};
+
+/** Maps a raw yt-dlp/postprocessor output line to a phase label, if any. */
+function phaseFor(line: string): string | null {
+  if (/\[Merger\]/.test(line)) return "merging audio + video";
+  if (/\[ExtractAudio\]/.test(line)) return "extracting audio";
+  if (/\[VideoConvertor\]|\[Recode\]|\[VideoRemuxer\]/.test(line)) return "converting";
+  if (/\[Metadata\]|\[EmbedThumbnail\]|\[FixupM4a\]/.test(line)) return "finalizing";
+  return null;
+}
+
+/**
+ * Spawns yt-dlp for a download and streams progress. Reads both stdout and
+ * stderr line-by-line: progress rows carry PROGRESS_TOKEN, postprocessor rows
+ * signal phase changes.
+ */
+function runDownload(
+  args: string[],
+  timeoutMs: number,
+  onEvent?: (ev: DownloadEvent) => void,
+): Promise<{ code: number; stderr: string }> {
+  return new Promise((resolve, reject) => {
+    const child = spawn(YTDLP, args, { windowsHide: true });
+    let stderr = "";
+    let lastPhase = "";
+    const timer = setTimeout(() => {
+      child.kill("SIGKILL");
+      reject(new InputError("The download timed out."));
+    }, timeoutMs);
+
+    const handleLine = (line: string) => {
+      const idx = line.indexOf(PROGRESS_TOKEN);
+      if (idx !== -1) {
+        const [dl, total, estimate] = line.slice(idx + PROGRESS_TOKEN.length).split("/");
+        onEvent?.({
+          kind: "progress",
+          downloaded: toBytes(dl ?? ""),
+          total: toBytes(total ?? "") ?? toBytes(estimate ?? ""),
+        });
+        if (lastPhase !== "downloading") {
+          lastPhase = "downloading";
+          onEvent?.({ kind: "phase", phase: "downloading" });
+        }
+        return;
+      }
+      const phase = phaseFor(line);
+      if (phase && phase !== lastPhase) {
+        lastPhase = phase;
+        onEvent?.({ kind: "phase", phase });
+      }
+    };
+
+    const reader = (isErr: boolean) => {
+      let buf = "";
+      return (chunk: Buffer) => {
+        if (isErr) stderr += chunk.toString();
+        buf += chunk.toString();
+        const lines = buf.split(/\r\n|\r|\n/);
+        buf = lines.pop() ?? "";
+        for (const l of lines) if (l.trim()) handleLine(l);
+      };
+    };
+
+    child.stdout.on("data", reader(false));
+    child.stderr.on("data", reader(true));
+    child.on("error", (err) => {
+      clearTimeout(timer);
+      if ((err as NodeJS.ErrnoException).code === "ENOENT") {
+        reject(new InputError(`\`${YTDLP}\` is not installed or not on PATH.`));
+      } else {
+        reject(err);
+      }
+    });
+    child.on("close", (code) => {
+      clearTimeout(timer);
+      resolve({ code: code ?? 1, stderr });
+    });
+  });
 }
 
 interface RunResult {
