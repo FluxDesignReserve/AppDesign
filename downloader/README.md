@@ -49,6 +49,32 @@ npm start            # serves API + built frontend on http://localhost:8787
 When built, the server also serves the static frontend, so a single origin runs the
 whole app.
 
+## Deploy as a hosted webapp (get a public link)
+
+The app needs a **server** (for `yt-dlp`), so it deploys to any Docker host — not a
+static page host. A `Dockerfile` (bundling `yt-dlp` + `ffmpeg`) and a Render blueprint
+are included.
+
+**Render (easiest):**
+1. Push this repo to GitHub (already done if you're reading this on the PR).
+2. On [render.com](https://render.com): **New → Blueprint**, connect the repo.
+3. Render reads `render.yaml`, builds the image, and gives you a `https://…onrender.com`
+   URL. Health check is `/api/health`.
+
+**Any other Docker host** (Railway, Fly.io, a VPS):
+```bash
+cd downloader
+docker build -t yoink .
+docker run -p 8787:8787 yoink       # open http://localhost:8787
+```
+The container listens on `$PORT` (default `8787`), which hosts inject automatically.
+
+> **⚠️ A public instance is abusable.** Anyone with the URL can run downloads on your
+> server (bandwidth, CPU, and the ToS exposure of a public download service). Before
+> sharing a link, put it behind auth, a private network, or at least rate limiting. The
+> server already restricts to YouTube/Instagram hosts and caps concurrent jobs, but that
+> is not access control.
+
 ## Configuration (env vars)
 
 | Variable | Default | Meaning |
