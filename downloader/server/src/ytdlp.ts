@@ -227,9 +227,16 @@ export async function prepareDownload(
     // hands back VP9/AV1, which QuickTime shows as audio-only.
     const cap = req.quality && req.quality > 0 ? `[height<=${req.quality}]` : "";
     if (req.mode === "mute") {
-      args.push("-f", `bv*${cap}/b${cap}`, "-S", "vcodec:h264,res,ext:mp4");
+      // H.264 only; never VP9/AV1, so QuickTime can render the picture.
+      args.push("-f", `bv*[vcodec^=avc1]${cap}/b[ext=mp4]${cap}/b[ext=mp4]`, "-S", "res,ext:mp4");
     } else {
-      args.push("-f", `bv*${cap}+ba/b${cap}/b`, "-S", "vcodec:h264,acodec:aac,res,ext:mp4");
+      // H.264 video + AAC audio only, or a progressive mp4 (which is H.264/AAC).
+      args.push(
+        "-f",
+        `bv*[vcodec^=avc1]${cap}+ba[acodec^=mp4a]/b[ext=mp4]${cap}/b[ext=mp4]`,
+        "-S",
+        "res,ext:mp4",
+      );
     }
     args.push("--merge-output-format", "mp4", "--postprocessor-args", "Merger:-movflags +faststart");
   }

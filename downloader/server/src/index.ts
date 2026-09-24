@@ -69,8 +69,9 @@ setInterval(() => {
   }
 }, 60_000).unref();
 
+const BUILD = "h264-strict-2026-09-24";
 app.get("/api/health", (_req, res) => {
-  res.json({ ok: true, tools: checkTools() });
+  res.json({ ok: true, build: BUILD, tools: checkTools() });
 });
 
 app.post("/api/info", async (req: Request, res: Response, next: NextFunction) => {
