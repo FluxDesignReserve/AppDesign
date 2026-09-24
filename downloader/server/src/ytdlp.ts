@@ -222,21 +222,16 @@ export async function prepareDownload(
     const fmt = req.audioFormat ?? "mp3";
     args.push("-x", "--audio-format", fmt, "--audio-quality", "0");
   } else {
-    // Prefer H.264 (avc1) video + AAC (mp4a) audio in an mp4 so the file plays
-    // in QuickTime / Apple devices; fall back to any stream if unavailable.
+    // Force yt-dlp to prefer H.264 video + AAC audio (via -S sorting) so the
+    // file plays fully in QuickTime / on Apple devices — otherwise YouTube
+    // hands back VP9/AV1, which QuickTime shows as audio-only.
     const cap = req.quality && req.quality > 0 ? `[height<=${req.quality}]` : "";
     if (req.mode === "mute") {
-      args.push("-f", `bv*[vcodec^=avc1]${cap}/bv*${cap}/b${cap}`, "--merge-output-format", "mp4");
+      args.push("-f", `bv*${cap}/b${cap}`, "-S", "vcodec:h264,res,ext:mp4");
     } else {
-      args.push(
-        "-f",
-        `bv*[vcodec^=avc1]${cap}+ba[acodec^=mp4a]/b[ext=mp4]${cap}/bv*${cap}+ba/b${cap}/b`,
-        "--merge-output-format",
-        "mp4",
-      );
+      args.push("-f", `bv*${cap}+ba/b${cap}/b`, "-S", "vcodec:h264,acodec:aac,res,ext:mp4");
     }
-    // Re-encode to H.264/AAC only if the delivered streams still aren't Apple-friendly.
-    args.push("--postprocessor-args", "Merger:-movflags +faststart");
+    args.push("--merge-output-format", "mp4", "--postprocessor-args", "Merger:-movflags +faststart");
   }
 
   args.push(req.url);
