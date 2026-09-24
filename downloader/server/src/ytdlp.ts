@@ -1,0 +1,401 @@
+import { spawn, spawnSync } from "node:child_process";
+import { existsSync, writeFileSync } from "node:fs";
+import { mkdtemp, readdir, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import path from "node:path";
+
+export const YTDLP = process.env.YTDLP_PATH || "yt-dlp";
+export const FFMPEG = process.env.FFMPEG_PATH || "ffmpeg";
+
+/**
+ * Optional login cookies for sites that require an account (Instagram, and
+ * often Twitter/X). Provide EITHER YTDLP_COOKIES_FILE (a path to a Netscape
+ * cookies.txt) OR YTDLP_COOKIES (the file's contents, e.g. pasted into a
+ * Render environment variable). Without it, Instagram/Twitter usually fail.
+ */
+export const COOKIES_FILE = resolveCookies();
+function resolveCookies(): string | null {
+  const p = process.env.YTDLP_COOKIES_FILE;
+  if (p && existsSync(p)) return p;
+  const content = process.env.YTDLP_COOKIES;
+  if (content && content.trim()) {
+    try {
+      const f = path.join(tmpdir(), "yt-cookies.txt");
+      writeFileSync(f, content.replace(/\r\n/g, "\n"), { mode: 0o600 });
+      return f;
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+/** Prepends --cookies to a yt-dlp argv when a cookies file is configured. */
+function withCookies(args: string[]): string[] {
+  return COOKIES_FILE ? ["--cookies", COOKIES_FILE, ...args] : args;
+}
+
+/** Hosts the downloader is allowed to touch. Keeps this from becoming an open SSRF proxy. */
+const ALLOWED_HOSTS = new Set([
+  "youtube.com",
+  "www.youtube.com",
+  "m.youtube.com",
+  "music.youtube.com",
+  "youtu.be",
+  "instagram.com",
+  "www.instagram.com",
+  "twitter.com",
+  "www.twitter.com",
+  "mobile.twitter.com",
+  "x.com",
+  "www.x.com",
+]);
+
+export type Source = "youtube" | "instagram" | "twitter";
+export type Mode = "auto" | "audio" | "mute";
+
+export interface MediaInfo {
+  source: Source;
+  id: string;
+  title: string;
+  uploader: string | null;
+  thumbnail: string | null;
+  durationSeconds: number | null;
+  /** Available video heights, descending, e.g. [1080, 720, 480]. */
+  heights: number[];
+  hasAudio: boolean;
+}
+
+export interface DownloadRequest {
+  url: string;
+  mode: Mode;
+  /** Max video height, e.g. 1080. Ignored for audio-only. */
+  quality?: number;
+  /** Audio container for audio-only downloads. */
+  audioFormat?: "mp3" | "m4a" | "opus";
+}
+
+export interface ToolStatus {
+  ytdlp: { available: boolean; version: string | null };
+  ffmpeg: { available: boolean };
+}
+
+/** Reports whether the external binaries are installed and usable. */
+export function checkTools(): ToolStatus {
+  let ytVersion: string | null = null;
+  let ytOk = false;
+  try {
+    const r = spawnSync(YTDLP, ["--version"], { encoding: "utf8", timeout: 10_000 });
+    if (r.status === 0) {
+      ytOk = true;
+      ytVersion = (r.stdout || "").trim() || null;
+    }
+  } catch {
+    ytOk = false;
+  }
+
+  let ffOk = false;
+  try {
+    const r = spawnSync(FFMPEG, ["-version"], { encoding: "utf8", timeout: 10_000 });
+    ffOk = r.status === 0;
+  } catch {
+    ffOk = false;
+  }
+
+  return { ytdlp: { available: ytOk, version: ytVersion }, ffmpeg: { available: ffOk } };
+}
+
+export class InputError extends Error {}
+
+/** Validates the URL and returns which supported service it belongs to. */
+export function classifyUrl(raw: string): Source {
+  let u: URL;
+  try {
+    u = new URL(raw.trim());
+  } catch {
+    throw new InputError("That doesn't look like a valid link.");
+  }
+  if (u.protocol !== "http:" && u.protocol !== "https:") {
+    throw new InputError("Only http and https links are supported.");
+  }
+  const host = u.hostname.toLowerCase();
+  if (!ALLOWED_HOSTS.has(host)) {
+    throw new InputError("Only YouTube, Instagram and Twitter/X links are supported.");
+  }
+  if (host.includes("instagram")) return "instagram";
+  if (host.includes("twitter") || host === "x.com" || host.endsWith(".x.com")) return "twitter";
+  return "youtube";
+}
+
+interface RawFormat {
+  vcodec?: string;
+  acodec?: string;
+  height?: number | null;
+}
+
+interface RawInfo {
+  id?: string;
+  title?: string;
+  uploader?: string;
+  channel?: string;
+  thumbnail?: string;
+  duration?: number;
+  formats?: RawFormat[];
+  extractor_key?: string;
+}
+
+/** Runs `yt-dlp -J` and returns curated metadata for the UI. */
+export async function getInfo(url: string): Promise<MediaInfo> {
+  const source = classifyUrl(url);
+  const args = withCookies(["-J", "--no-playlist", "--no-warnings", "--no-progress", url]);
+  const { code, stdout, stderr } = await run(YTDLP, args, 60_000);
+
+  if (code !== 0) {
+    throw new InputError(friendlyError(stderr) || "Couldn't read that link.");
+  }
+
+  let raw: RawInfo;
+  try {
+    raw = JSON.parse(stdout) as RawInfo;
+  } catch {
+    throw new InputError("Couldn't parse the media information.");
+  }
+
+  const heights = new Set<number>();
+  let hasAudio = false;
+  for (const f of raw.formats ?? []) {
+    if (f.height && f.vcodec && f.vcodec !== "none") heights.add(f.height);
+    if (f.acodec && f.acodec !== "none") hasAudio = true;
+  }
+
+  return {
+    source,
+    id: raw.id ?? "",
+    title: raw.title?.trim() || "Untitled",
+    uploader: raw.uploader || raw.channel || null,
+    thumbnail: raw.thumbnail || null,
+    durationSeconds: typeof raw.duration === "number" ? Math.round(raw.duration) : null,
+    heights: [...heights].sort((a, b) => b - a),
+    hasAudio,
+  };
+}
+
+export interface PreparedDownload {
+  filePath: string;
+  fileName: string;
+  cleanup: () => Promise<void>;
+}
+
+/** Progress/phase updates emitted while a download runs. */
+export type DownloadEvent =
+  | { kind: "progress"; downloaded: number | null; total: number | null }
+  | { kind: "phase"; phase: string };
+
+const PROGRESS_TOKEN = "@@DLP@@";
+
+/**
+ * Downloads the requested media into a temporary directory and returns the
+ * resulting file. `onEvent` receives progress and phase updates as yt-dlp
+ * works. Callers must invoke cleanup() once the file is served.
+ */
+export async function prepareDownload(
+  req: DownloadRequest,
+  onEvent?: (ev: DownloadEvent) => void,
+): Promise<PreparedDownload> {
+  classifyUrl(req.url); // validate host before spawning anything
+
+  const dir = await mkdtemp(path.join(tmpdir(), "dl-"));
+  const outTemplate = path.join(dir, "%(title).150B [%(id)s].%(ext)s");
+
+  const args = [
+    "--no-playlist",
+    "--no-warnings",
+    "--restrict-filenames",
+    "--no-part",
+    "--newline",
+    "--progress-template",
+    `download:${PROGRESS_TOKEN}%(progress.downloaded_bytes)s/%(progress.total_bytes)s/%(progress.total_bytes_estimate)s`,
+    "-o",
+    outTemplate,
+  ];
+
+  if (req.mode === "audio") {
+    const fmt = req.audioFormat ?? "mp3";
+    args.push("-x", "--audio-format", fmt, "--audio-quality", "0");
+  } else {
+    // Force yt-dlp to prefer H.264 video + AAC audio (via -S sorting) so the
+    // file plays fully in QuickTime / on Apple devices — otherwise YouTube
+    // hands back VP9/AV1, which QuickTime shows as audio-only.
+    const cap = req.quality && req.quality > 0 ? `[height<=${req.quality}]` : "";
+    if (req.mode === "mute") {
+      // H.264 only; never VP9/AV1, so QuickTime can render the picture.
+      args.push("-f", `bv*[vcodec^=avc1]${cap}/b[ext=mp4]${cap}/b[ext=mp4]`, "-S", "res,ext:mp4");
+    } else {
+      // H.264 video + AAC audio only, or a progressive mp4 (which is H.264/AAC).
+      args.push(
+        "-f",
+        `bv*[vcodec^=avc1]${cap}+ba[acodec^=mp4a]/b[ext=mp4]${cap}/b[ext=mp4]`,
+        "-S",
+        "res,ext:mp4",
+      );
+    }
+    args.push("--merge-output-format", "mp4", "--postprocessor-args", "Merger:-movflags +faststart");
+  }
+
+  args.push(req.url);
+
+  const { code, stderr } = await runDownload(withCookies(args), 30 * 60_000, onEvent);
+  const cleanup = () => rm(dir, { recursive: true, force: true });
+
+  if (code !== 0) {
+    await cleanup();
+    throw new InputError(friendlyError(stderr) || "The download failed.");
+  }
+
+  const files = (await readdir(dir)).filter((f) => !f.endsWith(".part") && !f.endsWith(".ytdl"));
+  if (files.length === 0) {
+    await cleanup();
+    throw new InputError("yt-dlp produced no output file.");
+  }
+
+  const fileName = files[0];
+  return { filePath: path.join(dir, fileName), fileName, cleanup };
+}
+
+const toBytes = (s: string): number | null => {
+  const n = Number(s);
+  return Number.isFinite(n) && n > 0 ? n : null;
+};
+
+/** Maps a raw yt-dlp/postprocessor output line to a phase label, if any. */
+function phaseFor(line: string): string | null {
+  if (/\[Merger\]/.test(line)) return "merging audio + video";
+  if (/\[ExtractAudio\]/.test(line)) return "extracting audio";
+  if (/\[VideoConvertor\]|\[Recode\]|\[VideoRemuxer\]/.test(line)) return "converting";
+  if (/\[Metadata\]|\[EmbedThumbnail\]|\[FixupM4a\]/.test(line)) return "finalizing";
+  return null;
+}
+
+/**
+ * Spawns yt-dlp for a download and streams progress. Reads both stdout and
+ * stderr line-by-line: progress rows carry PROGRESS_TOKEN, postprocessor rows
+ * signal phase changes.
+ */
+function runDownload(
+  args: string[],
+  timeoutMs: number,
+  onEvent?: (ev: DownloadEvent) => void,
+): Promise<{ code: number; stderr: string }> {
+  return new Promise((resolve, reject) => {
+    const child = spawn(YTDLP, args, { windowsHide: true });
+    let stderr = "";
+    let lastPhase = "";
+    const timer = setTimeout(() => {
+      child.kill("SIGKILL");
+      reject(new InputError("The download timed out."));
+    }, timeoutMs);
+
+    const handleLine = (line: string) => {
+      const idx = line.indexOf(PROGRESS_TOKEN);
+      if (idx !== -1) {
+        const [dl, total, estimate] = line.slice(idx + PROGRESS_TOKEN.length).split("/");
+        onEvent?.({
+          kind: "progress",
+          downloaded: toBytes(dl ?? ""),
+          total: toBytes(total ?? "") ?? toBytes(estimate ?? ""),
+        });
+        if (lastPhase !== "downloading") {
+          lastPhase = "downloading";
+          onEvent?.({ kind: "phase", phase: "downloading" });
+        }
+        return;
+      }
+      const phase = phaseFor(line);
+      if (phase && phase !== lastPhase) {
+        lastPhase = phase;
+        onEvent?.({ kind: "phase", phase });
+      }
+    };
+
+    const reader = (isErr: boolean) => {
+      let buf = "";
+      return (chunk: Buffer) => {
+        if (isErr) stderr += chunk.toString();
+        buf += chunk.toString();
+        const lines = buf.split(/\r\n|\r|\n/);
+        buf = lines.pop() ?? "";
+        for (const l of lines) if (l.trim()) handleLine(l);
+      };
+    };
+
+    child.stdout.on("data", reader(false));
+    child.stderr.on("data", reader(true));
+    child.on("error", (err) => {
+      clearTimeout(timer);
+      if ((err as NodeJS.ErrnoException).code === "ENOENT") {
+        reject(new InputError(`\`${YTDLP}\` is not installed or not on PATH.`));
+      } else {
+        reject(err);
+      }
+    });
+    child.on("close", (code) => {
+      clearTimeout(timer);
+      resolve({ code: code ?? 1, stderr });
+    });
+  });
+}
+
+interface RunResult {
+  code: number;
+  stdout: string;
+  stderr: string;
+}
+
+/** Spawns a process (argv-only, never a shell) and collects its output. */
+function run(cmd: string, args: string[], timeoutMs: number): Promise<RunResult> {
+  return new Promise((resolve, reject) => {
+    const child = spawn(cmd, args, { windowsHide: true });
+    let stdout = "";
+    let stderr = "";
+    const timer = setTimeout(() => {
+      child.kill("SIGKILL");
+      reject(new InputError("The operation timed out."));
+    }, timeoutMs);
+
+    child.stdout.on("data", (d) => (stdout += d.toString()));
+    child.stderr.on("data", (d) => (stderr += d.toString()));
+    child.on("error", (err) => {
+      clearTimeout(timer);
+      if ((err as NodeJS.ErrnoException).code === "ENOENT") {
+        reject(new InputError(`\`${cmd}\` is not installed or not on PATH.`));
+      } else {
+        reject(err);
+      }
+    });
+    child.on("close", (code) => {
+      clearTimeout(timer);
+      resolve({ code: code ?? 1, stdout, stderr });
+    });
+  });
+}
+
+/** Turns noisy yt-dlp stderr into a short, user-facing line. */
+function friendlyError(stderr: string): string | null {
+  const line = stderr
+    .split("\n")
+    .map((l) => l.trim())
+    .filter((l) => l.toUpperCase().startsWith("ERROR"))
+    .pop();
+  if (!line) return null;
+  let msg = line.replace(/^ERROR:\s*/i, "");
+  if (/login required|rate-limit|not available|private|only available to|sign in|cookies/i.test(msg)) {
+    return COOKIES_FILE
+      ? "This content is private, age-restricted, or the saved login has expired."
+      : "This needs a login. Add your account cookies (YTDLP_COOKIES) to download from Instagram/Twitter.";
+  }
+  if (/no video|there is no video|unsupported url|unable to download/i.test(msg)) {
+    return "No downloadable video at that link (it may be a photo post).";
+  }
+  // Trim overly long messages.
+  if (msg.length > 200) msg = msg.slice(0, 197) + "...";
+  return msg;
+}
