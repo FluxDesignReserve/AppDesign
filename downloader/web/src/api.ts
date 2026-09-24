@@ -1,4 +1,4 @@
-export type Source = "youtube" | "instagram";
+export type Source = "youtube" | "instagram" | "twitter";
 export type Mode = "auto" | "audio" | "mute";
 export type AudioFormat = "mp3" | "m4a" | "opus";
 

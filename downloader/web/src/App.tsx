@@ -211,8 +211,8 @@ export function App() {
         <div className="hero">
           <h1 className="headline">save what you want to keep</h1>
           <p className="subhead">
-            paste a YouTube or Instagram link — get the video or just the audio. no ads, no
-            sign-in, nothing tracked.
+            paste a YouTube, Instagram or Twitter/X link — get the video or just the audio. no
+            ads, no sign-in, nothing tracked.
           </p>
 
           {!toolsReady && tools && (
@@ -231,7 +231,7 @@ export function App() {
               className="bar-input"
               type="url"
               inputMode="url"
-              placeholder="paste the link here"
+              placeholder="paste a YouTube, Instagram or Twitter link"
               value={url}
               spellCheck={false}
               autoComplete="off"

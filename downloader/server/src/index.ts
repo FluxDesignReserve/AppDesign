@@ -6,6 +6,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   checkTools,
+  COOKIES_FILE,
   getInfo,
   InputError,
   prepareDownload,
@@ -225,7 +226,8 @@ app.listen(PORT, () => {
   const tools = checkTools();
   console.log(`\n  downloader server → http://localhost:${PORT}`);
   console.log(`  yt-dlp: ${tools.ytdlp.available ? tools.ytdlp.version : "NOT FOUND"}`);
-  console.log(`  ffmpeg: ${tools.ffmpeg.available ? "ok" : "NOT FOUND"}\n`);
+  console.log(`  ffmpeg: ${tools.ffmpeg.available ? "ok" : "NOT FOUND"}`);
+  console.log(`  cookies: ${COOKIES_FILE ? "loaded (Instagram/Twitter enabled)" : "none (Instagram/Twitter may fail)"}\n`);
 });
 
 /** Builds an RFC 5987-safe Content-Disposition header for arbitrary filenames. */

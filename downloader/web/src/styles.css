@@ -366,6 +366,10 @@ body {
   background: linear-gradient(90deg, rgba(240, 148, 51, 0.18), rgba(214, 41, 118, 0.18));
   color: #e56ba0;
 }
+.badge-twitter {
+  background: rgba(29, 155, 240, 0.16);
+  color: #4ba3f0;
+}
 .result-title {
   margin: 0 0 3px;
   font-size: 16px;

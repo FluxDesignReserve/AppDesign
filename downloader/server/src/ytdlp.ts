@@ -1,10 +1,38 @@
 import { spawn, spawnSync } from "node:child_process";
+import { existsSync, writeFileSync } from "node:fs";
 import { mkdtemp, readdir, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
 export const YTDLP = process.env.YTDLP_PATH || "yt-dlp";
 export const FFMPEG = process.env.FFMPEG_PATH || "ffmpeg";
+
+/**
+ * Optional login cookies for sites that require an account (Instagram, and
+ * often Twitter/X). Provide EITHER YTDLP_COOKIES_FILE (a path to a Netscape
+ * cookies.txt) OR YTDLP_COOKIES (the file's contents, e.g. pasted into a
+ * Render environment variable). Without it, Instagram/Twitter usually fail.
+ */
+export const COOKIES_FILE = resolveCookies();
+function resolveCookies(): string | null {
+  const p = process.env.YTDLP_COOKIES_FILE;
+  if (p && existsSync(p)) return p;
+  const content = process.env.YTDLP_COOKIES;
+  if (content && content.trim()) {
+    try {
+      const f = path.join(tmpdir(), "yt-cookies.txt");
+      writeFileSync(f, content.replace(/\r\n/g, "\n"), { mode: 0o600 });
+      return f;
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+/** Prepends --cookies to a yt-dlp argv when a cookies file is configured. */
+function withCookies(args: string[]): string[] {
+  return COOKIES_FILE ? ["--cookies", COOKIES_FILE, ...args] : args;
+}
 
 /** Hosts the downloader is allowed to touch. Keeps this from becoming an open SSRF proxy. */
 const ALLOWED_HOSTS = new Set([
@@ -15,9 +43,14 @@ const ALLOWED_HOSTS = new Set([
   "youtu.be",
   "instagram.com",
   "www.instagram.com",
+  "twitter.com",
+  "www.twitter.com",
+  "mobile.twitter.com",
+  "x.com",
+  "www.x.com",
 ]);
 
-export type Source = "youtube" | "instagram";
+export type Source = "youtube" | "instagram" | "twitter";
 export type Mode = "auto" | "audio" | "mute";
 
 export interface MediaInfo {
@@ -86,9 +119,10 @@ export function classifyUrl(raw: string): Source {
   }
   const host = u.hostname.toLowerCase();
   if (!ALLOWED_HOSTS.has(host)) {
-    throw new InputError("Only YouTube and Instagram links are supported right now.");
+    throw new InputError("Only YouTube, Instagram and Twitter/X links are supported.");
   }
   if (host.includes("instagram")) return "instagram";
+  if (host.includes("twitter") || host === "x.com" || host.endsWith(".x.com")) return "twitter";
   return "youtube";
 }
 
@@ -112,7 +146,7 @@ interface RawInfo {
 /** Runs `yt-dlp -J` and returns curated metadata for the UI. */
 export async function getInfo(url: string): Promise<MediaInfo> {
   const source = classifyUrl(url);
-  const args = ["-J", "--no-playlist", "--no-warnings", "--no-progress", url];
+  const args = withCookies(["-J", "--no-playlist", "--no-warnings", "--no-progress", url]);
   const { code, stdout, stderr } = await run(YTDLP, args, 60_000);
 
   if (code !== 0) {
@@ -188,18 +222,26 @@ export async function prepareDownload(
     const fmt = req.audioFormat ?? "mp3";
     args.push("-x", "--audio-format", fmt, "--audio-quality", "0");
   } else {
+    // Prefer H.264 (avc1) video + AAC (mp4a) audio in an mp4 so the file plays
+    // in QuickTime / Apple devices; fall back to any stream if unavailable.
     const cap = req.quality && req.quality > 0 ? `[height<=${req.quality}]` : "";
     if (req.mode === "mute") {
-      args.push("-f", `bv*${cap}/b${cap}`, "--merge-output-format", "mp4");
+      args.push("-f", `bv*[vcodec^=avc1]${cap}/bv*${cap}/b${cap}`, "--merge-output-format", "mp4");
     } else {
-      // auto: best video + best audio, merged.
-      args.push("-f", `bv*${cap}+ba/b${cap}/b`, "--merge-output-format", "mp4");
+      args.push(
+        "-f",
+        `bv*[vcodec^=avc1]${cap}+ba[acodec^=mp4a]/b[ext=mp4]${cap}/bv*${cap}+ba/b${cap}/b`,
+        "--merge-output-format",
+        "mp4",
+      );
     }
+    // Re-encode to H.264/AAC only if the delivered streams still aren't Apple-friendly.
+    args.push("--postprocessor-args", "Merger:-movflags +faststart");
   }
 
   args.push(req.url);
 
-  const { code, stderr } = await runDownload(args, 30 * 60_000, onEvent);
+  const { code, stderr } = await runDownload(withCookies(args), 30 * 60_000, onEvent);
   const cleanup = () => rm(dir, { recursive: true, force: true });
 
   if (code !== 0) {
@@ -343,11 +385,13 @@ function friendlyError(stderr: string): string | null {
     .pop();
   if (!line) return null;
   let msg = line.replace(/^ERROR:\s*/i, "");
-  if (/login required|rate-limit|not available|private|only available to/i.test(msg)) {
-    return "This content is private, age-restricted, or requires login.";
+  if (/login required|rate-limit|not available|private|only available to|sign in|cookies/i.test(msg)) {
+    return COOKIES_FILE
+      ? "This content is private, age-restricted, or the saved login has expired."
+      : "This needs a login. Add your account cookies (YTDLP_COOKIES) to download from Instagram/Twitter.";
   }
-  if (/unable to download|unsupported url|no video/i.test(msg)) {
-    return "Couldn't find a downloadable video at that link.";
+  if (/no video|there is no video|unsupported url|unable to download/i.test(msg)) {
+    return "No downloadable video at that link (it may be a photo post).";
   }
   // Trim overly long messages.
   if (msg.length > 200) msg = msg.slice(0, 197) + "...";
