@@ -41,12 +41,49 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: $(POLARSYNC_BUNDLE_ID).tests
         GENERATE_INFOPLIST_FILE: YES
 
+  Polarsync:
+    type: application
+    platform: iOS
+    sources:
+      - Polarsync
+      - Shared
+    dependencies:
+      - target: PolarsyncCore
+      - target: PolarsyncWidgets
+    settings:
+      base:
+        PRODUCT_NAME: Polarsync
+        PRODUCT_BUNDLE_IDENTIFIER: $(POLARSYNC_BUNDLE_ID)
+        INFOPLIST_FILE: Config/Polarsync-Info.plist
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        TARGETED_DEVICE_FAMILY: "1"
+
+  # Live Activity (Lock Screen + Dynamic Island) with Pause/Resume/Stop buttons.
+  PolarsyncWidgets:
+    type: app-extension
+    platform: iOS
+    sources:
+      - PolarsyncWidgets
+      - Shared
+    settings:
+      base:
+        PRODUCT_NAME: PolarsyncWidgets
+        PRODUCT_BUNDLE_IDENTIFIER: $(POLARSYNC_BUNDLE_ID).widgets
+        INFOPLIST_FILE: Config/PolarsyncWidgets-Info.plist
+        TARGETED_DEVICE_FAMILY: "1"
+        SKIP_INSTALL: YES
+
 schemes:
-  PolarsyncCore:
+  Polarsync:
     build:
       targets:
-        PolarsyncCore: all
+        Polarsync: all
         PolarsyncCoreTests: [test]
+    run:
+      config: Debug
     test:
+      config: Debug
       targets: [PolarsyncCoreTests]
       gatherCoverageData: true
+    archive:
+      config: Release

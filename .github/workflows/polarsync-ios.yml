@@ -19,7 +19,7 @@ jobs:
       run:
         working-directory: polarsync-ios
     env:
-      SCHEME: PolarsyncCore
+      SCHEME: Polarsync
     steps:
       - uses: actions/checkout@v4
 
@@ -56,6 +56,14 @@ jobs:
             -resultBundlePath build/Tests.xcresult \
             CODE_SIGNING_ALLOWED=NO \
             -quiet
+
+      - name: Test summary
+        if: always()
+        run: |
+          if [ -d build/Tests.xcresult ]; then
+            xcrun xcresulttool get test-results summary --path build/Tests.xcresult --compact | tee build/summary.json
+            python3 -c 'import json; s = json.load(open("build/summary.json")); print("RESULT {result}: {passedTests} passed, {failedTests} failed, {skippedTests} skipped".format(**s))' || true
+          fi
 
       - name: Upload test results
         if: failure()
