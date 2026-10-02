@@ -4,6 +4,8 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
+import android.media.MediaCodecList
+import android.media.MediaFormat
 import android.media.MediaMetadataRetriever
 import android.media.MediaRecorder
 import android.os.SystemClock
@@ -31,8 +33,9 @@ import java.time.LocalDateTime
  * (see [PolarsyncApp.recordingManager]) so the service, which drives recording, and the
  * activity, which displays it, observe the same [state].
  *
- * Audio is AAC-LC in an MPEG-4 container, mono, 44.1 kHz, 128 kbps — roughly 1 MB per minute.
- * MediaRecorder needs a seekable plain file, so a session is written to `noBackupFilesDir/pending`
+ * Audio is tuned for speech at the smallest size (see [AudioProfile]): Opus in Ogg, mono,
+ * 16 kHz, 12 kbps — about 90 KB per minute — falling back to AMR-WB at 12.65 kbps on devices
+ * without an Opus encoder. MediaRecorder needs a seekable plain file, so a session is written to `noBackupFilesDir/pending`
  * (app-private). When it stops, the file is encrypted into `filesDir/recordings/<name>.psm`
  * (see [EncryptedMemoFormat]) and the plain copy is deleted. A pending file left behind by a
  * crash is encrypted the next time recordings are listed.
@@ -85,16 +88,48 @@ class RecordingManager(context: Context, private val keyWrapper: KeyWrapper) {
             throw RecordingException("Not enough free storage to start recording.")
         }
 
-        val file = uniqueFile(LocalDateTime.now())
+        // Opus first when the device has an encoder for it; AMR-WB if not, or if Opus won't start.
+        val profiles = if (hasOpusEncoder) listOf(AudioProfile.OPUS, AudioProfile.AMR_WB) else listOf(AudioProfile.AMR_WB)
+        var lastError: RuntimeException? = null
+        var started: Pair<MediaRecorder, File>? = null
+        for (profile in profiles) {
+            try {
+                started = startRecorder(profile, freeBytes)
+                break
+            } catch (e: RuntimeException) {
+                // IllegalStateException / RuntimeException("start failed"): an unsupported
+                // encoder, or the mic is busy (in which case the fallback fails too).
+                Log.w(TAG, "Could not start ${profile.name} recording", e)
+                lastError = e
+            }
+        }
+        val (mediaRecorder, file) = started
+            ?: throw RecordingException("Could not start the microphone. Is another app using it?", lastError)
+
+        recorder = mediaRecorder
+        _state.value = RecordingState.Recording(
+            file = file,
+            accumulatedMs = 0,
+            segmentStartRealtime = SystemClock.elapsedRealtime(),
+        )
+        Log.i(TAG, "Recording started: ${file.name}")
+        return file
+    }
+
+    /** Configures and starts a recorder for [profile]; cleans up and rethrows on failure. */
+    @SuppressLint("MissingPermission") // Only called from start(), after the permission check.
+    @Throws(RecordingException::class)
+    private fun startRecorder(profile: AudioProfile, freeBytes: Long): Pair<MediaRecorder, File> {
+        val file = uniqueFile(LocalDateTime.now(), profile.extension)
         val mediaRecorder = MediaRecorder(appContext)
         try {
             mediaRecorder.apply {
                 setAudioSource(MediaRecorder.AudioSource.MIC)
-                setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-                setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+                setOutputFormat(profile.outputFormat)
+                setAudioEncoder(profile.audioEncoder)
                 setAudioChannels(1)
-                setAudioSamplingRate(SAMPLE_RATE_HZ)
-                setAudioEncodingBitRate(BIT_RATE_BPS)
+                setAudioSamplingRate(profile.sampleRateHz)
+                setAudioEncodingBitRate(profile.bitRateBps)
                 // Leave headroom so a long session can't fill the device completely.
                 setMaxFileSize(freeBytes - STORAGE_RESERVE_BYTES)
                 setOutputFile(file)
@@ -107,19 +142,17 @@ class RecordingManager(context: Context, private val keyWrapper: KeyWrapper) {
             discard(mediaRecorder, file)
             throw RecordingException("Could not open the output file.", e)
         } catch (e: RuntimeException) {
-            // IllegalStateException / RuntimeException("start failed"): usually the mic is busy.
             discard(mediaRecorder, file)
-            throw RecordingException("Could not start the microphone. Is another app using it?", e)
+            throw e
         }
+        return mediaRecorder to file
+    }
 
-        recorder = mediaRecorder
-        _state.value = RecordingState.Recording(
-            file = file,
-            accumulatedMs = 0,
-            segmentStartRealtime = SystemClock.elapsedRealtime(),
-        )
-        Log.i(TAG, "Recording started: ${file.name}")
-        return file
+    /** True if the device has any Opus encoder MediaRecorder can use (software counts). */
+    private val hasOpusEncoder: Boolean by lazy {
+        MediaCodecList(MediaCodecList.REGULAR_CODECS).codecInfos.any { info ->
+            info.isEncoder && info.supportedTypes.any { it.equals(MediaFormat.MIMETYPE_AUDIO_OPUS, ignoreCase = true) }
+        }
     }
 
     /** Pauses capture, keeping the file open. No-op unless currently recording. */
@@ -239,7 +272,7 @@ class RecordingManager(context: Context, private val keyWrapper: KeyWrapper) {
 
     private fun recoverPending() {
         val active = (_state.value as? RecordingState.Active)?.file
-        pendingDir.listFiles { f -> f.isFile && f.extension == PLAIN_EXTENSION }
+        pendingDir.listFiles { f -> f.isFile && f.extension in PLAIN_EXTENSIONS }
             ?.filter { it != active }
             ?.forEach(::encryptPending)
     }
@@ -277,17 +310,17 @@ class RecordingManager(context: Context, private val keyWrapper: KeyWrapper) {
     }
 
     /** A pending file whose name is free both in [pendingDir] and, once encrypted, in [recordingsDir]. */
-    private fun uniqueFile(now: LocalDateTime): File {
-        val base = Format.recordingFileName(now).removeSuffix(".$PLAIN_EXTENSION")
+    private fun uniqueFile(now: LocalDateTime, extension: String): File {
+        val base = Format.recordingBaseName(now)
         var name = base
         var n = 1
-        while (File(pendingDir, "$name.$PLAIN_EXTENSION").exists() ||
+        while (File(pendingDir, "$name.$extension").exists() ||
             File(recordingsDir, "$name.$ENCRYPTED_EXTENSION").exists()
         ) {
             name = "${base}_$n"
             n++
         }
-        return File(pendingDir, "$name.$PLAIN_EXTENSION")
+        return File(pendingDir, "$name.$extension")
     }
 
     private fun readDurationMs(file: File): Long? = try {
@@ -306,11 +339,28 @@ class RecordingManager(context: Context, private val keyWrapper: KeyWrapper) {
         private const val TAG = "RecordingManager"
         private const val RECORDINGS_DIR = "recordings"
         private const val PENDING_DIR = "pending"
-        private const val PLAIN_EXTENSION = "m4a"
+        /** Pending formats to recover after a crash; m4a is from builds before the Opus switch. */
+        private val PLAIN_EXTENSIONS = setOf("ogg", "awb", "m4a")
         private const val ENCRYPTED_EXTENSION = "psm"
-        private const val SAMPLE_RATE_HZ = 44_100
-        private const val BIT_RATE_BPS = 128_000
         private const val MIN_FREE_BYTES = 50L * 1024 * 1024
         private const val STORAGE_RESERVE_BYTES = 20L * 1024 * 1024
     }
+}
+
+/**
+ * Speech-oriented encoder settings, smallest first. Both are 16 kHz mono ("wideband"), which
+ * covers the frequencies that matter for intelligible speech.
+ */
+internal enum class AudioProfile(
+    val outputFormat: Int,
+    val audioEncoder: Int,
+    val sampleRateHz: Int,
+    val bitRateBps: Int,
+    val extension: String,
+) {
+    /** Opus in Ogg, 12 kbps (~90 KB/min). Android ships a software Opus encoder from API 29. */
+    OPUS(MediaRecorder.OutputFormat.OGG, MediaRecorder.AudioEncoder.OPUS, 16_000, 12_000, "ogg"),
+
+    /** AMR-WB at its 12.65 kbps mode (~95 KB/min), for devices without an Opus encoder. */
+    AMR_WB(MediaRecorder.OutputFormat.AMR_WB, MediaRecorder.AudioEncoder.AMR_WB, 16_000, 12_650, "awb"),
 }

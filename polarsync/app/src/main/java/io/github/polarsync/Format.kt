@@ -8,8 +8,8 @@ internal object Format {
 
     private val fileStamp = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss", Locale.US)
 
-    /** `memo_20261002_143005.m4a` — sortable, filesystem-safe, locale-independent. */
-    fun recordingFileName(time: LocalDateTime): String = "memo_${fileStamp.format(time)}.m4a"
+    /** `memo_20261002_143005` — sortable, filesystem-safe, locale-independent. No extension. */
+    fun recordingBaseName(time: LocalDateTime): String = "memo_${fileStamp.format(time)}"
 
     /** `0:07`, `12:34`, `1:02:03`. */
     fun duration(ms: Long): String {

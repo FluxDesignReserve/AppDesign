@@ -8,9 +8,9 @@ import java.time.LocalDateTime
 class FormatTest {
 
     @Test
-    fun recordingFileName_isSortableAndM4a() {
-        val name = Format.recordingFileName(LocalDateTime.of(2026, 10, 2, 14, 30, 5))
-        assertEquals("memo_20261002_143005.m4a", name)
+    fun recordingBaseName_isSortable() {
+        val name = Format.recordingBaseName(LocalDateTime.of(2026, 10, 2, 14, 30, 5))
+        assertEquals("memo_20261002_143005", name)
     }
 
     @Test

@@ -10,6 +10,8 @@ An open-source, encrypted voice recorder for Android 12+ (API 31+), written in K
 - **It keeps recording in the background.** A foreground service of type `microphone` keeps the
   mic running with the screen off. An ongoing notification with a timer and **Pause / Resume** and
   **Stop** buttons stays up for the whole session.
+- **Recordings are tiny.** Opus in Ogg, mono, 16 kHz, 12 kbps: about 90 KB per minute, or
+  roughly 5 MB per hour. Devices without an Opus encoder fall back to AMR-WB at 12.65 kbps.
 - **Recording only starts when the user taps a button.** The service isn't exported and never
   restarts itself.
 - **Screen content stays private.** Screenshots, screen recordings and the recent-apps preview are
