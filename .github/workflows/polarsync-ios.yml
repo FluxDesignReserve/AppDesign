@@ -1,0 +1,76 @@
+name: Polarsync (iOS)
+
+on:
+  push:
+    paths:
+      - "polarsync-ios/**"
+      - ".github/workflows/polarsync-ios.yml"
+  pull_request:
+    paths:
+      - "polarsync-ios/**"
+      - ".github/workflows/polarsync-ios.yml"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: polarsync-ios
+    env:
+      SCHEME: PolarsyncCore
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Pick an iPhone simulator
+        run: |
+          xcodebuild -version
+          UDID=$(xcrun simctl list devices available --json | python3 -c '
+          import json, re, sys
+          devices = json.load(sys.stdin)["devices"]
+          def version(runtime):
+              return [int(n) for n in re.findall(r"\d+", runtime.split("iOS")[-1])]
+          for runtime in sorted((r for r in devices if "iOS" in r), key=version, reverse=True):
+              for device in devices[runtime]:
+                  if device["name"].startswith("iPhone"):
+                      print(device["udid"]); sys.exit()
+          ')
+          echo "Using simulator $UDID"
+          echo "DESTINATION=platform=iOS Simulator,id=$UDID" >> "$GITHUB_ENV"
+
+      - name: Build for the simulator and run unit tests
+        run: |
+          set -o pipefail
+          xcodebuild test \
+            -project Polarsync.xcodeproj \
+            -scheme "$SCHEME" \
+            -destination "$DESTINATION" \
+            -derivedDataPath build/DerivedData \
+            -resultBundlePath build/Tests.xcresult \
+            CODE_SIGNING_ALLOWED=NO \
+            -quiet
+
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: polarsync-ios-test-results
+          path: polarsync-ios/build/Tests.xcresult
+          if-no-files-found: ignore
+
+      # The ready-to-open Xcode project, for people without Homebrew/XcodeGen (see README).
+      - name: Upload generated Xcode project
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Polarsync-iOS-Xcode-project
+          path: |
+            polarsync-ios
+            !polarsync-ios/build
