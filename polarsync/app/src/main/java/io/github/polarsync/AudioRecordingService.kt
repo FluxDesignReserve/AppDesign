@@ -1,7 +1,6 @@
 package io.github.polarsync
 
 import android.annotation.SuppressLint
-import android.app.ForegroundServiceStartNotAllowedException
 import android.app.Notification
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -123,13 +122,15 @@ class AudioRecordingService : Service() {
             ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE,
         )
         true
-    } catch (e: ForegroundServiceStartNotAllowedException) {
-        // Android 12+: the app tried to start a foreground service from the background.
-        manager.reportError("Recording can only be started while the app is open.", e)
-        false
     } catch (e: SecurityException) {
         // Android 14+: RECORD_AUDIO not granted, or the app isn't eligible for a mic FGS.
         manager.reportError("Microphone permission is required to record.", e)
+        false
+    } catch (e: IllegalStateException) {
+        // Android 12+ throws ForegroundServiceStartNotAllowedException (an IllegalStateException
+        // subclass) when a foreground service is started from the background. Catching the
+        // superclass keeps this valid on older devices, where that subclass doesn't exist.
+        manager.reportError("Recording can only be started while the app is open.", e)
         false
     }
 

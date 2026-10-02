@@ -1,6 +1,6 @@
 # Polarsync
 
-An open-source, encrypted voice recorder for Android 12+ (API 31+), written in Kotlin with Jetpack Compose.
+An open-source, encrypted voice recorder for Android 8.0+ (API 26+), written in Kotlin with Jetpack Compose.
 
 - **A 4-digit PIN opens the app.** You set the PIN on first launch. The app locks again whenever it
   leaves the screen. Too many wrong guesses trigger lockouts that grow from 30 s up to 1 h.
@@ -76,7 +76,7 @@ polarsync/
 You need Android Studio (Ladybug or newer) or the Android SDK with platform 36, plus JDK 17 or newer.
 
 - **Android Studio:** open the `polarsync/` folder (not the repository root), let Gradle sync, then
-  press **Run** with a device or emulator running API 31 or higher.
+  press **Run** with a device or emulator running Android 8.0 (API 26) or higher.
 - **Command line:**
 
   ```bash
@@ -111,6 +111,21 @@ folder. It uploads the debug APK as the **polarsync-debug** artifact.
    recording, then check the pending file keeps growing. Afterwards run
    `adb shell dumpsys deviceidle unforce && adb shell dumpsys battery reset`.
 6. **Logs:** `adb logcat -s RecordingManager AudioRecordingService`
+
+## Scope and limitations
+
+Polarsync records **your own microphone** only: your voice and whatever is audible around the
+phone. It is a voice-memo recorder, not a call recorder.
+
+- **It cannot record the other party of a WhatsApp (or any VoIP) call.** Android does not expose
+  another app's call audio to third-party apps; the voice-communication stream is withheld in the
+  platform's native audio layer, below the SDK. The only audio an app like this can obtain is the
+  microphone. Recording a call's far side would require the app to be part of the system image, a
+  rooted device, or external hardware — none of which this project uses or targets.
+- On Android 12+ the app runs a `microphone` foreground service; on Android 8–11 it runs an
+  ordinary foreground service. Either way a recording notification is shown while the mic is on,
+  and the system privacy indicator (green dot on Android 12+) appears. This is required and not
+  removable.
 
 ## License
 
