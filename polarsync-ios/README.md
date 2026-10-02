@@ -93,46 +93,48 @@ one of these two ways to get a project Xcode can open:
    `cd ~/Downloads/AppDesign-main/polarsync-ios`
 4. Run `xcodegen generate`, then `open Polarsync.xcodeproj`
 
-## Installing on your iPhone
+## Installing on your iPhone (free, with Xcode)
 
-### Way 1: Xcode with a free Apple ID (no cost, re-install every 7 days)
+This uses a free Apple ID ("Personal Team"); no paid developer account is needed. The steps are
+written for an iPhone 15, but any iPhone on iOS 17 or newer works the same way. The app only uses
+features a free account can sign: background audio, the Keychain, file protection and Live
+Activities updated on the phone itself (no push notifications, iCloud or App Groups).
 
-1. **Connect the iPhone** to the Mac with a cable. On the iPhone, tap **Trust** if asked.
-2. **Turn on Developer Mode on the iPhone:** Settings → Privacy & Security → Developer Mode → on.
-   The phone restarts. (The option appears after the phone has been connected to Xcode once.)
-3. **Add your Apple ID to Xcode:** Xcode menu → **Settings…** → **Accounts** → **+** →
+1. **Connect the iPhone 15** to the MacBook with a USB-C cable. Unlock the phone and tap **Trust**
+   if it asks whether to trust this computer.
+2. **Add your Apple ID to Xcode:** Xcode menu → **Settings…** → **Accounts** → **+** (bottom left) →
    **Apple ID**, and sign in.
-4. **Choose your team:** in Xcode's left sidebar click the blue **Polarsync** project icon. Then for
-   **each** of the two targets **Polarsync** and **PolarsyncWidgets**: open **Signing &
-   Capabilities**, tick **Automatically manage signing**, and pick your name ("Personal Team")
-   under **Team**.
-5. **If Xcode says the bundle identifier is unavailable** (someone else already uses
-   `io.github.polarsync`): click the blue **Polarsync** project icon → the **Polarsync** item under
-   *PROJECT* → **Build Settings** → search for `POLARSYNC_BUNDLE_ID` and change it to something
-   unique, such as `io.github.polarsync.yourname`. Both targets pick it up.
-6. **Run it:** at the top of the Xcode window, choose your iPhone in the device menu next to
-   "Polarsync", then press the **▶ Run** button (or ⌘R).
-7. **Trust the developer on the phone** the first time: Settings → General → **VPN & Device
-   Management** → your Apple ID → **Trust**. Then open Polarsync.
+3. **Make the app identifier unique.** A free team can't use an identifier someone else already
+   has. In Xcode's left sidebar click the blue **Polarsync** project icon → under *PROJECT* click
+   **Polarsync** → **Build Settings** → type `POLARSYNC_BUNDLE_ID` in the search box → double-click
+   the value `io.github.polarsync` and change it to something like `com.yourname.polarsync`
+   (letters, numbers, dots and hyphens only). This is the only place to change it: the widget
+   becomes `com.yourname.polarsync.widgets` automatically. (To make it permanent, change the same
+   line in `project.yml`.)
+4. **Pick your Personal Team.** Still with the blue project icon selected, for **each** of the two
+   targets **Polarsync** and **PolarsyncWidgets**: open the **Signing & Capabilities** tab, tick
+   **Automatically manage signing**, and choose **Your Name (Personal Team)** under **Team**.
+   Any red error there should disappear after a few seconds.
+5. **Choose the phone:** at the top of the Xcode window, click the device menu next to
+   "Polarsync" and pick your iPhone 15.
+6. **Turn on Developer Mode on the iPhone:** Settings → **Privacy & Security** → scroll to the
+   bottom → **Developer Mode** → on. The phone asks to restart; after the restart, unlock it and tap
+   **Turn On**. (The option only appears after the phone has been connected to Xcode once.)
+7. **Run it:** press the **▶ Run** button (or ⌘R). The first build takes a minute or two.
+8. **Trust your developer certificate** the first time: if the iPhone says "Untrusted Developer",
+   go to Settings → General → **VPN & Device Management** → your Apple ID → **Trust**. Then open
+   Polarsync from the Home Screen.
 
-With a free Apple ID the app **stops opening after 7 days**. Connect the phone and press **Run** again
-to re-sign it. Your recordings and PIN are kept as long as you don't delete the app.
+**Limits of a free Apple ID:**
 
-### Way 2: TestFlight with a paid Apple Developer account (US$99 a year)
+- **The app stops opening after 7 days.** Connect the phone and press **▶ Run** in Xcode again to
+  re-sign it. Your recordings and PIN are kept, as long as you don't delete the app.
+- **At most 3 apps** installed this way can be on the phone at once.
+- **A limited number of new app identifiers per week** (about 10). Polarsync uses two (the app and
+  its Live Activity widget), so avoid changing the identifier again and again.
 
-This is the better option for everyday use: builds last 90 days and install over the air.
-
-1. Join the [Apple Developer Program](https://developer.apple.com/programs/).
-2. In Xcode, choose that team in **Signing & Capabilities** for both targets (step 4 above).
-3. In [App Store Connect](https://appstoreconnect.apple.com) → **Apps** → **+** → **New App**,
-   enter the name "Polarsync" and choose your bundle identifier.
-4. In Xcode, set the device menu to **Any iOS Device (arm64)**, then **Product → Archive**.
-5. When the Organizer window opens, click **Distribute App → TestFlight & App Store** and follow
-   the steps. Apple will ask about encryption: this app only uses the encryption built into iOS
-   (CryptoKit and CommonCrypto) to protect your own data, see
-   [Apple's export compliance guide](https://developer.apple.com/documentation/security/complying-with-encryption-export-regulations).
-6. Install the **TestFlight** app on the iPhone. Once processing finishes (often 10–30 minutes),
-   add yourself as a tester in App Store Connect → TestFlight, and install Polarsync from TestFlight.
+(With a paid Apple Developer account, US$99 a year, you could instead upload builds to
+TestFlight, which last 90 days and install without a cable. That isn't needed here.)
 
 ## Building and testing in Xcode
 
@@ -163,7 +165,7 @@ then uploads the generated project as the **Polarsync-iOS-Xcode-project** artifa
    countdown.
 3. **Recording:** tap **Record** and allow the microphone. Lock the phone. The Lock Screen shows the
    Live Activity; try **Pause**, **Resume** and **Stop** there. Long-press the Dynamic Island
-   (iPhone 14 Pro and later) for the same buttons. Unlock, open Polarsync (PIN first): the memo
+   (iPhone 15 and later; iPhone 14 Pro too) for the same buttons. Unlock, open Polarsync (PIN first): the memo
    is in the list and plays.
 4. **Interruptions:** call the phone while recording. Recording pauses during the call and resumes
    afterwards (or stays paused, with a Resume button, if iOS says not to resume). Plug in or unplug
