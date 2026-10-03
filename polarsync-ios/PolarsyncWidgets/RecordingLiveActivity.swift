@@ -15,7 +15,7 @@ struct RecordingLiveActivity: Widget {
         ActivityConfiguration(for: RecordingActivityAttributes.self) { context in
             LockScreenView(state: context.state)
                 .padding(16)
-                .activityBackgroundTint(Color.black.opacity(0.75))
+                .activityBackgroundTint(Theme.background)
                 .activitySystemActionForegroundColor(.white)
         } dynamicIsland: { context in
             DynamicIsland {
@@ -33,14 +33,14 @@ struct RecordingLiveActivity: Widget {
                 }
             } compactLeading: {
                 Image(systemName: context.state.isPaused ? "pause.fill" : "mic.fill")
-                    .foregroundStyle(context.state.isPaused ? .orange : .red)
+                    .foregroundStyle(context.state.isPaused ? Theme.blue : Theme.red)
             } compactTrailing: {
                 ElapsedText(state: context.state)
                     .monospacedDigit()
                     .frame(maxWidth: 52)
             } minimal: {
                 Image(systemName: context.state.isPaused ? "pause.fill" : "mic.fill")
-                    .foregroundStyle(context.state.isPaused ? .orange : .red)
+                    .foregroundStyle(context.state.isPaused ? Theme.blue : Theme.red)
             }
         }
     }
@@ -69,7 +69,7 @@ private struct StatusLabel: View {
     var body: some View {
         Label(state.isPaused ? "Paused" : "Recording", systemImage: state.isPaused ? "pause.circle.fill" : "record.circle")
             .font(.headline)
-            .foregroundStyle(state.isPaused ? .orange : .red)
+            .foregroundStyle(state.isPaused ? Theme.blue : Theme.red)
     }
 }
 
@@ -96,17 +96,17 @@ private struct Controls: View {
                 Button(intent: ResumeRecordingIntent()) {
                     Label("Resume", systemImage: "mic.fill").frame(maxWidth: .infinity)
                 }
-                .tint(.orange)
+                .tint(Theme.green)
             } else {
                 Button(intent: PauseRecordingIntent()) {
                     Label("Pause", systemImage: "pause.fill").frame(maxWidth: .infinity)
                 }
-                .tint(.gray)
+                .tint(Theme.blue)
             }
             Button(intent: StopRecordingIntent()) {
                 Label("Stop", systemImage: "stop.fill").frame(maxWidth: .infinity)
             }
-            .tint(.red)
+            .tint(Theme.red)
         }
         .buttonStyle(.borderedProminent)
         .font(.subheadline.weight(.semibold))

@@ -15,12 +15,14 @@ struct RecorderView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 controls
-                    .padding(.vertical, 24)
-                Divider()
+                    .padding(.vertical, 32)
+                    .background(MoodGlow(colors: glowColors))
                 memoList
             }
+            .background(Theme.background.ignoresSafeArea())
             .navigationTitle("Polarsync")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
@@ -72,11 +74,11 @@ struct RecorderView: View {
             TimelineView(.periodic(from: .now, by: 0.5)) { context in
                 Text(Format.duration(recorder.clock.elapsed(at: context.date)))
                     .font(.system(size: 56, weight: .light, design: .rounded).monospacedDigit())
-                    .foregroundStyle(recorder.phase == .idle ? .secondary : .primary)
+                    .foregroundStyle(recorder.phase == .idle ? Theme.secondaryText : .white)
             }
             Text(status)
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Theme.secondaryText)
 
             HStack(spacing: 20) {
                 switch recorder.phase {
@@ -87,14 +89,14 @@ struct RecorderView: View {
                         Label("Record", systemImage: "mic.fill")
                             .frame(minWidth: 160)
                     }
-                    .tint(.red)
+                    .tint(Theme.red)
                 case .recording:
                     Button {
                         recorder.pause()
                     } label: {
                         Label("Pause", systemImage: "pause.fill").frame(minWidth: 110)
                     }
-                    .tint(.gray)
+                    .tint(Theme.blue)
                     stopButton
                 case .paused:
                     Button {
@@ -102,11 +104,12 @@ struct RecorderView: View {
                     } label: {
                         Label("Resume", systemImage: "mic.fill").frame(minWidth: 110)
                     }
-                    .tint(.orange)
+                    .tint(Theme.green)
                     stopButton
                 }
             }
             .buttonStyle(.borderedProminent)
+            .buttonBorderShape(.capsule)
             .controlSize(.large)
             .font(.headline)
         }
@@ -119,7 +122,16 @@ struct RecorderView: View {
         } label: {
             Label("Stop", systemImage: "stop.fill").frame(minWidth: 110)
         }
-        .tint(.red)
+        .tint(Theme.red)
+    }
+
+    /// Glow behind the timer: calm green/blue when idle, warm red/yellow while recording, blue when paused.
+    private var glowColors: [Color] {
+        switch recorder.phase {
+        case .idle: return [Theme.green, Theme.blue]
+        case .recording: return [Theme.red, Theme.yellow]
+        case .paused: return [Theme.blue, Theme.blue]
+        }
     }
 
     private var status: String {
@@ -150,9 +162,12 @@ struct RecorderView: View {
                         onPlay: { library.togglePlayback(memo) },
                         onDelete: { memoToDelete = memo }
                     )
+                    .listRowBackground(Theme.surface)
+                    .listRowSeparatorTint(Color.white.opacity(0.08))
                 }
             }
-            .listStyle(.plain)
+            .listStyle(.insetGrouped)
+            .scrollContentBackground(.hidden)
             .refreshable { library.reload() }
         }
     }
@@ -170,6 +185,7 @@ private struct MemoRow: View {
             Button(action: onPlay) {
                 Image(systemName: isPlaying ? "stop.circle.fill" : "play.circle.fill")
                     .font(.system(size: 34))
+                    .foregroundStyle(isPlaying ? Theme.red : Theme.yellow)
             }
             .buttonStyle(.borderless)
             .disabled(!canPlay && !isPlaying)
@@ -180,11 +196,12 @@ private struct MemoRow: View {
                     .font(.body)
                 Text("\(memo.duration.map(Format.duration) ?? "–") · \(Format.size(memo.size))")
                     .font(.caption.monospacedDigit())
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Theme.secondaryText)
             }
             Spacer()
             Button(role: .destructive, action: onDelete) {
                 Image(systemName: "trash")
+                    .foregroundStyle(Theme.secondaryText)
             }
             .buttonStyle(.borderless)
             .accessibilityLabel("Delete")

@@ -65,6 +65,8 @@ struct RootView: View {
                 PrivacyCover()
             }
         }
+        .preferredColorScheme(.dark)
+        .tint(Theme.yellow)
         .onChange(of: scenePhase) { _, phase in
             if phase == .background {
                 // Ask for the PIN again on return. Recording, if any, carries on.
@@ -78,14 +80,14 @@ struct RootView: View {
 private struct PrivacyCover: View {
     var body: some View {
         ZStack {
-            Color(.systemBackground).ignoresSafeArea()
+            Theme.background.ignoresSafeArea()
             VStack(spacing: 12) {
                 Image(systemName: "lock.fill")
                     .font(.system(size: 40))
                 Text("Polarsync")
                     .font(.title2.weight(.semibold))
             }
-            .foregroundStyle(.secondary)
+            .foregroundStyle(Theme.secondaryText)
         }
     }
 }

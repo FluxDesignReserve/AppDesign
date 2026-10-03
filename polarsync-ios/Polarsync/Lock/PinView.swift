@@ -11,14 +11,14 @@ struct PinView: View {
                 Spacer()
                 Image(systemName: "lock.fill")
                     .font(.system(size: 36))
-                    .foregroundStyle(.tint)
+                    .foregroundStyle(Theme.yellow)
                 Text(title)
                     .font(.title2.weight(.semibold))
                     .multilineTextAlignment(.center)
                 dots
                 Text(detail(lockedOut: lockedOut, now: context.date))
                     .font(.callout)
-                    .foregroundStyle(lock.problem == nil ? Color.secondary : Color.red)
+                    .foregroundStyle(lock.problem == nil ? Theme.secondaryText : Theme.red)
                     .multilineTextAlignment(.center)
                     .frame(minHeight: 44)
                     .padding(.horizontal)
@@ -27,6 +27,12 @@ struct PinView: View {
                     .padding(.bottom, 24)
             }
             .frame(maxWidth: .infinity)
+            .background {
+                ZStack {
+                    Theme.background.ignoresSafeArea()
+                    MoodGlow(colors: [Theme.yellow, Theme.green]).offset(y: -220)
+                }
+            }
             .overlay {
                 if lock.busy, lock.problem != .storage {
                     ProgressView()
@@ -62,8 +68,8 @@ struct PinView: View {
         HStack(spacing: 18) {
             ForEach(0..<PinManager.pinLength, id: \.self) { index in
                 Circle()
-                    .strokeBorder(Color.primary, lineWidth: 1.5)
-                    .background(Circle().fill(index < lock.digitsEntered ? Color.primary : Color.clear))
+                    .strokeBorder(Theme.yellow, lineWidth: 1.5)
+                    .background(Circle().fill(index < lock.digitsEntered ? Theme.yellow : Color.clear))
                     .frame(width: 16, height: 16)
             }
         }
@@ -108,7 +114,7 @@ struct PinView: View {
                 Text(key)
                     .font(.title.weight(.medium))
                     .frame(width: 76, height: 76)
-                    .background(Circle().fill(Color.secondary.opacity(0.15)))
+                    .background(Circle().fill(Theme.surface))
             }
             .foregroundStyle(.primary)
         }
