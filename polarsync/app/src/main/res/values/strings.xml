@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Polarsync</string>
+    <string name="app_name">Polarbear</string>
 
     <!-- Notification -->
     <string name="notification_channel_name">Active recording</string>
     <string name="notification_channel_description">Shown for as long as the microphone is recording.</string>
-    <string name="notification_title_recording">Polarsync is recording</string>
+    <string name="notification_title_recording">Polarbear is recording</string>
     <string name="notification_title_paused">Recording paused</string>
     <string name="notification_text_recording">Microphone is on. Tap to open.</string>
     <string name="notification_text_paused">Paused at %1$s</string>
@@ -39,7 +39,7 @@
     <string name="pin_title_create">Create a PIN</string>
     <string name="pin_title_confirm">Confirm your PIN</string>
     <string name="pin_title_enter">Enter PIN</string>
-    <string name="pin_hint_create">You\'ll need these 4 digits every time you open Polarsync. It can\'t be recovered.</string>
+    <string name="pin_hint_create">You\'ll need these 4 digits every time you open Polarbear. It can\'t be recovered.</string>
     <string name="pin_error_mismatch">PINs didn\'t match. Try again.</string>
     <plurals name="pin_error_wrong">
         <item quantity="one">Wrong PIN. %d attempt left before a lockout.</item>

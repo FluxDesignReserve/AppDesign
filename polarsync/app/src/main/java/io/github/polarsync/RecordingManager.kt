@@ -8,6 +8,7 @@ import android.media.MediaCodecList
 import android.media.MediaFormat
 import android.media.MediaMetadataRetriever
 import android.media.MediaRecorder
+import android.os.Build
 import android.os.SystemClock
 import android.util.Log
 import androidx.core.content.ContextCompat
@@ -121,7 +122,11 @@ class RecordingManager(context: Context, private val keyWrapper: KeyWrapper) {
     @Throws(RecordingException::class)
     private fun startRecorder(profile: AudioProfile, freeBytes: Long): Pair<MediaRecorder, File> {
         val file = uniqueFile(LocalDateTime.now(), profile.extension)
-        val mediaRecorder = MediaRecorder(appContext)
+        val mediaRecorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            MediaRecorder(appContext)
+        } else {
+            @Suppress("DEPRECATION") MediaRecorder()
+        }
         try {
             mediaRecorder.apply {
                 setAudioSource(MediaRecorder.AudioSource.MIC)
@@ -325,9 +330,13 @@ class RecordingManager(context: Context, private val keyWrapper: KeyWrapper) {
 
     private fun readDurationMs(file: File): Long? = try {
         openForPlayback(file).use { source ->
-            MediaMetadataRetriever().use { retriever ->
+            val retriever = MediaMetadataRetriever()
+            try {
                 retriever.setDataSource(source)
                 retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLongOrNull()
+            } finally {
+                // close() only exists from API 29; release() works on every version.
+                @Suppress("DEPRECATION") retriever.release()
             }
         }
     } catch (e: Exception) {

@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId = "io.github.polarsync"
-        minSdk = 31
+        minSdk = 26
         targetSdk = 36
         versionCode = 1
         versionName = "0.1.0"
