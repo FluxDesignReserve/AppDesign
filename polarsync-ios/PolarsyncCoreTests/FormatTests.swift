@@ -19,6 +19,16 @@ final class FormatTests: XCTestCase {
         XCTAssertEqual(Format.duration(.infinity), "0:00")
     }
 
+    func testHour12() {
+        XCTAssertEqual(Format.hour12(0), "12 AM")
+        XCTAssertEqual(Format.hour12(9), "9 AM")
+        XCTAssertEqual(Format.hour12(11), "11 AM")
+        XCTAssertEqual(Format.hour12(12), "12 PM")
+        XCTAssertEqual(Format.hour12(15), "3 PM")
+        XCTAssertEqual(Format.hour12(21), "9 PM")
+        XCTAssertEqual(Format.hour12(24), "12 AM")
+    }
+
     func testSize() {
         XCTAssertEqual(Format.size(0), "0 B")
         XCTAssertEqual(Format.size(512), "512 B")

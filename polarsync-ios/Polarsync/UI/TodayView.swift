@@ -72,10 +72,12 @@ struct TodayView: View {
                     }
                 }
                 HStack(spacing: 12) {
-                    Button("I drank 1 L") {
+                    Button(wellness.waterGoalReached ? "Goal reached 🎉" : "I drank 1 L") {
                         wellness.logWater()
                     }
                     .buttonStyle(PillButtonStyle(color: Theme.blue))
+                    .disabled(wellness.waterGoalReached)
+                    .opacity(wellness.waterGoalReached ? 0.6 : 1)
                     .sensoryFeedback(.success, trigger: wellness.waterLitresToday)
 
                     if wellness.waterLitresToday > 0 {
@@ -91,7 +93,7 @@ struct TodayView: View {
                         .foregroundStyle(.white)
                     }
                 }
-                Toggle("Check-ins at 11:00, 15:00, 19:00, 23:00", isOn: Bindable(wellness).waterEnabled)
+                Toggle("Check-ins at \(wellness.waterTimes.map { Format.hour12($0.hour) }.joined(separator: ", "))", isOn: Bindable(wellness).waterEnabled)
                     .font(.footnote)
                     .tint(Theme.blue)
             }
@@ -143,11 +145,12 @@ struct TodayView: View {
                 .foregroundStyle(Theme.secondaryText)
             Picker(label, selection: selection) {
                 ForEach(Array(range), id: \.self) { hour in
-                    Text(String(format: "%02d:00", hour)).tag(hour)
+                    Text(Format.hour12(hour)).tag(hour)
                 }
             }
             .pickerStyle(.menu)
             .tint(.white)
+            .fixedSize()
         }
     }
 

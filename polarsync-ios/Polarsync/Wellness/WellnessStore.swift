@@ -85,7 +85,12 @@ final class WellnessStore {
 
     // MARK: Water
 
+    var waterGoalReached: Bool { waterLitresToday >= waterGoalLitres }
+
+    /// Adds a litre, up to the daily goal.
     func logWater() {
+        refreshWater()
+        guard !waterGoalReached else { return }
         waterLitresToday += 1
         defaults.set(waterLitresToday, forKey: Keys.water(WellnessSchedule.dayKey(Date())))
     }
@@ -98,7 +103,7 @@ final class WellnessStore {
 
     /// Re-reads today's count (it resets at midnight).
     func refreshWater() {
-        waterLitresToday = defaults.integer(forKey: Keys.water(WellnessSchedule.dayKey(Date())))
+        waterLitresToday = min(waterGoalLitres, defaults.integer(forKey: Keys.water(WellnessSchedule.dayKey(Date()))))
     }
 
     // MARK: Custom reminders

@@ -25,6 +25,13 @@ public enum Format {
         return String(format: "%d:%02d", minutes, secs)
     }
 
+    /// `9 AM`, `12 PM`, `9 PM`; 0 and 24 are both `12 AM` (midnight).
+    public static func hour12(_ hour: Int) -> String {
+        let h = ((hour % 24) + 24) % 24
+        let display = h % 12 == 0 ? 12 : h % 12
+        return "\(display) \(h < 12 ? "AM" : "PM")"
+    }
+
     /// `512 B`, `48 KB`, `3.2 MB`.
     public static func size(_ bytes: Int64) -> String {
         if bytes < 1024 { return "\(max(0, bytes)) B" }
