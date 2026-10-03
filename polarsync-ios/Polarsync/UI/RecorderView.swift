@@ -20,7 +20,7 @@ struct RecorderView: View {
                 memoList
             }
             .background(Theme.background.ignoresSafeArea())
-            .navigationTitle("Polarsync")
+            .navigationTitle("Record")
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {
@@ -30,7 +30,7 @@ struct RecorderView: View {
                     } label: {
                         Image(systemName: "lock")
                     }
-                    .accessibilityLabel("Lock Polarsync")
+                    .accessibilityLabel("Lock Polarbear")
                 }
             }
             .alert(item: $recorder.message) { message in
@@ -56,7 +56,7 @@ struct RecorderView: View {
     private func alert(for message: UserMessage) -> Alert {
         if message.offerSettings {
             return Alert(
-                title: Text("Polarsync"),
+                title: Text("Polarbear"),
                 message: Text(message.text),
                 primaryButton: .default(Text("Open Settings")) {
                     if let url = URL(string: UIApplication.openSettingsURLString) { openURL(url) }
@@ -64,7 +64,7 @@ struct RecorderView: View {
                 secondaryButton: .cancel()
             )
         }
-        return Alert(title: Text("Polarsync"), message: Text(message.text))
+        return Alert(title: Text("Polarbear"), message: Text(message.text))
     }
 
     // MARK: Recording controls

@@ -97,12 +97,12 @@ final class RecordingManager {
             break
         case .undetermined:
             guard await AVAudioApplication.requestRecordPermission() else {
-                message = UserMessage(text: "Polarsync needs the microphone to record.", offerSettings: true)
+                message = UserMessage(text: "Polarbear needs the microphone to record.", offerSettings: true)
                 return
             }
         default:
             message = UserMessage(
-                text: "Microphone access is off. Turn it on in Settings → Polarsync → Microphone.",
+                text: "Microphone access is off. Turn it on in Settings → Polarbear → Microphone.",
                 offerSettings: true
             )
             return
@@ -245,7 +245,7 @@ final class RecordingManager {
                 case .failure(let error):
                     // The plain file stays in pending/ and is retried on the next launch.
                     Logger.recording.error("Encrypt failed: \(error.localizedDescription, privacy: .public)")
-                    self.message = UserMessage(text: "Could not save the recording. It will be retried next time Polarsync opens.")
+                    self.message = UserMessage(text: "Could not save the recording. It will be retried next time Polarbear opens.")
                 }
                 self.library.reload()
                 backgroundTask.end()

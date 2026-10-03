@@ -40,7 +40,7 @@ enum RecordingCommandCenter {
 
 struct StopRecordingIntent: LiveActivityIntent {
     static let title: LocalizedStringResource = "Stop recording"
-    static let description = IntentDescription("Stops and saves the current Polarsync recording.")
+    static let description = IntentDescription("Stops and saves the current Polarbear recording.")
 
     init() {}
 
@@ -53,7 +53,7 @@ struct StopRecordingIntent: LiveActivityIntent {
 
 struct PauseRecordingIntent: LiveActivityIntent {
     static let title: LocalizedStringResource = "Pause recording"
-    static let description = IntentDescription("Pauses the current Polarsync recording.")
+    static let description = IntentDescription("Pauses the current Polarbear recording.")
 
     init() {}
 
@@ -66,7 +66,7 @@ struct PauseRecordingIntent: LiveActivityIntent {
 
 struct ResumeRecordingIntent: LiveActivityIntent {
     static let title: LocalizedStringResource = "Resume recording"
-    static let description = IntentDescription("Resumes the paused Polarsync recording.")
+    static let description = IntentDescription("Resumes the paused Polarbear recording.")
 
     init() {}
 

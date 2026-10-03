@@ -56,7 +56,7 @@ struct PinView: View {
         switch lock.problem {
         case .mismatch: return "The PINs didn't match. Start again."
         case .wrong(let left): return left == 1 ? "Wrong PIN. 1 try left before a lockout." : "Wrong PIN. \(left) tries left before a lockout."
-        case .storage: return "Polarsync can't read its secure storage. Close the app and open it again."
+        case .storage: return "Polarbear can't read its secure storage. Close the app and open it again."
         case .locked, nil:
             return lock.stage == .create
                 ? "There is no way to recover a forgotten PIN. Deleting the app resets it, along with all recordings."
