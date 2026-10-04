@@ -85,6 +85,8 @@ enum Theme {
     /// A light tint of Siren for text and small marks, legible on the dark
     /// background where Siren itself would be too dark.
     static let accent = Color(hex: 0xE8829F)
+    /// Warm amber for the Word of the day card.
+    static let amber = Color(hex: 0xF3A33A)
 
     static let headword = Font.display(.largeTitle)
     static let subheadword = Font.display(.title2)
@@ -108,32 +110,6 @@ extension View {
                 RoundedRectangle(cornerRadius: Theme.cardRadius, style: .continuous)
                     .fill(Theme.surface)
             )
-    }
-}
-
-/// A deep wine glow built from the palette: Siren melting into Tyrian,
-/// lit from the top corner. Used behind the Word of the day card.
-struct SirenGlow: View {
-    var body: some View {
-        ZStack {
-            LinearGradient(
-                colors: [Theme.siren, Color(hex: 0x5A0024), Color(hex: 0x330006)],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            RadialGradient(
-                colors: [Color(hex: 0xC2245E).opacity(0.65), .clear],
-                center: .topTrailing,
-                startRadius: 10,
-                endRadius: 260
-            )
-            RadialGradient(
-                colors: [Theme.text.opacity(0.10), .clear],
-                center: UnitPoint(x: 0.15, y: 0.0),
-                startRadius: 0,
-                endRadius: 180
-            )
-        }
     }
 }
 
