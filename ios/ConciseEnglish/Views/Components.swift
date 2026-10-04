@@ -1,4 +1,61 @@
+import CoreText
 import SwiftUI
+
+/// Inter (SIL Open Font License), bundled in Resources/Fonts.
+enum Inter {
+    /// Registers every bundled .ttf for this process. Call once at launch.
+    static func register() {
+        let urls = FileManager.default
+            .enumerator(at: Bundle.main.bundleURL, includingPropertiesForKeys: nil)?
+            .compactMap { $0 as? URL }
+            .filter { $0.pathExtension == "ttf" } ?? []
+        for url in urls {
+            CTFontManagerRegisterFontsForURL(url as CFURL, .process, nil)
+        }
+    }
+
+    static func name(_ weight: Font.Weight, italic: Bool = false) -> String {
+        if italic { return "Inter-Italic" }
+        switch weight {
+        case .medium: return "Inter-Medium"
+        case .semibold: return "Inter-SemiBold"
+        case .bold: return "Inter-Bold"
+        case .heavy, .black: return "Inter-ExtraBold"
+        default: return "Inter-Regular"
+        }
+    }
+
+    static let displayBold = "InterDisplay-Bold"
+
+    /// Default point sizes of the system text styles at standard Dynamic Type.
+    static func size(_ style: Font.TextStyle) -> CGFloat {
+        switch style {
+        case .largeTitle: 34
+        case .title: 28
+        case .title2: 22
+        case .title3: 20
+        case .headline, .body: 17
+        case .callout: 16
+        case .subheadline: 15
+        case .footnote: 13
+        case .caption: 12
+        case .caption2: 11
+        default: 17
+        }
+    }
+}
+
+extension Font {
+    /// Inter at a system text style's size, scaling with Dynamic Type.
+    static func inter(_ style: TextStyle, _ weight: Weight = .regular, italic: Bool = false) -> Font {
+        .custom(Inter.name(weight, italic: italic), size: Inter.size(style), relativeTo: style)
+    }
+
+    /// Inter Display, tuned for large headings.
+    static func interDisplay(_ style: TextStyle) -> Font {
+        .custom(Inter.displayBold, size: Inter.size(style), relativeTo: style)
+    }
+}
 
 extension Color {
     init(hex: UInt32) {
@@ -10,7 +67,7 @@ extension Color {
     }
 }
 
-/// Dark, warm palette with rounded type: deep ink backgrounds, soft raised
+/// Dark, warm palette set in Inter: deep ink backgrounds, soft raised
 /// cards, and a bright orange accent.
 enum Theme {
     static let background = Color(hex: 0x12131F)
@@ -22,10 +79,10 @@ enum Theme {
     static let text = Color(hex: 0xF6F1E9)
     static let muted = Color(hex: 0xA3A6BD)
 
-    static let headword = Font.system(.largeTitle, design: .rounded).weight(.bold)
-    static let subheadword = Font.system(.title2, design: .rounded).weight(.bold)
-    static let partOfSpeech = Font.system(.subheadline, design: .rounded).weight(.bold)
-    static let example = Font.system(.callout, design: .rounded).italic()
+    static let headword = Font.interDisplay(.largeTitle)
+    static let subheadword = Font.interDisplay(.title2)
+    static let partOfSpeech = Font.inter(.subheadline, .bold)
+    static let example = Font.inter(.callout, italic: true)
 
     static let cardRadius: CGFloat = 24
 }
@@ -51,7 +108,7 @@ extension View {
 struct PillButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.system(.headline, design: .rounded))
+            .font(.inter(.headline, .semibold))
             .foregroundStyle(Theme.background)
             .padding(.horizontal, 24)
             .padding(.vertical, 14)
@@ -114,7 +171,7 @@ struct WordChips: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(title)
-                .font(.caption.weight(.bold))
+                .font(.inter(.caption, .bold))
                 .foregroundStyle(Theme.muted)
                 .textCase(.uppercase)
                 .tracking(0.6)
@@ -122,7 +179,7 @@ struct WordChips: View {
                 ForEach(words, id: \.self) { word in
                     NavigationLink(value: Lookup(term: word)) {
                         Text(word)
-                            .font(compact ? .subheadline : .body)
+                            .font(.inter(compact ? .subheadline : .body))
                             .padding(.horizontal, compact ? 12 : 14)
                             .padding(.vertical, compact ? 5 : 8)
                             .foregroundStyle(Theme.text)

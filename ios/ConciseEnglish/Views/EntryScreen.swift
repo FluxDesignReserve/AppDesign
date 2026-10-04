@@ -101,7 +101,7 @@ private struct EntryHeader: View {
                 .textSelection(.enabled)
             if let note = page.note {
                 Text(note)
-                    .font(.subheadline)
+                    .font(.inter(.subheadline))
                     .foregroundStyle(Theme.muted)
             }
             FlowLayout(spacing: 8, lineSpacing: 8) {
@@ -124,16 +124,16 @@ private struct PronunciationButton: View {
         Button(action: action) {
             HStack(spacing: 6) {
                 Image(systemName: "speaker.wave.2.fill")
-                    .font(.caption.weight(.bold))
+                    .font(.inter(.caption, .bold))
                     .foregroundStyle(Theme.background)
                     .frame(width: 26, height: 26)
                     .background(Circle().fill(Theme.accent))
                 Text(accent.shortLabel)
-                    .font(.caption.weight(.heavy))
+                    .font(.inter(.caption, .heavy))
                     .foregroundStyle(Theme.accent)
                 if let ipa {
                     Text("/\(ipa)/")
-                        .font(.callout)
+                        .font(.inter(.callout))
                         .foregroundStyle(Theme.text)
                 }
             }
@@ -198,7 +198,7 @@ private struct EntrySection: View {
                     .background(Capsule().fill(Theme.accent))
                 if let distinctIPA {
                     Text("/\(distinctIPA)/")
-                        .font(.callout)
+                        .font(.inter(.callout))
                         .foregroundStyle(Theme.muted)
                 }
             }
@@ -213,7 +213,7 @@ private struct EntrySection: View {
                     withAnimation(.snappy) { expanded = true }
                 } label: {
                     Label("Show \(hidden) more \(hidden == 1 ? "sense" : "senses")", systemImage: "chevron.down")
-                        .font(.subheadline.weight(.bold))
+                        .font(.inter(.subheadline, .bold))
                         .foregroundStyle(Theme.accent)
                 }
             }
@@ -228,7 +228,7 @@ private struct SenseRow: View {
     var body: some View {
         HStack(alignment: .top, spacing: 14) {
             Text("\(sense.number)")
-                .font(.caption.weight(.heavy).monospacedDigit())
+                .font(.inter(.caption, .heavy).monospacedDigit())
                 .foregroundStyle(Theme.accent)
                 .frame(width: 26, height: 26)
                 .background(Circle().fill(Theme.elevated))
@@ -275,7 +275,7 @@ private struct ThesaurusView: View {
                                 .font(Theme.partOfSpeech)
                                 .foregroundStyle(Theme.accent)
                             Text(item.sense.definition)
-                                .font(.subheadline)
+                                .font(.inter(.subheadline))
                                 .foregroundStyle(Theme.muted)
                                 .lineLimit(2)
                         }

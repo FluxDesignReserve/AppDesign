@@ -93,11 +93,11 @@ private struct SuggestionRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(suggestion.lemma)
-                .font(.body.weight(.semibold))
+                .font(.inter(.body, .semibold))
                 .foregroundStyle(Theme.text)
             if let summary = suggestion.summary {
                 Text(summary)
-                    .font(.footnote)
+                    .font(.inter(.footnote))
                     .foregroundStyle(Theme.muted)
                     .lineLimit(1)
             }
@@ -116,7 +116,7 @@ private struct HomeView: View {
             VStack(alignment: .leading, spacing: 28) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(greeting)
-                        .font(.title2.weight(.bold))
+                        .font(.inter(.title2, .bold))
                         .foregroundStyle(Theme.text)
                     Text("What word are you curious about today?")
                         .foregroundStyle(Theme.muted)
@@ -138,7 +138,7 @@ private struct HomeView: View {
                 }
 
                 Label("\(store.wordCount.formatted()) words · works offline", systemImage: "wifi.slash")
-                    .font(.footnote)
+                    .font(.inter(.footnote))
                     .foregroundStyle(Theme.muted)
                     .frame(maxWidth: .infinity)
             }
@@ -166,7 +166,7 @@ private struct WordOfTheDayCard: View {
         NavigationLink(value: Lookup(term: word.lemma)) {
             VStack(alignment: .leading, spacing: 10) {
                 Text("Word of the day")
-                    .font(.caption.weight(.heavy))
+                    .font(.inter(.caption, .heavy))
                     .textCase(.uppercase)
                     .tracking(1.2)
                     .foregroundStyle(Theme.background.opacity(0.7))
@@ -180,7 +180,7 @@ private struct WordOfTheDayCard: View {
                         .lineLimit(3)
                 }
                 Label("Explore", systemImage: "arrow.right")
-                    .font(.subheadline.weight(.bold))
+                    .font(.inter(.subheadline, .bold))
                     .foregroundStyle(Theme.text)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 8)

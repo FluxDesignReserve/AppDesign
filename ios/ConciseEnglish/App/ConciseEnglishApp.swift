@@ -7,27 +7,29 @@ struct ConciseEnglishApp: App {
     @State private var library = Library()
 
     init() {
+        Inter.register()
         Self.styleUIKitControls()
     }
 
-    private static func rounded(_ style: UIFont.TextStyle, weight: UIFont.Weight) -> UIFont {
+    private static func inter(_ name: String, _ style: UIFont.TextStyle) -> UIFont {
         let size = UIFont.preferredFont(forTextStyle: style).pointSize
-        let font = UIFont.systemFont(ofSize: size, weight: weight)
-        guard let descriptor = font.fontDescriptor.withDesign(.rounded) else { return font }
-        return UIFont(descriptor: descriptor, size: size)
+        guard let font = UIFont(name: name, size: size) else {
+            return .preferredFont(forTextStyle: style)
+        }
+        return UIFontMetrics(forTextStyle: style).scaledFont(for: font)
     }
 
     /// Navigation titles and segmented controls are UIKit-backed, so they
-    /// pick up the rounded type and accent colour here.
+    /// pick up Inter and the accent colour here.
     private static func styleUIKitControls() {
         let text = UIColor(Theme.text)
         let navigation = UINavigationBarAppearance()
         navigation.configureWithDefaultBackground()
         navigation.largeTitleTextAttributes = [
-            .font: rounded(.largeTitle, weight: .bold), .foregroundColor: text,
+            .font: inter(Inter.displayBold, .largeTitle), .foregroundColor: text,
         ]
         navigation.titleTextAttributes = [
-            .font: rounded(.headline, weight: .semibold), .foregroundColor: text,
+            .font: inter("Inter-SemiBold", .headline), .foregroundColor: text,
         ]
         UINavigationBar.appearance().standardAppearance = navigation
         UINavigationBar.appearance().compactAppearance = navigation
@@ -41,11 +43,11 @@ struct ConciseEnglishApp: App {
         segmented.selectedSegmentTintColor = UIColor(Theme.accent)
         segmented.backgroundColor = UIColor(Theme.surface)
         segmented.setTitleTextAttributes(
-            [.font: rounded(.subheadline, weight: .bold), .foregroundColor: UIColor(Theme.background)],
+            [.font: inter("Inter-Bold", .subheadline), .foregroundColor: UIColor(Theme.background)],
             for: .selected
         )
         segmented.setTitleTextAttributes(
-            [.font: rounded(.subheadline, weight: .semibold), .foregroundColor: UIColor(Theme.muted)],
+            [.font: inter("Inter-SemiBold", .subheadline), .foregroundColor: UIColor(Theme.muted)],
             for: .normal
         )
     }
@@ -86,7 +88,7 @@ struct RootView: View {
             }
         }
         .modifier(TextSizeModifier(size: textSize))
-        .fontDesign(.rounded)
+        .font(.inter(.body))
         .tint(Theme.accent)
         .preferredColorScheme(.dark)
     }

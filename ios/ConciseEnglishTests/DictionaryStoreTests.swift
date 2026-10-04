@@ -99,6 +99,16 @@ final class DictionaryStoreTests: XCTestCase {
     }
 }
 
+final class FontTests: XCTestCase {
+    func testBundledInterFontsRegister() {
+        Inter.register()
+        for name in ["Inter-Regular", "Inter-Medium", "Inter-SemiBold", "Inter-Bold",
+                     "Inter-ExtraBold", "Inter-Italic", Inter.displayBold] {
+            XCTAssertNotNil(UIFont(name: name, size: 17), "\(name) is not available")
+        }
+    }
+}
+
 final class LibraryTests: XCTestCase {
     private var url: URL!
 
