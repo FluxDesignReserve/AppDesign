@@ -68,11 +68,14 @@ extension Color {
 }
 
 /// Dark, warm palette set in Inter: deep ink backgrounds, soft raised
-/// cards, and a bright orange accent.
+/// cards, and iridescent pearl accents.
 enum Theme {
     static let background = Color(hex: 0x12131F)
     static let surface = Color(hex: 0x1C1E2E)
     static let elevated = Color(hex: 0x272A3F)
+    static let text = Color(hex: 0xF6F1E9)
+    static let muted = Color(hex: 0xA3A6BD)
+
     /// Pearl lilac: the solid accent for tints, numbers and links.
     static let accent = Color(hex: 0xD3BFF2)
 
