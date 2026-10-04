@@ -111,12 +111,29 @@ extension View {
     }
 }
 
-/// The iridescent texture behind the Word of the day card (Assets: PearlGradient).
-struct PearlSurface: View {
+/// A deep wine glow built from the palette: Siren melting into Tyrian,
+/// lit from the top corner. Used behind the Word of the day card.
+struct SirenGlow: View {
     var body: some View {
-        Image("PearlGradient")
-            .resizable()
-            .scaledToFill()
+        ZStack {
+            LinearGradient(
+                colors: [Theme.siren, Color(hex: 0x5A0024), Color(hex: 0x330006)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            RadialGradient(
+                colors: [Color(hex: 0xC2245E).opacity(0.65), .clear],
+                center: .topTrailing,
+                startRadius: 10,
+                endRadius: 260
+            )
+            RadialGradient(
+                colors: [Theme.text.opacity(0.10), .clear],
+                center: UnitPoint(x: 0.15, y: 0.0),
+                startRadius: 0,
+                endRadius: 180
+            )
+        }
     }
 }
 

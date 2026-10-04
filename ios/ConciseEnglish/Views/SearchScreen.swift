@@ -169,28 +169,32 @@ private struct WordOfTheDayCard: View {
                     .font(.alegreya(.caption, .heavy))
                     .textCase(.uppercase)
                     .tracking(1.2)
-                    .foregroundStyle(Theme.background.opacity(0.7))
+                    .foregroundStyle(Theme.text.opacity(0.7))
                 Text(word.lemma)
                     .font(Theme.headword)
-                    .foregroundStyle(Theme.background)
+                    .foregroundStyle(Theme.text)
                 if let summary = word.summary {
                     Text(summary)
-                        .foregroundStyle(Theme.background.opacity(0.85))
+                        .foregroundStyle(Theme.text.opacity(0.88))
                         .multilineTextAlignment(.leading)
                         .lineLimit(3)
                 }
                 Label("Explore", systemImage: "arrow.right")
                     .font(.alegreya(.subheadline, .bold))
-                    .foregroundStyle(Theme.text)
+                    .foregroundStyle(Theme.background)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 8)
-                    .background(Capsule().fill(Theme.background))
+                    .background(Capsule().fill(Theme.text))
                     .padding(.top, 6)
             }
             .padding(24)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background { PearlSurface() }
+            .background { SirenGlow() }
             .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 28, style: .continuous)
+                    .strokeBorder(Theme.text.opacity(0.12), lineWidth: 1)
+            )
         }
         .buttonStyle(.plain)
         .accessibilityHint("Opens the entry")
