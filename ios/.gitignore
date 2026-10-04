@@ -3,3 +3,4 @@ xcuserdata/
 *.xcuserstate
 DerivedData/
 xcodebuild.log
+*.xcodeproj/project.xcworkspace/

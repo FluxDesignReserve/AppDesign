@@ -189,23 +189,7 @@ private struct WordOfTheDayCard: View {
             }
             .padding(24)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background {
-                ZStack {
-                    LinearGradient(
-                        colors: [Theme.sunshine, Theme.accent],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                    Circle()
-                        .fill(Theme.coral.opacity(0.55))
-                        .frame(width: 180, height: 180)
-                        .offset(x: 140, y: 70)
-                    Circle()
-                        .fill(Theme.sunshine.opacity(0.6))
-                        .frame(width: 90, height: 90)
-                        .offset(x: 150, y: -80)
-                }
-            }
+            .background { PearlSurface() }
             .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
         }
         .buttonStyle(.plain)

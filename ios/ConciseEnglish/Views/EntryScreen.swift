@@ -127,7 +127,7 @@ private struct PronunciationButton: View {
                     .font(.inter(.caption, .bold))
                     .foregroundStyle(Theme.background)
                     .frame(width: 26, height: 26)
-                    .background(Circle().fill(Theme.accent))
+                    .background(Circle().fill(Theme.pearl))
                 Text(accent.shortLabel)
                     .font(.inter(.caption, .heavy))
                     .foregroundStyle(Theme.accent)
@@ -195,7 +195,7 @@ private struct EntrySection: View {
                     .foregroundStyle(Theme.background)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 5)
-                    .background(Capsule().fill(Theme.accent))
+                    .background(Capsule().fill(Theme.pearl))
                 if let distinctIPA {
                     Text("/\(distinctIPA)/")
                         .font(.inter(.callout))
