@@ -85,7 +85,6 @@ enum Theme {
         static let sky = Color(hex: 0xB8DBE3)
         static let periwinkle = Color(hex: 0xC0C7DD)
         static let lilac = Color(hex: 0xD9C0E2)
-        static let rose = Color(hex: 0xE0BED6)
         static let blush = Color(hex: 0xEBC2CD)
     }
 
@@ -94,8 +93,6 @@ enum Theme {
         startPoint: .topLeading,
         endPoint: .bottomTrailing
     )
-    static let text = Color(hex: 0xF6F1E9)
-    static let muted = Color(hex: 0xA3A6BD)
 
     static let headword = Font.interDisplay(.largeTitle)
     static let subheadword = Font.interDisplay(.title2)
@@ -122,33 +119,12 @@ extension View {
     }
 }
 
-/// An iridescent pearl surface: a pastel sweep with soft drifting highlights.
+/// The iridescent texture behind the Word of the day card (Assets: PearlGradient).
 struct PearlSurface: View {
     var body: some View {
-        ZStack {
-            Theme.pearl
-            Circle()
-                .fill(Theme.Pearl.aqua)
-                .frame(width: 220, height: 220)
-                .blur(radius: 50)
-                .offset(x: 120, y: -60)
-            Circle()
-                .fill(Theme.Pearl.rose)
-                .frame(width: 200, height: 200)
-                .blur(radius: 50)
-                .offset(x: -120, y: 70)
-            Circle()
-                .fill(Theme.Pearl.mint.opacity(0.9))
-                .frame(width: 140, height: 140)
-                .blur(radius: 40)
-                .offset(x: 40, y: 90)
-            Circle()
-                .fill(.white.opacity(0.35))
-                .frame(width: 160, height: 60)
-                .blur(radius: 30)
-                .rotationEffect(.degrees(-20))
-                .offset(x: -40, y: -50)
-        }
+        Image("PearlGradient")
+            .resizable()
+            .scaledToFill()
     }
 }
 
