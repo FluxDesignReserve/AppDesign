@@ -101,7 +101,7 @@ private struct EntryHeader: View {
                 .textSelection(.enabled)
             if let note = page.note {
                 Text(note)
-                    .font(.inter(.subheadline))
+                    .font(.alegreya(.subheadline))
                     .foregroundStyle(Theme.muted)
             }
             FlowLayout(spacing: 8, lineSpacing: 8) {
@@ -124,16 +124,16 @@ private struct PronunciationButton: View {
         Button(action: action) {
             HStack(spacing: 6) {
                 Image(systemName: "speaker.wave.2.fill")
-                    .font(.inter(.caption, .bold))
-                    .foregroundStyle(Theme.background)
+                    .font(.alegreya(.caption, .bold))
+                    .foregroundStyle(Theme.text)
                     .frame(width: 26, height: 26)
-                    .background(Circle().fill(Theme.pearl))
+                    .background(Circle().fill(Theme.siren))
                 Text(accent.shortLabel)
-                    .font(.inter(.caption, .heavy))
+                    .font(.alegreya(.caption, .heavy))
                     .foregroundStyle(Theme.accent)
                 if let ipa {
                     Text("/\(ipa)/")
-                        .font(.inter(.callout))
+                        .font(.alegreya(.callout))
                         .foregroundStyle(Theme.text)
                 }
             }
@@ -192,13 +192,13 @@ private struct EntrySection: View {
             HStack(alignment: .firstTextBaseline, spacing: 10) {
                 Text(entry.pos.title)
                     .font(Theme.partOfSpeech)
-                    .foregroundStyle(Theme.background)
+                    .foregroundStyle(Theme.text)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 5)
-                    .background(Capsule().fill(Theme.pearl))
+                    .background(Capsule().fill(Theme.siren))
                 if let distinctIPA {
                     Text("/\(distinctIPA)/")
-                        .font(.inter(.callout))
+                        .font(.alegreya(.callout))
                         .foregroundStyle(Theme.muted)
                 }
             }
@@ -213,7 +213,7 @@ private struct EntrySection: View {
                     withAnimation(.snappy) { expanded = true }
                 } label: {
                     Label("Show \(hidden) more \(hidden == 1 ? "sense" : "senses")", systemImage: "chevron.down")
-                        .font(.inter(.subheadline, .bold))
+                        .font(.alegreya(.subheadline, .bold))
                         .foregroundStyle(Theme.accent)
                 }
             }
@@ -228,7 +228,7 @@ private struct SenseRow: View {
     var body: some View {
         HStack(alignment: .top, spacing: 14) {
             Text("\(sense.number)")
-                .font(.inter(.caption, .heavy).monospacedDigit())
+                .font(.alegreya(.caption, .heavy).monospacedDigit())
                 .foregroundStyle(Theme.accent)
                 .frame(width: 26, height: 26)
                 .background(Circle().fill(Theme.elevated))
@@ -275,7 +275,7 @@ private struct ThesaurusView: View {
                                 .font(Theme.partOfSpeech)
                                 .foregroundStyle(Theme.accent)
                             Text(item.sense.definition)
-                                .font(.inter(.subheadline))
+                                .font(.alegreya(.subheadline))
                                 .foregroundStyle(Theme.muted)
                                 .lineLimit(2)
                         }

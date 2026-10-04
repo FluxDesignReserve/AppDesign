@@ -1,31 +1,40 @@
 import CoreText
 import SwiftUI
+import UIKit
 
-/// Inter (SIL Open Font License), bundled in Resources/Fonts.
-enum Inter {
-    /// Registers every bundled .ttf for this process. Call once at launch.
+/// Bundled typefaces (Resources/Fonts): Alegreya Sans for text and, for
+/// titles, Canela Deck when its licensed files are added, otherwise Gloock
+/// (which has a single, regular weight).
+/// Both bundled faces are under the SIL Open Font License.
+enum Typeface {
+    /// Registers every bundled font file for this process. Call once at launch.
     static func register() {
         let urls = FileManager.default
             .enumerator(at: Bundle.main.bundleURL, includingPropertiesForKeys: nil)?
             .compactMap { $0 as? URL }
-            .filter { $0.pathExtension == "ttf" } ?? []
+            .filter { ["ttf", "otf"].contains($0.pathExtension.lowercased()) } ?? []
         for url in urls {
             CTFontManagerRegisterFontsForURL(url as CFURL, .process, nil)
         }
     }
 
-    static func name(_ weight: Font.Weight, italic: Bool = false) -> String {
-        if italic { return "Inter-Italic" }
+    /// The design avoids bold: text is set Light, and anything asking for
+    /// more weight (labels, buttons) gets Regular at most.
+    static func body(_ weight: Font.Weight, italic: Bool = false) -> String {
+        if italic { return "AlegreyaSans-LightItalic" }
         switch weight {
-        case .medium: return "Inter-Medium"
-        case .semibold: return "Inter-SemiBold"
-        case .bold: return "Inter-Bold"
-        case .heavy, .black: return "Inter-ExtraBold"
-        default: return "Inter-Regular"
+        case .regular, .light, .thin, .ultraLight: return "AlegreyaSans-Light"
+        default: return "AlegreyaSans-Regular"
         }
     }
 
-    static let displayBold = "InterDisplay-Bold"
+    /// Canela Deck is commercial and not bundled; drop its .otf files into
+    /// Resources/Fonts to use it. Until then, Gloock stands in.
+    static let title: String = {
+        register()
+        return ["CanelaDeck-Medium", "CanelaDeck-Regular"]
+            .first { UIFont(name: $0, size: 17) != nil } ?? "Gloock-Regular"
+    }()
 
     /// Default point sizes of the system text styles at standard Dynamic Type.
     static func size(_ style: Font.TextStyle) -> CGFloat {
@@ -46,14 +55,15 @@ enum Inter {
 }
 
 extension Font {
-    /// Inter at a system text style's size, scaling with Dynamic Type.
-    static func inter(_ style: TextStyle, _ weight: Weight = .regular, italic: Bool = false) -> Font {
-        .custom(Inter.name(weight, italic: italic), size: Inter.size(style), relativeTo: style)
+    /// Alegreya Sans at a system text style's size, scaling with Dynamic Type.
+    /// Alegreya runs small, so it is set a touch larger than the system size.
+    static func alegreya(_ style: TextStyle, _ weight: Weight = .regular, italic: Bool = false) -> Font {
+        .custom(Typeface.body(weight, italic: italic), size: Typeface.size(style) * 1.08, relativeTo: style)
     }
 
-    /// Inter Display, tuned for large headings.
-    static func interDisplay(_ style: TextStyle) -> Font {
-        .custom(Inter.displayBold, size: Inter.size(style), relativeTo: style)
+    /// The title serif (Canela Deck or Gloock).
+    static func display(_ style: TextStyle) -> Font {
+        .custom(Typeface.title, size: Typeface.size(style), relativeTo: style)
     }
 }
 
@@ -67,40 +77,26 @@ extension Color {
     }
 }
 
-/// Dark, warm palette set in Inter: deep ink backgrounds, soft raised
-/// cards, and iridescent pearl accents.
+/// Deep Tyrian background, Siren highlights and bone text.
 enum Theme {
-    static let background = Color(hex: 0x12131F)
-    static let surface = Color(hex: 0x1C1E2E)
-    static let elevated = Color(hex: 0x272A3F)
-    static let text = Color(hex: 0xF6F1E9)
-    static let muted = Color(hex: 0xA3A6BD)
+    /// Deep Tyrian Purple.
+    static let background = Color(hex: 0x250000)
+    static let surface = Color(hex: 0x300D0C)
+    static let elevated = Color(hex: 0x3C1A18)
+    /// Bone.
+    static let text = Color(hex: 0xE3DAC9)
+    static let muted = Color(hex: 0x9B877D)
 
-    /// Pearl lilac: the solid accent for tints, numbers and links.
-    static let accent = Color(hex: 0xD3BFF2)
+    /// Siren: fills for buttons, tags and selected controls.
+    static let siren = Color(hex: 0x860038)
+    /// A light tint of Siren for text and small marks, legible on the dark
+    /// background where Siren itself would be too dark.
+    static let accent = Color(hex: 0xE8829F)
 
-    /// "Pearlence Fur": soft iridescent pastels used as a shimmering gradient.
-    enum Pearl {
-        static let peach = Color(hex: 0xEFCFC7)
-        static let cream = Color(hex: 0xEBDEC6)
-        static let mint = Color(hex: 0xC5E6D0)
-        static let aqua = Color(hex: 0xBAEBE1)
-        static let sky = Color(hex: 0xB8DBE3)
-        static let periwinkle = Color(hex: 0xC0C7DD)
-        static let lilac = Color(hex: 0xD9C0E2)
-        static let blush = Color(hex: 0xEBC2CD)
-    }
-
-    static let pearl = LinearGradient(
-        colors: [Pearl.peach, Pearl.blush, Pearl.lilac, Pearl.periwinkle, Pearl.sky, Pearl.aqua, Pearl.mint, Pearl.cream],
-        startPoint: .topLeading,
-        endPoint: .bottomTrailing
-    )
-
-    static let headword = Font.interDisplay(.largeTitle)
-    static let subheadword = Font.interDisplay(.title2)
-    static let partOfSpeech = Font.inter(.subheadline, .bold)
-    static let example = Font.inter(.callout, italic: true)
+    static let headword = Font.display(.largeTitle)
+    static let subheadword = Font.display(.title2)
+    static let partOfSpeech = Font.alegreya(.subheadline, .bold)
+    static let example = Font.alegreya(.callout, italic: true)
 
     static let cardRadius: CGFloat = 24
 }
@@ -135,12 +131,12 @@ struct PearlSurface: View {
 struct PillButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.inter(.headline, .semibold))
-            .foregroundStyle(Theme.background)
+            .font(.alegreya(.headline, .semibold))
+            .foregroundStyle(Theme.text)
             .padding(.horizontal, 24)
             .padding(.vertical, 14)
             .frame(maxWidth: .infinity)
-            .background(Capsule().fill(Theme.pearl))
+            .background(Capsule().fill(Theme.siren))
             .scaleEffect(configuration.isPressed ? 0.97 : 1)
             .opacity(configuration.isPressed ? 0.85 : 1)
             .animation(.snappy(duration: 0.15), value: configuration.isPressed)
@@ -198,7 +194,7 @@ struct WordChips: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(title)
-                .font(.inter(.caption, .bold))
+                .font(.alegreya(.caption, .bold))
                 .foregroundStyle(Theme.muted)
                 .textCase(.uppercase)
                 .tracking(0.6)
@@ -206,7 +202,7 @@ struct WordChips: View {
                 ForEach(words, id: \.self) { word in
                     NavigationLink(value: Lookup(term: word)) {
                         Text(word)
-                            .font(.inter(compact ? .subheadline : .body))
+                            .font(.alegreya(compact ? .subheadline : .body))
                             .padding(.horizontal, compact ? 12 : 14)
                             .padding(.vertical, compact ? 5 : 8)
                             .foregroundStyle(Theme.text)

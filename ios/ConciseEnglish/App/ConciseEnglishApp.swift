@@ -7,11 +7,11 @@ struct ConciseEnglishApp: App {
     @State private var library = Library()
 
     init() {
-        Inter.register()
+        Typeface.register()
         Self.styleUIKitControls()
     }
 
-    private static func inter(_ name: String, _ style: UIFont.TextStyle) -> UIFont {
+    private static func font(_ name: String, _ style: UIFont.TextStyle) -> UIFont {
         let size = UIFont.preferredFont(forTextStyle: style).pointSize
         guard let font = UIFont(name: name, size: size) else {
             return .preferredFont(forTextStyle: style)
@@ -20,16 +20,16 @@ struct ConciseEnglishApp: App {
     }
 
     /// Navigation titles and segmented controls are UIKit-backed, so they
-    /// pick up Inter and the accent colour here.
+    /// pick up the app typefaces and colours here.
     private static func styleUIKitControls() {
         let text = UIColor(Theme.text)
         let navigation = UINavigationBarAppearance()
         navigation.configureWithDefaultBackground()
         navigation.largeTitleTextAttributes = [
-            .font: inter(Inter.displayBold, .largeTitle), .foregroundColor: text,
+            .font: font(Typeface.title, .largeTitle), .foregroundColor: text,
         ]
         navigation.titleTextAttributes = [
-            .font: inter("Inter-SemiBold", .headline), .foregroundColor: text,
+            .font: font("AlegreyaSans-Regular", .headline), .foregroundColor: text,
         ]
         UINavigationBar.appearance().standardAppearance = navigation
         UINavigationBar.appearance().compactAppearance = navigation
@@ -40,14 +40,14 @@ struct ConciseEnglishApp: App {
         UINavigationBar.appearance().scrollEdgeAppearance = edge
 
         let segmented = UISegmentedControl.appearance()
-        segmented.selectedSegmentTintColor = UIColor(Theme.accent)
+        segmented.selectedSegmentTintColor = UIColor(Theme.siren)
         segmented.backgroundColor = UIColor(Theme.surface)
         segmented.setTitleTextAttributes(
-            [.font: inter("Inter-Bold", .subheadline), .foregroundColor: UIColor(Theme.background)],
+            [.font: font("AlegreyaSans-Regular", .subheadline), .foregroundColor: UIColor(Theme.text)],
             for: .selected
         )
         segmented.setTitleTextAttributes(
-            [.font: inter("Inter-SemiBold", .subheadline), .foregroundColor: UIColor(Theme.muted)],
+            [.font: font("AlegreyaSans-Light", .subheadline), .foregroundColor: UIColor(Theme.muted)],
             for: .normal
         )
     }
@@ -88,7 +88,7 @@ struct RootView: View {
             }
         }
         .modifier(TextSizeModifier(size: textSize))
-        .font(.inter(.body))
+        .font(.alegreya(.body))
         .tint(Theme.accent)
         .preferredColorScheme(.dark)
     }

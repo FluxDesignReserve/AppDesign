@@ -101,12 +101,13 @@ final class DictionaryStoreTests: XCTestCase {
 }
 
 final class FontTests: XCTestCase {
-    func testBundledInterFontsRegister() {
-        Inter.register()
-        for name in ["Inter-Regular", "Inter-Medium", "Inter-SemiBold", "Inter-Bold",
-                     "Inter-ExtraBold", "Inter-Italic", Inter.displayBold] {
+    func testBundledFontsRegister() {
+        Typeface.register()
+        for name in ["AlegreyaSans-Light", "AlegreyaSans-LightItalic", "AlegreyaSans-Regular",
+                     "Gloock-Regular"] {
             XCTAssertNotNil(UIFont(name: name, size: 17), "\(name) is not available")
         }
+        XCTAssertNotNil(UIFont(name: Typeface.title, size: 17))
     }
 }
 

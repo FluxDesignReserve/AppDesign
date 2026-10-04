@@ -92,7 +92,7 @@ private struct AboutScreen: View {
             VStack(alignment: .leading, spacing: 16) {
                 Text("Concise English is an independent dictionary and thesaurus. Everything it shows comes from the openly licensed sources below, stored on your device.")
                 Text(notices)
-                    .font(.inter(.footnote))
+                    .font(.alegreya(.footnote))
                     .foregroundStyle(Theme.muted)
                     .textSelection(.enabled)
             }
