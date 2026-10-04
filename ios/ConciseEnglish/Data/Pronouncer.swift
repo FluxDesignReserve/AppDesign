@@ -1,7 +1,7 @@
 import AVFoundation
 
 /// Speaks words with the voices built into iOS, so it works offline.
-final class Pronouncer: NSObject, AVSpeechSynthesizerDelegate {
+final class Pronouncer: NSObject, AVSpeechSynthesizerDelegate, @unchecked Sendable {
     static let shared = Pronouncer()
 
     private let synthesizer = AVSpeechSynthesizer()

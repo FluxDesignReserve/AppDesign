@@ -76,8 +76,8 @@ final class DictionaryStoreTests: XCTestCase {
     }
 
     func testThesaurusHasSynonymsAndOpposites() throws {
-        let page = try page("happy")
-        let senses = page.thesaurusItems.map(\.sense)
+        let happy = try page("happy")
+        let senses = happy.thesaurusItems.map(\.sense)
         XCTAssertFalse(senses.isEmpty)
         let opposites = senses.flatMap { $0.relations.filter { $0.kind == .opposite }.flatMap(\.words) }
         XCTAssertTrue(opposites.contains("unhappy"))
