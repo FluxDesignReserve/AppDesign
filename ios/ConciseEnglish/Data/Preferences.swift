@@ -6,7 +6,6 @@ enum PreferenceKey {
     static let autoPronounce = "autoPronounce"
     static let showExamples = "showExamples"
     static let textSize = "textSize"
-    static let appearance = "appearance"
 }
 
 enum Accent: String, CaseIterable, Identifiable {
@@ -61,28 +60,6 @@ enum TextSize: String, CaseIterable, Identifiable {
         case .large: .xLarge
         case .extraLarge: .xxLarge
         case .huge: .xxxLarge
-        }
-    }
-}
-
-enum Appearance: String, CaseIterable, Identifiable {
-    case system, light, dark
-
-    var id: String { rawValue }
-
-    var title: String {
-        switch self {
-        case .system: "Automatic"
-        case .light: "Light"
-        case .dark: "Dark"
-        }
-    }
-
-    var colorScheme: ColorScheme? {
-        switch self {
-        case .system: nil
-        case .light: .light
-        case .dark: .dark
         }
     }
 }

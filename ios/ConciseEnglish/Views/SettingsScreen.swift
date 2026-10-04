@@ -8,7 +8,6 @@ struct SettingsScreen: View {
     @AppStorage(PreferenceKey.autoPronounce) private var autoPronounce = false
     @AppStorage(PreferenceKey.showExamples) private var showExamples = true
     @AppStorage(PreferenceKey.textSize) private var textSize = TextSize.system
-    @AppStorage(PreferenceKey.appearance) private var appearance = Appearance.system
     @State private var confirmHistory = false
     @State private var confirmFavorites = false
 
@@ -42,16 +41,15 @@ struct SettingsScreen: View {
                 } footer: {
                     Text("Uses the voices built into your iPhone, so it works offline. You can download higher-quality voices in the Settings app under Accessibility.")
                 }
+                .listRowBackground(Theme.surface)
 
                 Section("Display") {
                     Picker("Text size", selection: $textSize) {
                         ForEach(TextSize.allCases) { Text($0.title).tag($0) }
                     }
-                    Picker("Appearance", selection: $appearance) {
-                        ForEach(Appearance.allCases) { Text($0.title).tag($0) }
-                    }
                     Toggle("Show example sentences", isOn: $showExamples)
                 }
+                .listRowBackground(Theme.surface)
 
                 Section("Your words") {
                     Button("Clear history", role: .destructive) { confirmHistory = true }
@@ -59,6 +57,7 @@ struct SettingsScreen: View {
                     Button("Clear favourites", role: .destructive) { confirmFavorites = true }
                         .disabled(library.favorites.isEmpty)
                 }
+                .listRowBackground(Theme.surface)
 
                 Section("About") {
                     LabeledContent("Words", value: store.wordCount.formatted())
@@ -66,7 +65,9 @@ struct SettingsScreen: View {
                     NavigationLink("Sources and licences") { AboutScreen() }
                     LabeledContent("Version", value: version)
                 }
+                .listRowBackground(Theme.surface)
             }
+            .screenBackground()
             .navigationTitle("Settings")
             .confirmationDialog("Clear all history?", isPresented: $confirmHistory, titleVisibility: .visible) {
                 Button("Clear history", role: .destructive) { library.clearHistory() }
@@ -92,11 +93,12 @@ private struct AboutScreen: View {
                 Text("Concise English is an independent dictionary and thesaurus. Everything it shows comes from the openly licensed sources below, stored on your device.")
                 Text(notices)
                     .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Theme.muted)
                     .textSelection(.enabled)
             }
             .padding(20)
         }
+        .screenBackground()
         .navigationTitle("Sources and licences")
         .navigationBarTitleDisplayMode(.inline)
     }

@@ -66,7 +66,7 @@ single stack, and how its back stack behaves after following a cross-reference.
 | History | Done | grouped by day, swipe or clear all, saved on device |
 | Word of the day / random word | Done | deterministic by date |
 | Share entry | Done | system share sheet |
-| Text size, appearance, examples | Done | overrides or follows Dynamic Type and dark mode |
+| Dark theme, text size, examples | Done | always-dark warm palette with rounded type; text size follows or overrides Dynamic Type |
 | Etymology, usage notes, recorded audio | Not done | no suitable open data; would need licensed content |
 | Search inside definitions | Not done | possible later with an SQLite FTS table |
 

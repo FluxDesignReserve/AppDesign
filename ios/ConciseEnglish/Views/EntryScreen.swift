@@ -66,6 +66,7 @@ struct EntryScreen: View {
             .frame(maxWidth: 700, alignment: .leading)
             .frame(maxWidth: .infinity)
         }
+        .screenBackground()
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
                 ShareLink(item: page.shareText) {
@@ -96,11 +97,12 @@ private struct EntryHeader: View {
         VStack(alignment: .leading, spacing: 10) {
             Text(page.title)
                 .font(Theme.headword)
+                .foregroundStyle(Theme.text)
                 .textSelection(.enabled)
             if let note = page.note {
                 Text(note)
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Theme.muted)
             }
             FlowLayout(spacing: 8, lineSpacing: 8) {
                 ForEach(accents) { accent in
@@ -122,18 +124,23 @@ private struct PronunciationButton: View {
         Button(action: action) {
             HStack(spacing: 6) {
                 Image(systemName: "speaker.wave.2.fill")
-                    .foregroundStyle(Color.accentColor)
-                Text(accent.shortLabel)
                     .font(.caption.weight(.bold))
-                    .foregroundStyle(Color.accentColor)
+                    .foregroundStyle(Theme.background)
+                    .frame(width: 26, height: 26)
+                    .background(Circle().fill(Theme.accent))
+                Text(accent.shortLabel)
+                    .font(.caption.weight(.heavy))
+                    .foregroundStyle(Theme.accent)
                 if let ipa {
                     Text("/\(ipa)/")
                         .font(.callout)
+                        .foregroundStyle(Theme.text)
                 }
             }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 7)
-            .background(Capsule().fill(Color.accentColor.opacity(0.1)))
+            .padding(.leading, 5)
+            .padding(.trailing, 14)
+            .padding(.vertical, 5)
+            .background(Capsule().fill(Theme.surface))
         }
         .buttonStyle(.plain)
         .accessibilityLabel("Play \(accent.title) pronunciation")
@@ -152,6 +159,7 @@ private struct DefinitionsView: View {
                     if page.headwords.count > 1 {
                         Text(headword.lemma)
                             .font(Theme.subheadword)
+                            .foregroundStyle(Theme.text)
                     }
                     ForEach(headword.entries) { entry in
                         let ipa = entry.ipa(for: accent)
@@ -180,23 +188,19 @@ private struct EntrySection: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 18) {
             HStack(alignment: .firstTextBaseline, spacing: 10) {
                 Text(entry.pos.title)
                     .font(Theme.partOfSpeech)
-                    .foregroundStyle(Color.accentColor)
+                    .foregroundStyle(Theme.background)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 5)
+                    .background(Capsule().fill(Theme.accent))
                 if let distinctIPA {
                     Text("/\(distinctIPA)/")
                         .font(.callout)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Theme.muted)
                 }
-            }
-            .padding(.bottom, 4)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .overlay(alignment: .bottom) {
-                Rectangle()
-                    .fill(Color.accentColor.opacity(0.25))
-                    .frame(height: 1)
             }
 
             ForEach(visibleSenses) { sense in
@@ -209,7 +213,8 @@ private struct EntrySection: View {
                     withAnimation(.snappy) { expanded = true }
                 } label: {
                     Label("Show \(hidden) more \(hidden == 1 ? "sense" : "senses")", systemImage: "chevron.down")
-                        .font(.subheadline.weight(.medium))
+                        .font(.subheadline.weight(.bold))
+                        .foregroundStyle(Theme.accent)
                 }
             }
         }
@@ -221,20 +226,23 @@ private struct SenseRow: View {
     let showExamples: Bool
 
     var body: some View {
-        HStack(alignment: .firstTextBaseline, spacing: 12) {
+        HStack(alignment: .top, spacing: 14) {
             Text("\(sense.number)")
-                .font(.subheadline.weight(.bold).monospacedDigit())
-                .foregroundStyle(Color.accentColor)
-                .frame(minWidth: 20, alignment: .trailing)
-            VStack(alignment: .leading, spacing: 6) {
+                .font(.caption.weight(.heavy).monospacedDigit())
+                .foregroundStyle(Theme.accent)
+                .frame(width: 26, height: 26)
+                .background(Circle().fill(Theme.elevated))
+            VStack(alignment: .leading, spacing: 8) {
                 Text(sense.definition)
+                    .foregroundStyle(Theme.text)
                     .fixedSize(horizontal: false, vertical: true)
                     .textSelection(.enabled)
+                    .padding(.top, 3)
                 if showExamples {
                     ForEach(Array(sense.examples.prefix(3).enumerated()), id: \.offset) { _, example in
                         Text("“\(example)”")
                             .font(Theme.example)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(Theme.muted)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                 }
@@ -265,10 +273,10 @@ private struct ThesaurusView: View {
                         HStack(alignment: .firstTextBaseline, spacing: 8) {
                             Text(item.pos.abbreviation)
                                 .font(Theme.partOfSpeech)
-                                .foregroundStyle(Color.accentColor)
+                                .foregroundStyle(Theme.accent)
                             Text(item.sense.definition)
                                 .font(.subheadline)
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(Theme.muted)
                                 .lineLimit(2)
                         }
                         if !item.sense.synonyms.isEmpty {
@@ -278,12 +286,7 @@ private struct ThesaurusView: View {
                             WordChips(title: group.kind.title, words: group.words)
                         }
                     }
-                    .padding(16)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(
-                        RoundedRectangle(cornerRadius: 14, style: .continuous)
-                            .fill(Theme.cardBackground)
-                    )
+                    .card()
                 }
             }
         }
@@ -312,5 +315,6 @@ private struct NotFoundView: View {
             }
             .padding(.top, 40)
         }
+        .screenBackground()
     }
 }

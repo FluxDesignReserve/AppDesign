@@ -18,6 +18,8 @@ struct SearchScreen: View {
                     HomeView { path.append(Lookup(term: $0)) }
                 } else if suggestions.isEmpty && alternatives.isEmpty {
                     ContentUnavailableView.search(text: trimmedQuery)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(Theme.background.ignoresSafeArea())
                 } else {
                     resultsList
                 }
@@ -36,6 +38,14 @@ struct SearchScreen: View {
             }
             .task(id: query) { await refresh() }
             .wordDestinations()
+            #if DEBUG
+            .onAppear {
+                // Screenshot hook: `-openWord happy` opens that entry on launch.
+                if path.isEmpty, let word = UserDefaults.standard.string(forKey: "openWord") {
+                    path = [Lookup(term: word)]
+                }
+            }
+            #endif
         }
     }
 
@@ -47,6 +57,7 @@ struct SearchScreen: View {
                         NavigationLink(value: Lookup(term: word)) {
                             Text(word)
                         }
+                        .listRowBackground(Theme.background)
                     }
                 }
             } else {
@@ -54,10 +65,13 @@ struct SearchScreen: View {
                     NavigationLink(value: Lookup(term: suggestion.lemma)) {
                         SuggestionRow(suggestion: suggestion)
                     }
+                    .listRowBackground(Theme.background)
+                    .listRowSeparatorTint(Theme.elevated)
                 }
             }
         }
         .listStyle(.plain)
+        .screenBackground()
         .scrollDismissesKeyboard(.immediately)
     }
 
@@ -79,11 +93,12 @@ private struct SuggestionRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(suggestion.lemma)
-                .font(.body.weight(.medium))
+                .font(.body.weight(.semibold))
+                .foregroundStyle(Theme.text)
             if let summary = suggestion.summary {
                 Text(summary)
                     .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Theme.muted)
                     .lineLimit(1)
             }
         }
@@ -99,6 +114,14 @@ private struct HomeView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 28) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(greeting)
+                        .font(.title2.weight(.bold))
+                        .foregroundStyle(Theme.text)
+                    Text("What word are you curious about today?")
+                        .foregroundStyle(Theme.muted)
+                }
+
                 if let word = store.wordOfTheDay() {
                     WordOfTheDayCard(word: word)
                 }
@@ -106,11 +129,9 @@ private struct HomeView: View {
                 Button {
                     if let word = store.randomWord() { open(word) }
                 } label: {
-                    Label("Surprise me", systemImage: "shuffle")
-                        .frame(maxWidth: .infinity)
+                    Label("Surprise me", systemImage: "sparkles")
                 }
-                .buttonStyle(.bordered)
-                .controlSize(.large)
+                .buttonStyle(PillButtonStyle())
 
                 if !library.history.isEmpty {
                     WordChips(title: "Recent", words: library.history.prefix(12).map(\.term))
@@ -118,14 +139,23 @@ private struct HomeView: View {
 
                 Label("\(store.wordCount.formatted()) words · works offline", systemImage: "wifi.slash")
                     .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Theme.muted)
                     .frame(maxWidth: .infinity)
             }
             .padding(20)
             .frame(maxWidth: 700)
             .frame(maxWidth: .infinity)
         }
+        .screenBackground()
         .scrollDismissesKeyboard(.immediately)
+    }
+
+    private var greeting: String {
+        switch Calendar.current.component(.hour, from: .now) {
+        case 5..<12: "Good morning"
+        case 12..<18: "Good afternoon"
+        default: "Good evening"
+        }
     }
 }
 
@@ -134,28 +164,49 @@ private struct WordOfTheDayCard: View {
 
     var body: some View {
         NavigationLink(value: Lookup(term: word.lemma)) {
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 10) {
                 Text("Word of the day")
-                    .font(.caption.weight(.bold))
+                    .font(.caption.weight(.heavy))
                     .textCase(.uppercase)
                     .tracking(1.2)
-                    .foregroundStyle(.white.opacity(0.8))
+                    .foregroundStyle(Theme.background.opacity(0.7))
                 Text(word.lemma)
                     .font(Theme.headword)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Theme.background)
                 if let summary = word.summary {
                     Text(summary)
-                        .foregroundStyle(.white.opacity(0.92))
+                        .foregroundStyle(Theme.background.opacity(0.85))
                         .multilineTextAlignment(.leading)
                         .lineLimit(3)
                 }
+                Label("Explore", systemImage: "arrow.right")
+                    .font(.subheadline.weight(.bold))
+                    .foregroundStyle(Theme.text)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .background(Capsule().fill(Theme.background))
+                    .padding(.top, 6)
             }
-            .padding(20)
+            .padding(24)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(
-                RoundedRectangle(cornerRadius: 20, style: .continuous)
-                    .fill(Color.accentColor.gradient)
-            )
+            .background {
+                ZStack {
+                    LinearGradient(
+                        colors: [Theme.sunshine, Theme.accent],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                    Circle()
+                        .fill(Theme.coral.opacity(0.55))
+                        .frame(width: 180, height: 180)
+                        .offset(x: 140, y: 70)
+                    Circle()
+                        .fill(Theme.sunshine.opacity(0.6))
+                        .frame(width: 90, height: 90)
+                        .offset(x: 150, y: -80)
+                }
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
         }
         .buttonStyle(.plain)
         .accessibilityHint("Opens the entry")

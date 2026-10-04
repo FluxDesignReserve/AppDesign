@@ -36,6 +36,7 @@ struct FavoritesScreen: View {
                             NavigationLink(value: Lookup(term: item.term)) {
                                 Text(item.term)
                             }
+                            .listRowBackground(Theme.surface)
                             .swipeActions {
                                 Button(role: .destructive) {
                                     library.removeFavorite(item.term)
@@ -45,8 +46,11 @@ struct FavoritesScreen: View {
                             }
                         }
                     }
+                    .screenBackground()
                 }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Theme.background.ignoresSafeArea())
             .navigationTitle("Favourites")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -107,6 +111,7 @@ struct HistoryScreen: View {
                                     NavigationLink(value: Lookup(term: item.term)) {
                                         Text(item.term)
                                     }
+                                    .listRowBackground(Theme.surface)
                                     .swipeActions {
                                         Button(role: .destructive) {
                                             library.removeFromHistory(item)
@@ -118,8 +123,11 @@ struct HistoryScreen: View {
                             }
                         }
                     }
+                    .screenBackground()
                 }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Theme.background.ignoresSafeArea())
             .navigationTitle("History")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {

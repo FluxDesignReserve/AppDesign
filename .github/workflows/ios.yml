@@ -45,9 +45,31 @@ jobs:
             -project ConciseEnglish.xcodeproj \
             -scheme ConciseEnglish \
             -destination "id=$SIM_UDID" \
+            -derivedDataPath build \
             CODE_SIGNING_ALLOWED=NO \
             | tee xcodebuild.log | grep -E 'error:|warning:|Test Case|Executed|\*\* (BUILD|TEST)' || true
           grep -q '\*\* TEST SUCCEEDED \*\*' xcodebuild.log
+
+      - name: Screenshots
+        run: |
+          BUNDLE=com.fluxdesignreserve.conciseenglish
+          xcrun simctl boot "$SIM_UDID" || true
+          xcrun simctl bootstatus "$SIM_UDID" -b
+          xcrun simctl install "$SIM_UDID" build/Build/Products/Debug-iphonesimulator/ConciseEnglish.app
+          mkdir -p screenshots
+          shoot() {
+            xcrun simctl terminate "$SIM_UDID" "$BUNDLE" 2>/dev/null || true
+            xcrun simctl launch "$SIM_UDID" "$BUNDLE" "${@:2}"
+            sleep 8
+            xcrun simctl io "$SIM_UDID" screenshot "screenshots/$1.png"
+          }
+          shoot home
+          shoot entry -openWord happy
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: ios/screenshots
 
       - name: Upload log
         if: failure()
