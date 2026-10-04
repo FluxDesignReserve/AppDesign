@@ -104,7 +104,7 @@ final class FontTests: XCTestCase {
     func testBundledFontsRegister() {
         Typeface.register()
         for name in ["AlegreyaSans-Light", "AlegreyaSans-LightItalic", "AlegreyaSans-Regular",
-                     "Gloock-Regular"] {
+                     "Newsreader-Light"] {
             XCTAssertNotNil(UIFont(name: name, size: 17), "\(name) is not available")
         }
         XCTAssertNotNil(UIFont(name: Typeface.title, size: 17))

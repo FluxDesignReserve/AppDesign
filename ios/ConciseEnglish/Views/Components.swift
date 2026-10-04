@@ -1,11 +1,10 @@
 import CoreText
 import SwiftUI
-import UIKit
 
-/// Bundled typefaces (Resources/Fonts): Alegreya Sans for text and, for
-/// titles, Canela Deck when its licensed files are added, otherwise Gloock
-/// (which has a single, regular weight).
-/// Both bundled faces are under the SIL Open Font License.
+/// Bundled typefaces (Resources/Fonts), both under the SIL Open Font License:
+/// Alegreya Sans for text and Newsreader Light for titles. Newsreader-Light.ttf
+/// is a static instance of Google's Newsreader variable font (wght 300,
+/// optical size 36, tuned for headings).
 enum Typeface {
     /// Registers every bundled font file for this process. Call once at launch.
     static func register() {
@@ -28,13 +27,7 @@ enum Typeface {
         }
     }
 
-    /// Canela Deck is commercial and not bundled; drop its .otf files into
-    /// Resources/Fonts to use it. Until then, Gloock stands in.
-    static let title: String = {
-        register()
-        return ["CanelaDeck-Medium", "CanelaDeck-Regular"]
-            .first { UIFont(name: $0, size: 17) != nil } ?? "Gloock-Regular"
-    }()
+    static let title = "Newsreader-Light"
 
     /// Default point sizes of the system text styles at standard Dynamic Type.
     static func size(_ style: Font.TextStyle) -> CGFloat {
@@ -61,7 +54,7 @@ extension Font {
         .custom(Typeface.body(weight, italic: italic), size: Typeface.size(style) * 1.08, relativeTo: style)
     }
 
-    /// The title serif (Canela Deck or Gloock).
+    /// Newsreader Light, for titles.
     static func display(_ style: TextStyle) -> Font {
         .custom(Typeface.title, size: Typeface.size(style), relativeTo: style)
     }
