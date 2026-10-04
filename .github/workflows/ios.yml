@@ -66,6 +66,16 @@ jobs:
           shoot home
           shoot entry -openWord happy
 
+      - name: Print screenshot previews (manual runs only)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          for f in screenshots/*.png; do
+            sips -Z 640 -s format jpeg -s formatOptions 60 "$f" --out "${f%.png}.jpg" >/dev/null
+            echo "BEGIN-PREVIEW $(basename "${f%.png}")"
+            base64 -i "${f%.png}.jpg" | fold -w 900
+            echo "END-PREVIEW"
+          done
+
       - uses: actions/upload-artifact@v4
         with:
           name: screenshots
