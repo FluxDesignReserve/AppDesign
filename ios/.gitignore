@@ -1,0 +1,5 @@
+Tools/.cache/
+xcuserdata/
+*.xcuserstate
+DerivedData/
+xcodebuild.log
