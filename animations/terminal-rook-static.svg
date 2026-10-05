@@ -10,11 +10,11 @@
 
 
   /* Hairline drawing: plates filled with the ground colour, painted back to front. */
-  .sil, .lid { fill: var(--plate); vector-effect: non-scaling-stroke; stroke-width: 0.9; stroke-linejoin: round; stroke-linecap: round; transition: stroke 260ms cubic-bezier(.5,0,.1,1); }
+  .sil, .lid { fill: var(--plate); vector-effect: non-scaling-stroke; stroke-width: 1.2; stroke-linejoin: round; stroke-linecap: round; transition: stroke 260ms cubic-bezier(.5,0,.1,1); }
   .sil { stroke: var(--edge); }
   .lid { stroke: var(--lo); fill: none; }
   .hi .sil, .sil.hi, .stroke.hi { stroke: var(--ink); }
-  .stroke { fill: none; stroke: var(--edge); stroke-width: 0.9; vector-effect: non-scaling-stroke; stroke-linejoin: round; stroke-linecap: round; transition: stroke 260ms cubic-bezier(.5,0,.1,1); }
+  .stroke { fill: none; stroke: var(--edge); stroke-width: 1.2; vector-effect: non-scaling-stroke; stroke-linejoin: round; stroke-linecap: round; transition: stroke 260ms cubic-bezier(.5,0,.1,1); }
 
   /* Block cursor */
   .cursor .sil { animation: cursor 1.1s steps(1) infinite; }
