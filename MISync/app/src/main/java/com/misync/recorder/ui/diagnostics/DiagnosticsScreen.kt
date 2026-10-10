@@ -39,6 +39,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.misync.recorder.diagnostics.ProbeStatus
 import com.misync.recorder.diagnostics.SourceProbe
+import com.misync.recorder.ui.ChangePinFlow
 import com.misync.recorder.ui.components.SectionLabel
 import com.misync.recorder.ui.theme.MISyncColors
 
