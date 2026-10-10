@@ -13,8 +13,9 @@ class AppSettings(context: Context) {
     private val _source = MutableStateFlow(CaptureSource.fromName(prefs.getString(KEY_SOURCE, null)))
     val source: StateFlow<CaptureSource> = _source.asStateFlow()
 
-    private val _appLock = MutableStateFlow(prefs.getBoolean(KEY_APP_LOCK, true))
-    val appLockEnabled: StateFlow<Boolean> = _appLock.asStateFlow()
+    private val _biometricUnlock = MutableStateFlow(prefs.getBoolean(KEY_BIOMETRIC_UNLOCK, false))
+    /** Optional: allow biometrics to stand in for the PIN. The PIN is always required as a fallback. */
+    val biometricUnlockEnabled: StateFlow<Boolean> = _biometricUnlock.asStateFlow()
 
     fun setSource(source: CaptureSource) {
         require(source.userSelectable)
@@ -22,13 +23,13 @@ class AppSettings(context: Context) {
         _source.value = source
     }
 
-    fun setAppLockEnabled(enabled: Boolean) {
-        prefs.edit().putBoolean(KEY_APP_LOCK, enabled).apply()
-        _appLock.value = enabled
+    fun setBiometricUnlockEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_BIOMETRIC_UNLOCK, enabled).apply()
+        _biometricUnlock.value = enabled
     }
 
     private companion object {
         const val KEY_SOURCE = "capture_source"
-        const val KEY_APP_LOCK = "app_lock"
+        const val KEY_BIOMETRIC_UNLOCK = "biometric_unlock"
     }
 }

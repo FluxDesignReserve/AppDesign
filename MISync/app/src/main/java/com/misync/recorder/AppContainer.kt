@@ -7,6 +7,7 @@ import com.misync.recorder.data.AppDatabase
 import com.misync.recorder.data.RecordingFileStore
 import com.misync.recorder.data.RecordingRepository
 import com.misync.recorder.diagnostics.DiagnosticsRunner
+import com.misync.recorder.security.PinManager
 import com.misync.recorder.service.RecordingController
 import com.misync.recorder.settings.AppSettings
 import java.io.File
@@ -22,6 +23,7 @@ class AppContainer(context: Context) {
     val fileStore: RecordingFileStore by lazy { RecordingFileStore(File(appContext.filesDir, "recordings")) }
     val repository: RecordingRepository by lazy { RecordingRepository(database.recordingDao(), fileStore, keyWrapper) }
 
+    val pinManager = PinManager(appContext)
     val settings = AppSettings(appContext)
     val recordingController = RecordingController(appContext)
     val diagnostics: DiagnosticsRunner by lazy { DiagnosticsRunner(appContext, repository) }

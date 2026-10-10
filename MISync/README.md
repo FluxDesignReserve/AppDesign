@@ -15,7 +15,7 @@ An offline, encrypted audio recorder for Android, built for and tested against t
 | Recording | 44.1 kHz 16-bit mono PCM via `AudioRecord`, inside a `microphone` foreground service with a persistent notification and Pause / Resume / Stop actions |
 | Encryption | AES-256-GCM, with a unique random data key per recording, wrapped by a non-exportable Android Keystore key (TEE / StrongBox, unlocked-device-only) |
 | Library | Room-backed list with in-memory decrypting playback (seek supported), rename, and delete. Delete also destroys the recording's key. |
-| App lock | BiometricPrompt (Class 3 biometrics, or screen lock as fallback), re-locks after 30 s in the background. `FLAG_SECURE` blocks screenshots and the recents preview. |
+| Access PIN | A six-digit PIN (PBKDF2-HMAC-SHA256, salted, with escalating lockout) is required to open the library and to start a recording. Optional biometric quick-unlock stands in for it. Re-locks after 30 s in the background; `FLAG_SECURE` blocks screenshots and the recents preview. |
 | Diagnostics | Probes every public audio source, measures the signal, detects system silencing, reports the call/audio mode, and can save 8-second encrypted test clips for listening checks |
 | Robustness | Detects system silencing (calls, concurrent capture), stops cleanly when storage runs low (under 50 MB), repairs recordings after a crash, power loss or force-stop, and flags damaged files without crashing |
 
@@ -59,9 +59,11 @@ audio.
 
 ### Security model and trade-offs
 
-- **The Keystore key does not require biometric auth on each use.** Recording runs in a
-  background service with the screen off, so per-use authentication would break it. Biometrics
-  gate the UI instead. The key does require an unlocked device (`setUnlockedDeviceRequired`).
+- **Access is gated by a six-digit PIN, not the recording itself.** The PIN (and optional
+  biometric quick-unlock) gates opening the app and starting a recording. The Keystore key does
+  not require per-use auth, because recording runs in a background service with the screen off;
+  it does require an unlocked device (`setUnlockedDeviceRequired`). The PIN is never stored, only
+  a salted PBKDF2 hash; it cannot be recovered if forgotten.
 - **Room metadata is not encrypted** (title, date, duration, size). It lives in app-private
   storage, which is protected by Android's sandbox and file-based encryption. Audio content is
   always encrypted.
@@ -69,6 +71,12 @@ audio.
   the app or clearing its data permanently destroys the recordings. There is no export feature
   yet, by design.
 - **Storage use:** uncompressed PCM is about 5.3 MB per minute (about 318 MB per hour).
+- **Recording is always visible, by design.** While recording, the app runs a foreground service
+  with a persistent notification, and Android shows its own microphone indicator and Privacy
+  Dashboard entry. These are required by the OS for microphone capture and are not removed: an
+  audio recorder that hid them would be a covert recorder, which is out of scope. The notification
+  does not expose a recording's title or contents, and screenshots are blocked, but the fact that
+  recording is happening is never concealed.
 
 ## Building
 
@@ -150,9 +158,10 @@ Run these checks on the Redmi 14C 5G and record the results in
      'printf "\x00" | dd of=files/recordings/<file>.msa bs=1 seek=200000 conv=notrunc'
    ```
    Playback should stop at the damaged chunk with an error, not crash or play garbage.
-8. **Biometrics.** With the app lock on, background the app for more than 30 s and return: the
-   biometric prompt appears. Turning off the screen lock disables enforcement, so you cannot be
-   locked out.
+8. **Access PIN.** On first launch, set a six-digit PIN (entered twice). Close and reopen the
+   app: the PIN is required before the library or the record button is reachable. Enter it wrong
+   five times and confirm the lockout. Optionally enable biometric quick-unlock in Settings and
+   confirm the fingerprint button appears on the PIN pad; the PIN still works as a fallback.
 9. **No network.** `adb shell dumpsys package com.misync.recorder.debug | grep -i permission`
    should list no `INTERNET` permission.
 10. **WhatsApp and call capture.** Follow the procedure in the compatibility report.

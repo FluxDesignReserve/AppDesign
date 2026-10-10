@@ -26,6 +26,9 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -42,8 +45,15 @@ import com.misync.recorder.ui.theme.MISyncColors
 @Composable
 fun DiagnosticsScreen(vm: DiagnosticsViewModel = viewModel(factory = DiagnosticsViewModel.Factory)) {
     val ui by vm.state.collectAsStateWithLifecycle()
-    val appLock by vm.settings.appLockEnabled.collectAsStateWithLifecycle()
+    val biometricUnlock by vm.settings.biometricUnlockEnabled.collectAsStateWithLifecycle()
+    val pinSet by vm.pinManager.isSet.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    var changingPin by remember { mutableStateOf(false) }
+
+    if (changingPin) {
+        ChangePinFlow(vm.pinManager, onDone = { changingPin = false })
+        return
+    }
 
     Column(
         Modifier
@@ -57,15 +67,32 @@ fun DiagnosticsScreen(vm: DiagnosticsViewModel = viewModel(factory = Diagnostics
         Card {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
-                    Text("Biometric app lock", style = MaterialTheme.typography.titleMedium)
+                    Text("Access PIN", style = MaterialTheme.typography.titleMedium)
                     Text(
-                        if (vm.appLockAvailable) "Require fingerprint or screen lock to open MISync"
-                        else "Unavailable: ${ui.snapshot?.appLock ?: "no biometrics or screen lock"}",
+                        if (pinSet) "A 6-digit PIN is required to open MISync and to start a recording."
+                        else "No PIN set.",
                         style = MaterialTheme.typography.labelMedium,
                         color = MISyncColors.TextSecondary,
                     )
                 }
-                Switch(checked = appLock && vm.appLockAvailable, enabled = vm.appLockAvailable, onCheckedChange = vm.settings::setAppLockEnabled)
+                OutlinedButton(onClick = { changingPin = true }) { Text("Change PIN") }
+            }
+            Spacer(Modifier.height(12.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text("Biometric quick-unlock", style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        if (vm.biometricAvailable) "Let a fingerprint stand in for the PIN. The PIN still works as a fallback."
+                        else "Unavailable: no biometrics or screen lock enrolled",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MISyncColors.TextSecondary,
+                    )
+                }
+                Switch(
+                    checked = biometricUnlock && vm.biometricAvailable,
+                    enabled = vm.biometricAvailable,
+                    onCheckedChange = vm.settings::setBiometricUnlockEnabled,
+                )
             }
             Spacer(Modifier.height(10.dp))
             Text(

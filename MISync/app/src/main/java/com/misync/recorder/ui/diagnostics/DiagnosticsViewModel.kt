@@ -12,6 +12,7 @@ import com.misync.recorder.diagnostics.DeviceSnapshot
 import com.misync.recorder.diagnostics.DiagnosticsRunner
 import com.misync.recorder.diagnostics.SourceProbe
 import com.misync.recorder.security.AppLock
+import com.misync.recorder.security.PinManager
 import com.misync.recorder.service.RecordingController
 import com.misync.recorder.settings.AppSettings
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,19 +35,26 @@ class DiagnosticsViewModel(
     private val runner: DiagnosticsRunner,
     private val controller: RecordingController,
     val settings: AppSettings,
+    val pinManager: PinManager,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(DiagnosticsUiState())
     val state: StateFlow<DiagnosticsUiState> = _state.asStateFlow()
 
-    val appLockAvailable: Boolean get() = AppLock.isAvailable(app)
+    val biometricAvailable: Boolean get() = AppLock.isAvailable(app)
+
+    private fun lockSummary(): String {
+        val pin = if (pinManager.isSet.value) "6-digit PIN set" else "no PIN set"
+        val bio = if (settings.biometricUnlockEnabled.value && biometricAvailable) ", biometric quick-unlock on" else ""
+        return "$pin$bio"
+    }
 
     init {
         refreshSnapshot()
     }
 
     fun refreshSnapshot() {
-        _state.update { it.copy(snapshot = runner.snapshot(AppLock.describe(app))) }
+        _state.update { it.copy(snapshot = runner.snapshot(lockSummary())) }
     }
 
     fun setSaveClips(save: Boolean) = _state.update { it.copy(saveClips = save) }
@@ -68,7 +76,7 @@ class DiagnosticsViewModel(
                 val probe = runner.probe(source, durationMs, saveClip = saveClips && source.userSelectable)
                 _state.update { it.copy(probes = it.probes + probe) }
             }
-            val snapshot = _state.value.snapshot ?: runner.snapshot(AppLock.describe(app))
+            val snapshot = _state.value.snapshot ?: runner.snapshot(lockSummary())
             _state.update { it.copy(running = null, report = runner.buildReport(snapshot, it.probes)) }
         }
     }
@@ -78,7 +86,7 @@ class DiagnosticsViewModel(
             initializer {
                 val app = this[APPLICATION_KEY] as MISyncApp
                 val c = app.container
-                DiagnosticsViewModel(app, c.diagnostics, c.recordingController, c.settings)
+                DiagnosticsViewModel(app, c.diagnostics, c.recordingController, c.settings, c.pinManager)
             }
         }
     }

@@ -5,21 +5,12 @@ import android.os.SystemClock
 import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Fingerprint
-import androidx.compose.material.icons.outlined.GraphicEq
 import androidx.compose.material.icons.outlined.LibraryMusic
 import androidx.compose.material.icons.outlined.Mic
 import androidx.compose.material.icons.outlined.Tune
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -32,13 +23,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
 import com.misync.recorder.MISyncApp
 import com.misync.recorder.security.AppLock
+import com.misync.recorder.security.PinManager
+import com.misync.recorder.settings.AppSettings
 import com.misync.recorder.ui.diagnostics.DiagnosticsScreen
 import com.misync.recorder.ui.library.LibraryScreen
 import com.misync.recorder.ui.record.RecordScreen
@@ -47,35 +37,46 @@ import com.misync.recorder.ui.theme.MISyncTheme
 
 /**
  * Single activity. Extends [FragmentActivity] because BiometricPrompt requires it.
- * FLAG_SECURE keeps recording titles out of screenshots and the recents thumbnail.
+ *
+ * The whole app sits behind a six-digit PIN gate ([PinGate]): the library, playback, and the
+ * record button are all unreachable until the PIN is entered (or, if the user turned it on,
+ * biometrics stand in for it). FLAG_SECURE keeps content out of screenshots and the recents
+ * thumbnail, and the app re-locks after a short time in the background.
  */
 class MainActivity : FragmentActivity() {
 
-    private val settings by lazy { (application as MISyncApp).container.settings }
-    private var locked by mutableStateOf(true)
-    private var lockError by mutableStateOf<String?>(null)
+    private lateinit var settings: AppSettings
+    private lateinit var pinManager: PinManager
+    private var unlocked by mutableStateOf(false)
     private var backgroundedAt = 0L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val container = (application as MISyncApp).container
+        settings = container.settings
+        pinManager = container.pinManager
         window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         enableEdgeToEdge()
-        locked = lockRequired() && savedInstanceState?.getBoolean(KEY_UNLOCKED) != true
+        unlocked = savedInstanceState?.getBoolean(KEY_UNLOCKED) == true
         setContent {
             MISyncTheme {
-                if (locked) {
-                    LockScreen(error = lockError, onUnlock = ::unlock)
-                } else {
+                if (unlocked) {
                     MainScaffold()
+                } else {
+                    PinGate(
+                        pinManager = pinManager,
+                        biometricOffered = biometricOffered(),
+                        onBiometric = ::tryBiometric,
+                        onUnlocked = { unlocked = true },
+                    )
                 }
             }
         }
-        if (locked) unlock()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putBoolean(KEY_UNLOCKED, !locked)
+        outState.putBoolean(KEY_UNLOCKED, unlocked)
     }
 
     override fun onStop() {
@@ -85,26 +86,17 @@ class MainActivity : FragmentActivity() {
 
     override fun onStart() {
         super.onStart()
-        if (!locked && backgroundedAt != 0L && lockRequired() &&
-            SystemClock.elapsedRealtime() - backgroundedAt > RELOCK_AFTER_MS
-        ) {
-            locked = true
-            unlock()
+        if (unlocked && backgroundedAt != 0L && SystemClock.elapsedRealtime() - backgroundedAt > RELOCK_AFTER_MS) {
+            unlocked = false
         }
     }
 
-    private fun lockRequired(): Boolean = settings.appLockEnabled.value && AppLock.isAvailable(this)
+    private fun biometricOffered(): Boolean =
+        pinManager.isSet.value && settings.biometricUnlockEnabled.value && AppLock.isAvailable(this)
 
-    private fun unlock() {
-        if (!lockRequired()) {
-            locked = false
-            return
-        }
-        AppLock.authenticate(
-            this,
-            onSuccess = { locked = false; lockError = null },
-            onFailure = { lockError = it },
-        )
+    private fun tryBiometric() {
+        if (!biometricOffered()) return
+        AppLock.authenticate(this, onSuccess = { unlocked = true }, onFailure = { /* fall back to PIN */ })
     }
 
     private companion object {
@@ -113,7 +105,7 @@ class MainActivity : FragmentActivity() {
     }
 }
 
-private enum class Tab(val label: String) { RECORD("Record"), LIBRARY("Library"), DIAGNOSTICS("Diagnostics") }
+private enum class Tab(val label: String) { RECORD("Record"), LIBRARY("Library"), DIAGNOSTICS("Settings") }
 
 @Composable
 private fun MainScaffold() {
@@ -153,37 +145,6 @@ private fun MainScaffold() {
                 Tab.LIBRARY -> LibraryScreen()
                 Tab.DIAGNOSTICS -> DiagnosticsScreen()
             }
-        }
-    }
-}
-
-@Composable
-private fun LockScreen(error: String?, onUnlock: () -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(32.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
-        Icon(Icons.Outlined.GraphicEq, contentDescription = null, tint = MISyncColors.Accent, modifier = Modifier.size(48.dp))
-        Spacer(Modifier.height(16.dp))
-        Text("MISync is locked", style = MaterialTheme.typography.headlineSmall)
-        Spacer(Modifier.height(8.dp))
-        Text(
-            "Recording in progress keeps running. Unlock to view or play recordings.",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MISyncColors.TextSecondary,
-            textAlign = TextAlign.Center,
-        )
-        error?.let {
-            Spacer(Modifier.height(12.dp))
-            Text(it, color = MISyncColors.Error, style = MaterialTheme.typography.labelMedium, textAlign = TextAlign.Center)
-        }
-        Spacer(Modifier.height(24.dp))
-        Button(onClick = onUnlock) {
-            Icon(Icons.Outlined.Fingerprint, contentDescription = null)
-            Text("  Unlock")
         }
     }
 }
