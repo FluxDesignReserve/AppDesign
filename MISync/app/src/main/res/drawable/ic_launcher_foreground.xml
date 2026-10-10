@@ -1,0 +1,12 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <!-- Five-bar waveform inside a ring: "audio, sealed". -->
+    <path android:strokeColor="#FFC9B37E" android:strokeWidth="2.5"
+        android:pathData="M54,30a24,24 0,1 1,0 48a24,24 0,1 1,0 -48z" />
+    <path android:fillColor="#FFC9B37E" android:pathData="M41,50h3v8h-3z" />
+    <path android:fillColor="#FFC9B37E" android:pathData="M47,44h3v20h-3z" />
+    <path android:fillColor="#FFFF4D5E" android:pathData="M52.5,39h3v30h-3z" />
+    <path android:fillColor="#FFC9B37E" android:pathData="M58,44h3v20h-3z" />
+    <path android:fillColor="#FFC9B37E" android:pathData="M64,50h3v8h-3z" />
+</vector>
