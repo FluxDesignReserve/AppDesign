@@ -185,7 +185,7 @@ class DiagnosticsRunner(
         appendLine("UNPROCESSED source supported (property): ${snapshot.unprocessedSupported}")
         appendLine("Audio mode during test: ${snapshot.audioModeLabel}")
         appendLine("Permissions: RECORD_AUDIO=${snapshot.recordPermission}, POST_NOTIFICATIONS=${snapshot.notificationPermission}")
-        appendLine("App lock: ${snapshot.appLock}")
+        appendLine("Access protection: ${snapshot.appLock}")
         appendLine()
         appendLine("Source probes:")
         for (p in probes) {

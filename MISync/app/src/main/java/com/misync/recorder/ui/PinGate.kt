@@ -1,5 +1,8 @@
 package com.misync.recorder.ui
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,17 +16,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Backspace
-import androidx.compose.material.icons.outlined.Fingerprint
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -37,13 +35,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.misync.recorder.security.PinHasher
-import com.misync.recorder.security.PinManager
-import com.misync.recorder.security.PinResult
+import com.misync.recorder.crypto.PinCrypto
+import com.misync.recorder.security.MasterKeyStore
+import com.misync.recorder.security.UnlockResult
 import com.misync.recorder.ui.theme.MISyncColors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -51,114 +47,56 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
- * Full-screen PIN gate. When no PIN exists it runs first-time setup (enter, then confirm);
- * otherwise it verifies entry. Nothing behind this gate — recordings or the record button — is
- * reachable until it reports success. [onBiometric] is shown only when offered.
+ * Full-screen PIN gate shown every time the app opens or returns from the background. When no PIN
+ * exists it runs one-time setup (enter, then confirm); otherwise it verifies entry against the
+ * PIN-derived encryption. Nothing behind this gate — recordings or the record button — is
+ * reachable until it reports success. There is no biometric bypass and no way to change or reset
+ * the PIN once set.
  */
 @Composable
-fun PinGate(
-    pinManager: PinManager,
-    biometricOffered: Boolean,
-    onBiometric: () -> Unit,
-    onUnlocked: () -> Unit,
-) {
-    val isSet by pinManager.isSet.collectAsState()
-    if (isSet) {
-        PinEntry(pinManager, biometricOffered, onBiometric, onUnlocked)
+fun PinGate(masterKeyStore: MasterKeyStore, onUnlocked: () -> Unit) {
+    val initialized by masterKeyStore.isInitialized.collectAsState()
+    if (initialized) {
+        PinEntry(masterKeyStore, onUnlocked)
     } else {
-        PinSetup(pinManager, onUnlocked)
+        PinSetup(masterKeyStore, onUnlocked)
     }
 }
 
-/**
- * Changes the PIN from Settings: verify the current PIN, then enter the new one twice. Honors the
- * same lockout as the entry gate so this cannot be used to brute-force the current PIN.
- */
 @Composable
-fun ChangePinFlow(pinManager: PinManager, onDone: () -> Unit) {
-    var currentVerified by remember { mutableStateOf(false) }
-    var newFirst by remember { mutableStateOf<String?>(null) }
-    var pin by remember { mutableStateOf("") }
-    var error by remember { mutableStateOf<String?>(null) }
-    var lockedRemaining by remember { mutableLongStateOf(pinManager.lockoutRemainingMs()) }
-    var verifying by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
-
-    LaunchedEffect(lockedRemaining > 0) {
-        while (lockedRemaining > 0) {
-            delay(500)
-            lockedRemaining = pinManager.lockoutRemainingMs()
-        }
-    }
-
-    PinPad(
-        title = when {
-            !currentVerified -> "Enter current PIN"
-            newFirst == null -> "Enter new PIN"
-            else -> "Confirm new PIN"
-        },
-        subtitle = "Changing your PIN does not affect existing recordings.",
-        pin = pin,
-        error = if (lockedRemaining > 0) "Too many attempts. Try again in ${(lockedRemaining / 1000) + 1}s." else error,
-        enabled = lockedRemaining == 0L && !verifying,
-        cancel = onDone,
-        onDigit = { digit ->
-            if (pin.length < PinHasher.PIN_LENGTH) pin += digit
-            error = null
-            if (pin.length == PinHasher.PIN_LENGTH) {
-                val entered = pin
-                if (!currentVerified) {
-                    verifying = true
-                    scope.launch {
-                        val result = withContext(Dispatchers.Default) { pinManager.verify(entered) }
-                        pin = ""
-                        verifying = false
-                        when (result) {
-                            is PinResult.Success -> currentVerified = true
-                            is PinResult.Incorrect -> error = "Incorrect PIN. ${result.attemptsRemaining} attempt(s) left."
-                            is PinResult.LockedOut -> lockedRemaining = result.remainingMs
-                        }
-                    }
-                } else {
-                    pin = ""
-                    if (newFirst == null) {
-                        newFirst = entered
-                    } else if (newFirst == entered) {
-                        pinManager.setPin(entered)
-                        onDone()
-                    } else {
-                        newFirst = null
-                        error = "PINs didn't match. Enter the new PIN again."
-                    }
-                }
-            }
-        },
-        onBackspace = { if (pin.isNotEmpty()) pin = pin.dropLast(1) },
-    )
-}
-
-@Composable
-private fun PinSetup(pinManager: PinManager, onDone: () -> Unit) {
+private fun PinSetup(masterKeyStore: MasterKeyStore, onDone: () -> Unit) {
     var first by remember { mutableStateOf<String?>(null) }
     var pin by remember { mutableStateOf("") }
     var error by remember { mutableStateOf<String?>(null) }
+    var working by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
 
     PinPad(
-        title = if (first == null) "Create a 6-digit PIN" else "Confirm your PIN",
-        subtitle = "You'll need this PIN every time to open MISync and to start recording. It can't be recovered if forgotten.",
+        title = if (first == null) "Create your 6-digit PIN" else "Confirm your PIN",
+        subtitle = "This PIN encrypts your recordings. You'll enter it every time you open MISync. " +
+            "It can't be changed or reset later, and recordings can't be recovered without it.",
         pin = pin,
         error = error,
-        onDigit = {
-            if (pin.length < PinHasher.PIN_LENGTH) pin += it
+        enabled = !working,
+        onDigit = { digit ->
+            if (pin.length < PinCrypto.PIN_LENGTH) pin += digit
             error = null
-            if (pin.length == PinHasher.PIN_LENGTH) {
+            if (pin.length == PinCrypto.PIN_LENGTH) {
                 val entered = pin
                 pin = ""
                 if (first == null) {
                     first = entered
                 } else if (first == entered) {
-                    pinManager.setPin(entered)
-                    onDone()
+                    working = true
+                    scope.launch {
+                        val result = withContext(Dispatchers.Default) { masterKeyStore.create(entered) }
+                        working = false
+                        when (result) {
+                            is UnlockResult.Success -> onDone()
+                            is UnlockResult.Error -> { first = null; error = result.message }
+                            else -> { first = null; error = "Could not set the PIN." }
+                        }
+                    }
                 } else {
                     first = null
                     error = "PINs didn't match. Start again."
@@ -170,22 +108,17 @@ private fun PinSetup(pinManager: PinManager, onDone: () -> Unit) {
 }
 
 @Composable
-private fun PinEntry(
-    pinManager: PinManager,
-    biometricOffered: Boolean,
-    onBiometric: () -> Unit,
-    onUnlocked: () -> Unit,
-) {
+private fun PinEntry(masterKeyStore: MasterKeyStore, onUnlocked: () -> Unit) {
     var pin by remember { mutableStateOf("") }
     var error by remember { mutableStateOf<String?>(null) }
-    var lockedUntilRemaining by remember { mutableLongStateOf(pinManager.lockoutRemainingMs()) }
+    var lockedRemaining by remember { mutableLongStateOf(masterKeyStore.lockoutRemainingMs()) }
     var verifying by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
-    LaunchedEffect(lockedUntilRemaining > 0) {
-        while (lockedUntilRemaining > 0) {
+    LaunchedEffect(lockedRemaining > 0) {
+        while (lockedRemaining > 0) {
             delay(500)
-            lockedUntilRemaining = pinManager.lockoutRemainingMs()
+            lockedRemaining = masterKeyStore.lockoutRemainingMs()
         }
     }
 
@@ -193,27 +126,23 @@ private fun PinEntry(
         title = "Enter your PIN",
         subtitle = null,
         pin = pin,
-        error = when {
-            lockedUntilRemaining > 0 -> "Too many attempts. Try again in ${(lockedUntilRemaining / 1000) + 1}s."
-            else -> error
-        },
-        enabled = lockedUntilRemaining == 0L && !verifying,
-        biometric = biometricOffered && lockedUntilRemaining == 0L,
-        onBiometric = onBiometric,
+        error = if (lockedRemaining > 0) "Too many attempts. Try again in ${(lockedRemaining / 1000) + 1}s." else error,
+        enabled = lockedRemaining == 0L && !verifying,
         onDigit = { digit ->
-            if (pin.length < PinHasher.PIN_LENGTH) pin += digit
+            if (pin.length < PinCrypto.PIN_LENGTH) pin += digit
             error = null
-            if (pin.length == PinHasher.PIN_LENGTH) {
+            if (pin.length == PinCrypto.PIN_LENGTH) {
                 val entered = pin
                 verifying = true
                 scope.launch {
-                    val result = withContext(Dispatchers.Default) { pinManager.verify(entered) }
+                    val result = withContext(Dispatchers.Default) { masterKeyStore.unlock(entered) }
                     pin = ""
                     verifying = false
                     when (result) {
-                        is PinResult.Success -> onUnlocked()
-                        is PinResult.Incorrect -> error = "Incorrect PIN. ${result.attemptsRemaining} attempt(s) left."
-                        is PinResult.LockedOut -> lockedUntilRemaining = result.remainingMs
+                        is UnlockResult.Success -> onUnlocked()
+                        is UnlockResult.Incorrect -> error = "Incorrect PIN. ${result.attemptsRemaining} attempt(s) left."
+                        is UnlockResult.LockedOut -> lockedRemaining = result.remainingMs
+                        is UnlockResult.Error -> error = result.message
                     }
                 }
             }
@@ -229,9 +158,6 @@ private fun PinPad(
     pin: String,
     error: String?,
     enabled: Boolean = true,
-    biometric: Boolean = false,
-    onBiometric: () -> Unit = {},
-    cancel: (() -> Unit)? = null,
     onDigit: (Char) -> Unit,
     onBackspace: () -> Unit,
 ) {
@@ -260,18 +186,14 @@ private fun PinPad(
             modifier = Modifier.height(20.dp),
         )
         Spacer(Modifier.height(16.dp))
-        Keypad(enabled = enabled, biometric = biometric, onBiometric = onBiometric, onDigit = onDigit, onBackspace = onBackspace)
-        if (cancel != null) {
-            Spacer(Modifier.height(8.dp))
-            TextButton(onClick = cancel) { Text("Cancel") }
-        }
+        Keypad(enabled = enabled, onDigit = onDigit, onBackspace = onBackspace)
     }
 }
 
 @Composable
 private fun PinDots(filled: Int) {
     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-        repeat(PinHasher.PIN_LENGTH) { i ->
+        repeat(PinCrypto.PIN_LENGTH) { i ->
             Box(
                 Modifier
                     .size(14.dp)
@@ -284,32 +206,22 @@ private fun PinDots(filled: Int) {
 }
 
 @Composable
-private fun Keypad(
-    enabled: Boolean,
-    biometric: Boolean,
-    onBiometric: () -> Unit,
-    onDigit: (Char) -> Unit,
-    onBackspace: () -> Unit,
-) {
-    Column(
-        Modifier.widthIn(max = 300.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        val rows = listOf(listOf('1', '2', '3'), listOf('4', '5', '6'), listOf('7', '8', '9'))
-        rows.forEach { row ->
+private fun Keypad(enabled: Boolean, onDigit: (Char) -> Unit, onBackspace: () -> Unit) {
+    Column(Modifier.widthIn(max = 300.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        listOf(listOf('1', '2', '3'), listOf('4', '5', '6'), listOf('7', '8', '9')).forEach { row ->
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                row.forEach { digit -> Key(Modifier.weight(1f), enabled = enabled, onClick = { onDigit(digit) }) { Text(digit.toString(), style = MaterialTheme.typography.headlineSmall) } }
+                row.forEach { digit ->
+                    Key(Modifier.weight(1f), enabled = enabled, onClick = { onDigit(digit) }) {
+                        Text(digit.toString(), style = MaterialTheme.typography.headlineSmall)
+                    }
+                }
             }
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            if (biometric) {
-                Key(Modifier.weight(1f), enabled = true, onClick = onBiometric) {
-                    Icon(Icons.Outlined.Fingerprint, contentDescription = "Unlock with biometrics", tint = MISyncColors.Accent)
-                }
-            } else {
-                Spacer(Modifier.weight(1f))
+            Spacer(Modifier.weight(1f))
+            Key(Modifier.weight(1f), enabled = enabled, onClick = { onDigit('0') }) {
+                Text("0", style = MaterialTheme.typography.headlineSmall)
             }
-            Key(Modifier.weight(1f), enabled = enabled, onClick = { onDigit('0') }) { Text("0", style = MaterialTheme.typography.headlineSmall) }
             Key(Modifier.weight(1f), enabled = enabled, onClick = onBackspace) {
                 Icon(Icons.AutoMirrored.Outlined.Backspace, contentDescription = "Delete")
             }

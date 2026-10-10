@@ -11,8 +11,7 @@ import com.misync.recorder.audio.CaptureSource
 import com.misync.recorder.diagnostics.DeviceSnapshot
 import com.misync.recorder.diagnostics.DiagnosticsRunner
 import com.misync.recorder.diagnostics.SourceProbe
-import com.misync.recorder.security.AppLock
-import com.misync.recorder.security.PinManager
+import com.misync.recorder.security.MasterKeyStore
 import com.misync.recorder.service.RecordingController
 import com.misync.recorder.settings.AppSettings
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,19 +34,15 @@ class DiagnosticsViewModel(
     private val runner: DiagnosticsRunner,
     private val controller: RecordingController,
     val settings: AppSettings,
-    val pinManager: PinManager,
+    val masterKeyStore: MasterKeyStore,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(DiagnosticsUiState())
     val state: StateFlow<DiagnosticsUiState> = _state.asStateFlow()
 
-    val biometricAvailable: Boolean get() = AppLock.isAvailable(app)
-
-    private fun lockSummary(): String {
-        val pin = if (pinManager.isSet.value) "6-digit PIN set" else "no PIN set"
-        val bio = if (settings.biometricUnlockEnabled.value && biometricAvailable) ", biometric quick-unlock on" else ""
-        return "$pin$bio"
-    }
+    private fun lockSummary(): String =
+        if (masterKeyStore.isInitialized.value) "6-digit PIN set; required on every launch; PIN-derived encryption; no reset"
+        else "no PIN set yet
 
     init {
         refreshSnapshot()
@@ -86,7 +81,7 @@ class DiagnosticsViewModel(
             initializer {
                 val app = this[APPLICATION_KEY] as MISyncApp
                 val c = app.container
-                DiagnosticsViewModel(app, c.diagnostics, c.recordingController, c.settings, c.pinManager)
+                DiagnosticsViewModel(app, c.diagnostics, c.recordingController, c.settings, c.masterKeyStore)
             }
         }
     }

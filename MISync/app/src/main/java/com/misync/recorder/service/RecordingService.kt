@@ -193,24 +193,20 @@ class RecordingService : LifecycleService() {
             this, 0, Intent(this, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP),
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
-        val title = when {
-            state.phase == RecorderPhase.PAUSED -> getString(R.string.notif_paused)
-            state.silenced -> getString(R.string.notif_silenced)
-            state.phase == RecorderPhase.STARTING -> getString(R.string.notif_starting)
-            else -> getString(R.string.notif_recording)
-        }
+        // Deliberately minimal and uniform: the title is always "M in use" with no duration,
+        // input name or other detail, as requested. The persistent notification and the OS
+        // microphone indicator themselves remain, because Android requires them for mic capture.
         val builder = NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle(title)
-            .setContentText(getString(R.string.notif_text, state.source.label))
+            .setContentTitle(getString(R.string.notif_recording))
             .setContentIntent(open)
             .setOngoing(true)
             .setOnlyAlertOnce(true)
+            .setShowWhen(false)
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
         if (state.phase == RecorderPhase.RECORDING) {
-            builder.setUsesChronometer(true).setWhen(System.currentTimeMillis() - state.elapsedMs)
             builder.addAction(0, getString(R.string.action_pause), serviceIntent(ACTION_PAUSE, 1))
         } else if (state.phase == RecorderPhase.PAUSED) {
             builder.addAction(0, getString(R.string.action_resume), serviceIntent(ACTION_RESUME, 2))

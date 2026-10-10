@@ -26,9 +26,6 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,22 +36,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.misync.recorder.diagnostics.ProbeStatus
 import com.misync.recorder.diagnostics.SourceProbe
-import com.misync.recorder.ui.ChangePinFlow
 import com.misync.recorder.ui.components.SectionLabel
 import com.misync.recorder.ui.theme.MISyncColors
 
 @Composable
 fun DiagnosticsScreen(vm: DiagnosticsViewModel = viewModel(factory = DiagnosticsViewModel.Factory)) {
     val ui by vm.state.collectAsStateWithLifecycle()
-    val biometricUnlock by vm.settings.biometricUnlockEnabled.collectAsStateWithLifecycle()
-    val pinSet by vm.pinManager.isSet.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    var changingPin by remember { mutableStateOf(false) }
-
-    if (changingPin) {
-        ChangePinFlow(vm.pinManager, onDone = { changingPin = false })
-        return
-    }
 
     Column(
         Modifier
@@ -66,38 +54,20 @@ fun DiagnosticsScreen(vm: DiagnosticsViewModel = viewModel(factory = Diagnostics
 
         SectionLabel("Security", Modifier.padding(top = 16.dp))
         Card {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.weight(1f)) {
-                    Text("Access PIN", style = MaterialTheme.typography.titleMedium)
-                    Text(
-                        if (pinSet) "A 6-digit PIN is required to open MISync and to start a recording."
-                        else "No PIN set.",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MISyncColors.TextSecondary,
-                    )
-                }
-                OutlinedButton(onClick = { changingPin = true }) { Text("Change PIN") }
-            }
-            Spacer(Modifier.height(12.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.weight(1f)) {
-                    Text("Biometric quick-unlock", style = MaterialTheme.typography.titleMedium)
-                    Text(
-                        if (vm.biometricAvailable) "Let a fingerprint stand in for the PIN. The PIN still works as a fallback."
-                        else "Unavailable: no biometrics or screen lock enrolled",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MISyncColors.TextSecondary,
-                    )
-                }
-                Switch(
-                    checked = biometricUnlock && vm.biometricAvailable,
-                    enabled = vm.biometricAvailable,
-                    onCheckedChange = vm.settings::setBiometricUnlockEnabled,
-                )
-            }
-            Spacer(Modifier.height(10.dp))
+            Text("Access PIN", style = MaterialTheme.typography.titleMedium)
+            Spacer(Modifier.height(4.dp))
             Text(
-                "Recordings are sealed with AES-256-GCM using a unique key per file, wrapped by a hardware-backed Android Keystore key. The app has no internet permission.",
+                "A six-digit PIN, set once when the app was first installed, is required every time you open MISync. " +
+                    "It cannot be changed or reset.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MISyncColors.TextSecondary,
+            )
+            Spacer(Modifier.height(12.dp))
+            Text(
+                "Your PIN is the encryption key: each recording is sealed with AES-256-GCM under a unique key, which is " +
+                    "wrapped by a master key derived from your PIN (PBKDF2) and additionally protected by the device's " +
+                    "hardware-backed Keystore. There is no backdoor — if the PIN is forgotten, recordings cannot be " +
+                    "recovered. The app has no internet permission.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MISyncColors.TextSecondary,
             )

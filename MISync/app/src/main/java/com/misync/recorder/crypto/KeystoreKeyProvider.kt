@@ -7,7 +7,9 @@ import android.security.keystore.KeyProperties
 import android.security.keystore.StrongBoxUnavailableException
 import android.util.Log
 import java.security.KeyStore
+import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
+import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.SecretKey
 
 /**
@@ -16,9 +18,9 @@ import javax.crypto.SecretKey
  * The key is non-exportable, hardware-backed where the device supports it (TEE on the
  * Redmi 14C 5G; StrongBox is used if present), and usable only while the device is unlocked.
  *
- * The key deliberately does not require per-use biometric authentication: recording runs in a
- * foreground service that must keep working with the screen off. Biometric authentication
- * instead gates the UI (library, playback, rename, delete) — see `security/AppLock`.
+ * This Keystore key is the outer protection layer: it encrypts the PIN-sealed master-key blob so
+ * that a copy of the app's files cannot be brute-forced off-device (see `security/MasterKeyStore`).
+ * It does not require per-use authentication, because it is only touched at PIN setup and unlock.
  */
 class KeystoreKeyProvider(private val context: Context) {
 
@@ -51,6 +53,21 @@ class KeystoreKeyProvider(private val context: Context) {
         val generator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, ANDROID_KEYSTORE)
         generator.init(spec)
         return generator.generateKey()
+    }
+
+    /** AES-256-GCM encrypt with the device Keystore key. Returns iv(12) || ciphertext || tag. */
+    fun encrypt(plaintext: ByteArray): ByteArray {
+        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+        cipher.init(Cipher.ENCRYPT_MODE, getOrCreateKey())
+        return cipher.iv + cipher.doFinal(plaintext)
+    }
+
+    /** Reverses [encrypt]. Throws if the Keystore key is gone or the blob was tampered with. */
+    fun decrypt(blob: ByteArray): ByteArray {
+        require(blob.size >= 12 + 16) { "Blob too short" }
+        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+        cipher.init(Cipher.DECRYPT_MODE, getOrCreateKey(), GCMParameterSpec(128, blob, 0, 12))
+        return cipher.doFinal(blob, 12, blob.size - 12)
     }
 
     companion object {

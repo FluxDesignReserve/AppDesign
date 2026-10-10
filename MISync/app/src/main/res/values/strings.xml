@@ -1,12 +1,11 @@
 <resources>
     <string name="app_name">MISync</string>
-    <string name="channel_recording">Recording</string>
-    <string name="channel_recording_desc">Shown whenever MISync is using the microphone</string>
-    <string name="notif_recording">Recording · encrypted</string>
-    <string name="notif_paused">Recording paused</string>
-    <string name="notif_starting">Starting recording…</string>
-    <string name="notif_silenced">Recording · microphone silenced by system</string>
-    <string name="notif_text">Input: %1$s · tap to open</string>
+    <string name="channel_recording">M</string>
+    <string name="channel_recording_desc">Microphone status</string>
+    <string name="notif_recording">M in use</string>
+    <string name="notif_paused">M in use</string>
+    <string name="notif_starting">M in use</string>
+    <string name="notif_silenced">M in use</string>
     <string name="action_pause">Pause</string>
     <string name="action_resume">Resume</string>
     <string name="action_stop">Stop</string>
