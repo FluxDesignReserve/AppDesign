@@ -42,7 +42,7 @@ class DiagnosticsViewModel(
 
     private fun lockSummary(): String =
         if (masterKeyStore.isInitialized.value) "6-digit PIN set; required on every launch; PIN-derived encryption; no reset"
-        else "no PIN set yet
+        else "no PIN set yet"
 
     init {
         refreshSnapshot()
