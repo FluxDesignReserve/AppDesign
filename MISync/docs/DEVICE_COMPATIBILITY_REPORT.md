@@ -164,5 +164,6 @@ speaker bleed is not support.
 | Corrupted chunk shows an error instead of crashing | not tested |
 | Biometric lock (side fingerprint) | not tested |
 | Keystore key is hardware-backed (TEE) | not tested |
-| Merged manifest has no network permissions | Checked automatically in CI |
-| Unit tests: crypto, recovery, file store | Pass on JVM (29 tests). Repository tests run in CI. |
+| Merged manifest has no network permissions | Pass (CI `aapt2 dump permissions`: RECORD_AUDIO, FOREGROUND_SERVICE(_MICROPHONE), POST_NOTIFICATIONS, USE_BIOMETRIC/USE_FINGERPRINT only) |
+| Unit tests: crypto, recovery, file store, repository | Pass (`testDebugUnitTest` in CI) |
+| Debug APK builds | Pass (CI `assembleDebug`) |
