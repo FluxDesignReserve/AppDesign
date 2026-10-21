@@ -4,6 +4,8 @@ A reverse-engineered recreation of the Stripe Press experience: a WebGL shelf of
 3D books, scroll-driven choreography, and a shelf ⇄ detail transition that carries the
 selected book between states rather than cross-fading it.
 
+> The Carbon rebuild of the Nova hiring prototype lives in [`nova/`](nova/README.md) and is a separate app.
+
 > **Read `docs/SPEC.md` first.** It is the implementation specification, and its opening
 > section records an important constraint: `press.stripe.com` was unreachable from the
 > environment this was built in (the egress proxy returns 403 for it on every channel),
