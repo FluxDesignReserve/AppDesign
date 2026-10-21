@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'react';
-import { ArrowDown, ArrowRight, ArrowUp, ChevronLeft, ChevronRight, MoreHorizontal, Plus, Search, X } from 'lucide-react';
+import { ArrowRight, ChevronDown, Clock, Plus, Search, X } from 'lucide-react';
 import type { NavProps } from '../App';
 import { BANDS, CANDIDATES, ROLES, STAGES, type Band, type Candidate, type Stage } from '../data/model';
-import { ActionMenu, Button, Chip, Field, Initials, Modal, PageHeader, Select, TableSkeleton, Wait, settle, usePageLoad, useToast } from '../ui';
+import { ActionMenu, Button, Chip, Field, Initials, Modal, PageHeader, Select, TableSkeleton, Tabs, Wait, settle, usePageLoad, useToast } from '../ui';
 
 const ALL = 'All';
-const PAGE_SIZE = 25;
+const PAGE_SIZE = 12;
 
 // Only the strongest bands get colour; the rest stay neutral.
 const BAND_TONE: Partial<Record<Band, 'green' | 'blue'>> = { Excellent: 'green', Strong: 'blue' };
@@ -15,11 +15,14 @@ type SortKey = 'score' | 'days' | 'name';
 
 const nextStage = (s: Stage): Stage => STAGES[Math.min(STAGES.indexOf(s) + 1, STAGES.length - 1)];
 
+// Highest first for every option.
 const SORTERS: Record<SortKey, (a: Candidate, b: Candidate) => number> = {
-  score: (a, b) => (a.score ?? -1) - (b.score ?? -1),
-  days: (a, b) => a.days - b.days,
-  name: (a, b) => b.name.localeCompare(a.name),
+  score: (a, b) => (b.score ?? -1) - (a.score ?? -1),
+  days: (a, b) => b.days - a.days,
+  name: (a, b) => a.name.localeCompare(b.name),
 };
+
+const SORT_LABELS: Record<SortKey, string> = { score: 'Best match', days: 'Longest wait', name: 'Name' };
 
 export function Candidates({ params }: NavProps) {
   const loading = usePageLoad();
@@ -27,12 +30,13 @@ export function Candidates({ params }: NavProps) {
   const [moved, setMoved] = useState<Moved>({});
   const [stage, setStage] = useState<Stage>((params.stage as Stage) ?? 'Screening');
   const [role, setRole] = useState<string>(params.role ?? ALL);
-  const [band, setBand] = useState<string>(ALL);
+  const [band, setBand] = useState<string>(params.band ?? ALL);
+  const [slowOnly, setSlowOnly] = useState(false);
   const [query, setQuery] = useState('');
-  const [sort, setSort] = useState<{ key: SortKey; desc: boolean }>({ key: 'score', desc: true });
-  const [page, setPage] = useState(0);
+  const [sort, setSort] = useState<SortKey>('score');
+  const [shown, setShown] = useState(PAGE_SIZE);
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [adding, setAdding] = useState(false);
+  const [adding, setAdding] = useState(params.new === '1');
 
   const people = useMemo(
     () => CANDIDATES.map((c) => ({ ...c, stage: moved[c.id] ?? c.stage })).filter((c) => c.stage !== 'Rejected') as Candidate[],
@@ -48,19 +52,19 @@ export function Candidates({ params }: NavProps) {
         c.stage === stage &&
         (role === ALL || c.role === role) &&
         (band === ALL || c.band === band) &&
+        (!slowOnly || c.days > 7) &&
         (!q || c.name.toLowerCase().includes(q) || c.employer.toLowerCase().includes(q)),
     )
-    .sort((a, b) => SORTERS[sort.key](a, b) * (sort.desc ? -1 : 1));
-  const pages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
-  const current = Math.min(page, pages - 1);
-  const pageRows = rows.slice(current * PAGE_SIZE, (current + 1) * PAGE_SIZE);
+    .sort(SORTERS[sort]);
+  const slowCount = people.filter((c) => c.stage === stage && c.days > 7).length;
+  const pageRows = rows.slice(0, shown);
   const allOnPage = pageRows.length > 0 && pageRows.every((r) => selected.has(r.id));
 
   const filter =
     <T,>(set: (v: T) => void) =>
     (v: T) => {
       set(v);
-      setPage(0);
+      setShown(PAGE_SIZE);
       setSelected(new Set());
     };
 
@@ -84,20 +88,12 @@ export function Candidates({ params }: NavProps) {
     });
   };
 
-  const sortable = (key: SortKey, label: string) => (
-    <th aria-sort={sort.key === key ? (sort.desc ? 'descending' : 'ascending') : undefined}>
-      <button onClick={() => setSort({ key, desc: sort.key === key ? !sort.desc : true })}>
-        {label}
-        {sort.key === key && (sort.desc ? <ArrowDown size={12} /> : <ArrowUp size={12} />)}
-      </button>
-    </th>
-  );
-
   return (
     <div className="page">
       <PageHeader
-        title="Candidates"
-        subtitle={`${people.length} people across ${ROLES.length} roles`}
+        eyebrow="Candidates"
+        title={stage}
+        subtitle={`${stageCounts[stage]} people across ${ROLES.length} roles`}
         action={
           <Button variant="primary" onClick={() => setAdding(true)}>
             <Plus size={16} /> Add candidates
@@ -105,11 +101,9 @@ export function Candidates({ params }: NavProps) {
         }
       />
 
+      <Tabs label="Stage" value={stage} options={STAGES.map((s) => ({ value: s, count: stageCounts[s] }))} onChange={filter(setStage)} />
+
       <div className="filters">
-        <Select label="Stage" value={stage} options={STAGES.map((s) => ({ value: s, count: stageCounts[s] }))} onChange={filter(setStage)} />
-        <Select label="Role" value={role} options={[ALL, ...ROLES].map((r) => ({ value: r }))} onChange={filter(setRole)} />
-        <Select label="Match" value={band} options={[ALL, ...BANDS].map((b) => ({ value: b }))} onChange={filter(setBand)} />
-        <span className="spacer" />
         <div className="search">
           <Search size={14} aria-hidden />
           <input
@@ -121,6 +115,19 @@ export function Candidates({ params }: NavProps) {
             onChange={(e) => filter(setQuery)(e.target.value)}
           />
         </div>
+        <Select label="Role" value={role} options={[ALL, ...ROLES].map((r) => ({ value: r }))} onChange={filter(setRole)} />
+        <Select label="Match" value={band} options={[ALL, ...BANDS].map((b) => ({ value: b }))} onChange={filter(setBand)} />
+        <button className="select-trigger" aria-pressed={slowOnly} onClick={() => filter(setSlowOnly)(!slowOnly)} style={slowOnly ? { borderColor: 'var(--text)' } : undefined}>
+          <Clock size={13} aria-hidden /> Waiting &gt; 7d <span className="muted num">{slowCount}</span>
+        </button>
+        <span className="spacer" />
+        <Select<SortKey>
+          label="Sort"
+          align="end"
+          value={sort}
+          options={(Object.keys(SORT_LABELS) as SortKey[]).map((k) => ({ value: k, label: SORT_LABELS[k] }))}
+          onChange={setSort}
+        />
       </div>
 
       {loading ? (
@@ -151,7 +158,7 @@ export function Candidates({ params }: NavProps) {
                   <th className="check-col">
                     <input
                       type="checkbox"
-                      aria-label="Select all on this page"
+                      aria-label="Select all shown"
                       checked={allOnPage}
                       onChange={() =>
                         setSelected((s) => {
@@ -162,11 +169,12 @@ export function Candidates({ params }: NavProps) {
                       }
                     />
                   </th>
-                  {sortable('name', 'Candidate')}
-                  {sortable('score', 'Match')}
+                  <th>Candidate</th>
+                  <th>Match</th>
                   <th>Notice</th>
                   <th>Expected CTC</th>
-                  {sortable('days', 'In stage')}
+                  <th>Current employer</th>
+                  <th>Days in stage</th>
                   <th aria-label="Actions" />
                 </tr>
               </thead>
@@ -181,9 +189,7 @@ export function Candidates({ params }: NavProps) {
                         <Initials name={c.name} />
                         <span>
                           <b>{c.name}</b>
-                          <span className="sub">
-                            {c.role} · {c.employer}
-                          </span>
+                          <span className="sub">{c.role}</span>
                         </span>
                       </span>
                     </td>
@@ -193,14 +199,21 @@ export function Candidates({ params }: NavProps) {
                       </Chip>
                     </td>
                     <td>{c.notice}</td>
-                    <td className="num">{c.ctc ?? <span className="muted">—</span>}</td>
+                    <td className="num">{c.ctc ?? <span className="muted">Not recorded</span>}</td>
+                    <td>{c.employer}</td>
                     <td>
                       <Wait days={c.days} />
                     </td>
                     <td className="end">
                       <ActionMenu
-                        label={`Actions for ${c.name}`}
-                        trigger={<MoreHorizontal size={16} />}
+                        label={`Move ${c.name}`}
+                        variant="secondary"
+                        icon={false}
+                        trigger={
+                          <>
+                            Move <ChevronDown size={13} />
+                          </>
+                        }
                         actions={[
                           ...(stage !== 'Hired' ? [{ label: `Move to ${nextStage(stage)}`, onSelect: () => move([c.id], 'next') }] : []),
                           { label: 'Reject', danger: true, onSelect: () => move([c.id], 'Rejected') },
@@ -217,16 +230,13 @@ export function Candidates({ params }: NavProps) {
           ) : (
             <div className="table-foot">
               <span className="num">
-                {current * PAGE_SIZE + 1}–{Math.min((current + 1) * PAGE_SIZE, rows.length)} of {rows.length}
+                Showing {pageRows.length} of {rows.length}
               </span>
-              <span style={{ display: 'flex', gap: 4 }}>
-                <Button size="sm" variant="ghost" icon aria-label="Previous page" disabled={current === 0} onClick={() => setPage(current - 1)}>
-                  <ChevronLeft size={16} />
+              {rows.length > shown && (
+                <Button size="sm" onClick={() => setShown(shown + PAGE_SIZE)}>
+                  Show {Math.min(PAGE_SIZE, rows.length - shown)} more
                 </Button>
-                <Button size="sm" variant="ghost" icon aria-label="Next page" disabled={current >= pages - 1} onClick={() => setPage(current + 1)}>
-                  <ChevronRight size={16} />
-                </Button>
-              </span>
+              )}
             </div>
           )}
         </div>

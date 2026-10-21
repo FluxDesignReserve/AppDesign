@@ -1,8 +1,8 @@
 import { useRef, useState } from 'react';
-import { ArrowRight, ArrowUp, CalendarClock, CheckCircle2, ChevronRight, Phone, Sparkles } from 'lucide-react';
+import { ArrowRight, ArrowUp, CalendarClock, CheckCircle2, ChevronDown, ChevronRight, Phone, Sparkles } from 'lucide-react';
 import type { NavProps } from '../App';
 import type { Notice, Page } from '../data/model';
-import { Button, InlineLoading, Skeleton, settle, usePageLoad } from '../ui';
+import { ActionMenu, Button, InlineLoading, Skeleton, settle, usePageLoad } from '../ui';
 
 interface Answer {
   text: string;
@@ -10,7 +10,7 @@ interface Answer {
   cta?: string;
 }
 
-// Suggestions open from the ask box instead of sitting on the page as a wall of chips.
+// Two suggestions show under the ask box; the rest wait in a "More" menu.
 const ANSWERS: Record<string, Answer> = {
   'Which jobs are at risk?': {
     text: 'Account Manager is most at risk: 47 people have waited more than 7 days. AI Product Manager is next, with 40.',
@@ -48,7 +48,7 @@ function greeting() {
   return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
 }
 
-export function Home({ go, notices }: NavProps & { notices: Notice[] }) {
+export function Home({ go, notices, openNotifications }: NavProps & { notices: Notice[]; openNotifications: () => void }) {
   const loading = usePageLoad(300);
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
@@ -85,12 +85,17 @@ export function Home({ go, notices }: NavProps & { notices: Notice[] }) {
 
   return (
     <div className="home">
-      <h1>{greeting()}, Vedank</h1>
-      <p>Ask Nova about your hiring, or start with what needs you.</p>
+      <div className="orb" aria-hidden>
+        <span className="eyes">
+          <i />
+          <i />
+        </span>
+      </div>
+      <h1>{greeting()}, Vedank.</h1>
+      <p>Ask me anything about your hiring, or pick where to begin.</p>
 
       <div className="ask">
         <div className="ask-box">
-          <Sparkles size={18} color="var(--text-3)" aria-hidden />
           <input
             ref={input}
             role="combobox"
@@ -99,14 +104,13 @@ export function Home({ go, notices }: NavProps & { notices: Notice[] }) {
             aria-controls="suggestions"
             aria-autocomplete="list"
             aria-activedescendant={open && active >= 0 ? `suggestion-${active}` : undefined}
-            placeholder="Ask anything, e.g. which jobs are at risk?"
+            placeholder="Ask about your hiring, e.g. which jobs are at risk?"
             value={query}
             onChange={(e) => {
               setQuery(e.target.value);
               setActive(-1);
               setOpen(true);
             }}
-            onFocus={() => setOpen(true)}
             onBlur={() => setOpen(false)}
             onKeyDown={onKey}
           />
@@ -133,6 +137,25 @@ export function Home({ go, notices }: NavProps & { notices: Notice[] }) {
             ))}
           </ul>
         )}
+      </div>
+
+      <div className="try">
+        {SUGGESTIONS.slice(0, 2).map((s) => (
+          <button key={s} className="suggest" onClick={() => ask(s)}>
+            {s}
+          </button>
+        ))}
+        <ActionMenu
+          label="More prompts"
+          variant="ghost"
+          icon={false}
+          trigger={
+            <>
+              More <ChevronDown size={14} />
+            </>
+          }
+          actions={SUGGESTIONS.slice(2).map((s) => ({ label: s, onSelect: () => ask(s) }))}
+        />
       </div>
 
       <div aria-live="polite">
@@ -162,13 +185,11 @@ export function Home({ go, notices }: NavProps & { notices: Notice[] }) {
         )}
       </div>
 
-      <div className="section-title">
-        Needs you
-        <span>
-          {top.length} of {notices.length}
-        </span>
+      <div className="section-title needs">
+        Needs you · {notices.length}
+        {notices.length > top.length && <button onClick={openNotifications}>See all</button>}
       </div>
-      <div className="card">
+      <div className="card needs">
         {loading ? (
           <div className="skeleton-rows">
             {[0, 1, 2].map((i) => (

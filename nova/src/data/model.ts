@@ -68,11 +68,11 @@ export interface Job {
 }
 
 export const JOBS: Job[] = [
+  { id: 'LT-0022', title: ROLES[0], priority: 'P2', status: 'Open', location: 'Noida', openings: 1, hired: 0, owner: 'Himanshi Tomer', oldestWait: 10 },
   { id: 'LT-0021', title: ROLES[1], priority: 'P0', status: 'Open', location: 'Noida', openings: 3, hired: 0, owner: 'Vishali', oldestWait: 11 },
-  { id: 'LT-0018', title: ROLES[4], priority: 'P0', status: 'Open', location: 'Noida', openings: 1, hired: 0, owner: null, oldestWait: 11 },
   { id: 'LT-0020', title: ROLES[2], priority: 'P0', status: 'Open', location: 'Noida', openings: 1, hired: 0, owner: null, oldestWait: 8 },
   { id: 'LT-0019', title: ROLES[3], priority: 'P0', status: 'Open', location: 'Noida', openings: 4, hired: 0, owner: 'Mimansa Mehta', oldestWait: 11 },
-  { id: 'LT-0022', title: ROLES[0], priority: 'P2', status: 'Open', location: 'Noida', openings: 1, hired: 0, owner: 'Himanshi Tomer', oldestWait: 10 },
+  { id: 'LT-0018', title: ROLES[4], priority: 'P0', status: 'Open', location: 'Noida', openings: 1, hired: 0, owner: null, oldestWait: 11 },
 ];
 
 export type Decision = 'Feedback due' | 'Upcoming' | 'Done';

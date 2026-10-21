@@ -46,10 +46,11 @@ export function Button({ variant = 'secondary', size = 'md', icon, loading, clas
 
 /* ---------- Layout ---------- */
 
-export function PageHeader({ title, subtitle, action }: { title: string; subtitle?: string; action?: ReactNode }) {
+export function PageHeader({ eyebrow, title, subtitle, action }: { eyebrow?: string; title: string; subtitle?: string; action?: ReactNode }) {
   return (
     <header className="page-head">
       <div>
+        {eyebrow && <span className="eyebrow">{eyebrow}</span>}
         <h1>{title}</h1>
         {subtitle && <p>{subtitle}</p>}
       </div>
@@ -250,14 +251,26 @@ export interface MenuAction {
   danger?: boolean;
 }
 
-/** A small "more actions" menu for a row. */
-export function ActionMenu({ label, trigger, actions }: { label: string; trigger: ReactNode; actions: MenuAction[] }) {
+/** A button that opens a short list of actions. */
+export function ActionMenu({
+  label,
+  trigger,
+  actions,
+  variant = 'ghost',
+  icon = true,
+}: {
+  label: string;
+  trigger: ReactNode;
+  actions: MenuAction[];
+  variant?: ButtonProps['variant'];
+  icon?: boolean;
+}) {
   const [open, setOpen] = useState(false);
   const close = useCallback(() => setOpen(false), []);
   const ref = useDismiss(open, close);
   return (
     <div className="select" ref={ref} onKeyDown={(e) => e.key === 'Escape' && setOpen(false)}>
-      <Button variant="ghost" size="sm" icon aria-label={label} aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen(!open)}>
+      <Button variant={variant} size="sm" icon={icon} aria-label={label} aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen(!open)}>
         {trigger}
       </Button>
       {open && (
@@ -278,6 +291,22 @@ export function ActionMenu({ label, trigger, actions }: { label: string; trigger
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+/* ---------- Tabs ---------- */
+
+/** A short tab row, used where the original had one (three to six options). */
+export function Tabs<T extends string>({ label, value, options, onChange }: { label: string; value: T; options: Option<T>[]; onChange: (v: T) => void }) {
+  return (
+    <div className="tabs" role="tablist" aria-label={label}>
+      {options.map((o) => (
+        <button key={o.value} role="tab" aria-selected={o.value === value} onClick={() => onChange(o.value)}>
+          {o.label ?? o.value}
+          {o.count !== undefined && <span className="count">{o.count}</span>}
+        </button>
+      ))}
     </div>
   );
 }

@@ -1,49 +1,34 @@
 import { useMemo, useState } from 'react';
-import { ArrowDown, ArrowUp, Plus, Search } from 'lucide-react';
+import { Plus, Search } from 'lucide-react';
 import type { NavProps } from '../App';
 import { CANDIDATES, JOBS, type Job, type JobStatus } from '../data/model';
-import { Button, Chip, Field, Initials, Modal, PageHeader, Select, TableSkeleton, Wait, settle, usePageLoad, useToast } from '../ui';
+import { Button, Chip, Field, Initials, Modal, PageHeader, Skeleton, Tabs, Wait, settle, usePageLoad, useToast } from '../ui';
 
 const STATUSES: JobStatus[] = ['Open', 'Draft', 'On hold', 'Closed'];
 
 const inPipeline = (title: string) => CANDIDATES.filter((c) => c.role === title).length;
 const inScreening = (title: string) => CANDIDATES.filter((c) => c.role === title && c.stage === 'Screening').length;
 
-type SortKey = 'pipeline' | 'wait';
-
-export function Jobs({ go }: NavProps) {
+export function Jobs({ go, params }: NavProps) {
   const loading = usePageLoad();
   const toast = useToast();
   const [jobs, setJobs] = useState<Job[]>(JOBS);
   const [status, setStatus] = useState<JobStatus>('Open');
   const [query, setQuery] = useState('');
-  const [sort, setSort] = useState<{ key: SortKey; desc: boolean }>({ key: 'pipeline', desc: true });
-  const [creating, setCreating] = useState(false);
+  const [creating, setCreating] = useState(params.new === '1');
 
   const counts = useMemo(() => Object.fromEntries(STATUSES.map((s) => [s, jobs.filter((j) => j.status === s).length])), [jobs]);
   const q = query.trim().toLowerCase();
-  const visible = jobs
-    .filter((j) => j.status === status && (!q || j.title.toLowerCase().includes(q)))
-    .sort((a, b) => {
-      const v = (j: Job) => (sort.key === 'pipeline' ? inPipeline(j.title) : j.oldestWait);
-      return (v(a) - v(b)) * (sort.desc ? -1 : 1);
-    });
-  const total = jobs.filter((j) => j.status === 'Open').reduce((n, j) => n + inPipeline(j.title), 0);
-
-  const sortable = (key: SortKey, label: string) => (
-    <th aria-sort={sort.key === key ? (sort.desc ? 'descending' : 'ascending') : undefined}>
-      <button onClick={() => setSort({ key, desc: sort.key === key ? !sort.desc : true })}>
-        {label}
-        {sort.key === key && (sort.desc ? <ArrowDown size={12} /> : <ArrowUp size={12} />)}
-      </button>
-    </th>
-  );
+  const visible = jobs.filter((j) => j.status === status && (!q || j.title.toLowerCase().includes(q)));
+  const open = jobs.filter((j) => j.status === 'Open');
+  const total = open.reduce((n, j) => n + inPipeline(j.title), 0);
 
   return (
     <div className="page">
       <PageHeader
-        title="Jobs"
-        subtitle={`${counts.Open} open · ${total} people in the pipeline`}
+        eyebrow="Jobs"
+        title="All jobs"
+        subtitle={`${counts.Open} open roles · ${total} people in pipeline`}
         action={
           <Button variant="primary" onClick={() => setCreating(true)}>
             <Plus size={16} /> New job
@@ -51,9 +36,8 @@ export function Jobs({ go }: NavProps) {
         }
       />
 
-      <div className="filters">
-        <Select label="Status" value={status} options={STATUSES.map((s) => ({ value: s, count: counts[s] }))} onChange={setStatus} />
-        <span className="spacer" />
+      <div className="row-between">
+        <Tabs label="Job status" value={status} options={STATUSES.map((s) => ({ value: s, count: counts[s] }))} onChange={setStatus} />
         <div className="search">
           <Search size={14} aria-hidden />
           <input className="input" type="search" placeholder="Search jobs" aria-label="Search jobs" value={query} onChange={(e) => setQuery(e.target.value)} />
@@ -61,58 +45,64 @@ export function Jobs({ go }: NavProps) {
       </div>
 
       {loading ? (
-        <TableSkeleton rows={5} />
+        <div className="job-grid">
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="card job">
+              <Skeleton w="50%" h={16} />
+              <Skeleton w="30%" />
+              <Skeleton w="70%" h={28} />
+              <Skeleton w="40%" />
+            </div>
+          ))}
+        </div>
+      ) : visible.length === 0 ? (
+        <div className="card empty">{q ? 'No jobs match your search.' : `No ${status.toLowerCase()} jobs.`}</div>
       ) : (
-        <div className="card table-wrap">
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Role</th>
-                <th>Priority</th>
-                {sortable('pipeline', 'In pipeline')}
-                <th>Hired</th>
-                {sortable('wait', 'Oldest wait')}
-                <th>Owner</th>
-                <th aria-label="Actions" />
-              </tr>
-            </thead>
-            <tbody>
-              {visible.map((job) => (
-                <tr key={job.id}>
-                  <td>
-                    <b style={{ fontWeight: 500 }}>{job.title}</b>
-                    <span className="sub">
-                      {job.id} · {job.location}
-                    </span>
-                  </td>
-                  <td>{job.priority === 'P0' ? <Chip tone="red">P0</Chip> : <Chip>{job.priority}</Chip>}</td>
-                  <td className="num">{inPipeline(job.title)}</td>
-                  <td className="num">
+        <div className="job-grid">
+          {visible.map((job) => (
+            <article key={job.id} className="card job">
+              <div>
+                <h2>
+                  {job.title}
+                  {job.priority === 'P0' ? <Chip tone="red">P0</Chip> : <Chip>{job.priority}</Chip>}
+                </h2>
+                <span className="sub">
+                  {job.id} · {job.location}
+                </span>
+              </div>
+              <div className="job-stats">
+                <div>
+                  <span>In pipeline</span>
+                  <strong className="num">{inPipeline(job.title)}</strong>
+                </div>
+                <div>
+                  <span>Hired</span>
+                  <strong className="num">
                     {job.hired}/{job.openings}
-                  </td>
-                  <td>
+                  </strong>
+                </div>
+                <div>
+                  <span>Oldest wait</span>
+                  <strong>
                     <Wait days={job.oldestWait} />
-                  </td>
-                  <td>
-                    {job.owner ? (
-                      <span className="person" style={{ minWidth: 0 }}>
-                        <Initials name={job.owner} size="sm" />
-                        {job.owner}
-                      </span>
-                    ) : (
-                      <span className="muted">Unassigned</span>
-                    )}
-                  </td>
-                  <td className="end">
-                    <Button size="sm" onClick={() => go('candidates', { role: job.title, stage: 'Screening' })}>
-                      Review {inScreening(job.title)}
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {visible.length === 0 && <div className="empty">{q ? 'No jobs match your search.' : `No ${status.toLowerCase()} jobs.`}</div>}
+                  </strong>
+                </div>
+              </div>
+              <div className="job-foot">
+                {job.owner ? (
+                  <span className="person" style={{ minWidth: 0 }}>
+                    <Initials name={job.owner} size="sm" />
+                    {job.owner}
+                  </span>
+                ) : (
+                  <span className="muted">No owner yet</span>
+                )}
+                <Button size="sm" onClick={() => go('candidates', { role: job.title, stage: 'Screening' })}>
+                  Review {inScreening(job.title)} in Screening
+                </Button>
+              </div>
+            </article>
+          ))}
         </div>
       )}
 

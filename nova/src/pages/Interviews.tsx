@@ -3,10 +3,22 @@ import { Sparkles, Video } from 'lucide-react';
 import type { NavProps } from '../App';
 import { dayLabel, type Decision, type Interview } from '../data/model';
 import { update, useStore } from '../store';
-import { Button, Chip, Field, Initials, Modal, PageHeader, Select, TableSkeleton, settle, usePageLoad, useToast } from '../ui';
+import { Button, Chip, Field, Initials, Modal, PageHeader, TableSkeleton, Tabs, settle, usePageLoad, useToast } from '../ui';
 
 const VIEWS: Decision[] = ['Feedback due', 'Upcoming', 'Done'];
 const VERDICTS = ['Strong yes', 'Yes', 'No', 'Strong no'];
+
+/** Monday-to-Sunday offsets from today for the current week. */
+function thisWeek(): number[] {
+  const mondayOffset = -((new Date().getDay() + 6) % 7);
+  return Array.from({ length: 7 }, (_, i) => mondayOffset + i);
+}
+
+function dayParts(offset: number) {
+  const d = new Date();
+  d.setDate(d.getDate() + offset);
+  return { name: offset === 0 ? 'Today' : d.toLocaleDateString('en-GB', { weekday: 'short' }), date: d.getDate() };
+}
 
 export function Interviews(_: NavProps) {
   const loading = usePageLoad();
@@ -15,26 +27,35 @@ export function Interviews(_: NavProps) {
   const setItems = (fn: (all: Interview[]) => Interview[]) => update((s) => ({ interviews: fn(s.interviews) }));
   const [view, setView] = useState<Decision>(items.some((i) => i.status === 'Feedback due') ? 'Feedback due' : 'Upcoming');
   const [writing, setWriting] = useState<Interview | null>(null);
+  const [day, setDay] = useState<number | null>(null);
 
   const count = (d: Decision) => items.filter((i) => i.status === d).length;
-  const visible = items.filter((i) => i.status === view);
+  const visible = items.filter((i) => i.status === view && (day === null || i.dayOffset === day));
+  const week = thisWeek();
   const next = items.find((i) => i.status === 'Upcoming');
 
   return (
     <div className="page">
       <PageHeader
+        eyebrow="Your panels"
         title="Interviews"
         subtitle={next ? `Next: ${next.candidate}, ${dayLabel(next.dayOffset).toLowerCase()} at ${next.time}` : 'Nothing scheduled'}
       />
 
-      <div className="filters">
-        <Select label="Show" value={view} options={VIEWS.map((v) => ({ value: v, count: count(v) }))} onChange={setView} />
-      </div>
+      <Tabs
+        label="Interviews"
+        value={view}
+        options={VIEWS.map((v) => ({ value: v, count: count(v) }))}
+        onChange={(v) => {
+          setView(v);
+          setDay(null);
+        }}
+      />
 
       {loading ? (
         <TableSkeleton rows={3} />
       ) : visible.length === 0 ? (
-        <div className="card empty">{view === 'Feedback due' ? "You're all caught up." : 'Nothing here yet.'}</div>
+        <div className="card empty">{view === 'Feedback due' ? "You're all caught up." : day !== null ? 'No panels that day.' : 'Nothing here yet.'}</div>
       ) : (
         <div className="card table-wrap">
           <table className="table">
@@ -86,6 +107,34 @@ export function Interviews(_: NavProps) {
           </table>
         </div>
       )}
+
+      <section className="card panel" aria-label="This week">
+        <div className="panel-title">
+          This week
+          <span>{day === null ? 'Pick a day to filter' : <a href="#" onClick={(e) => (e.preventDefault(), setDay(null))}>Show all days</a>}</span>
+        </div>
+        <div className="week">
+          {week.map((offset) => {
+            const n = items.filter((i) => i.dayOffset === offset).length;
+            const { name, date } = dayParts(offset);
+            return (
+              <button
+                key={offset}
+                className={`day${offset === 0 ? ' day--today' : ''}`}
+                aria-pressed={day === offset}
+                onClick={() => {
+                  setDay(day === offset ? null : offset);
+                  setView(offset < 0 ? (items.some((i) => i.dayOffset === offset && i.status === 'Feedback due') ? 'Feedback due' : 'Done') : 'Upcoming');
+                }}
+              >
+                <small>{name.toUpperCase()}</small>
+                <strong className="num">{date}</strong>
+                <span>{n ? `${n} panel${n > 1 ? 's' : ''}` : 'Free'}</span>
+              </button>
+            );
+          })}
+        </div>
+      </section>
 
       <Feedback
         interview={writing}

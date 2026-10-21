@@ -3,7 +3,7 @@ import { Check, MessageSquare } from 'lucide-react';
 import type { NavProps } from '../App';
 import type { Approval, ApprovalState } from '../data/model';
 import { update, useStore } from '../store';
-import { Button, Chip, Field, Initials, InlineLoading, Modal, PageHeader, Select, Skeleton, settle, usePageLoad, useToast } from '../ui';
+import { Button, Chip, Field, Initials, InlineLoading, Modal, PageHeader, Skeleton, Tabs, settle, usePageLoad, useToast } from '../ui';
 
 const VIEWS: ApprovalState[] = ['Waiting on you', 'You sent', 'Decided'];
 
@@ -33,11 +33,9 @@ export function Approvals(_: NavProps) {
 
   return (
     <div className="page">
-      <PageHeader title="Approvals" subtitle={count('Waiting on you') ? `${count('Waiting on you')} waiting on you` : "You're all caught up"} />
+      <PageHeader eyebrow="Queue" title="Approvals" subtitle={count('Waiting on you') ? `${count('Waiting on you')} waiting on you` : "You're all caught up"} />
 
-      <div className="filters">
-        <Select label="Show" value={view} options={VIEWS.map((v) => ({ value: v, count: count(v) }))} onChange={setView} />
-      </div>
+      <Tabs label="Approvals" value={view} options={VIEWS.map((v) => ({ value: v, count: count(v) }))} onChange={setView} />
 
       {loading ? (
         <div className="cards">
