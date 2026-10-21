@@ -1,24 +1,9 @@
 import { useState } from 'react';
-import {
-  Button,
-  DataTableSkeleton,
-  Dropdown,
-  Modal,
-  RadioButton,
-  RadioButtonGroup,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableHeader,
-  TableRow,
-  TextArea,
-} from '@carbon/react';
+import { Sparkles, Video } from 'lucide-react';
 import type { NavProps } from '../App';
 import { dayLabel, type Decision, type Interview } from '../data/model';
 import { update, useStore } from '../store';
-import { PageHeader, settle, usePageLoad, useToast } from '../ui';
+import { Button, Chip, Field, Initials, Modal, PageHeader, Select, TableSkeleton, settle, usePageLoad, useToast } from '../ui';
 
 const VIEWS: Decision[] = ['Feedback due', 'Upcoming', 'Done'];
 const VERDICTS = ['Strong yes', 'Yes', 'No', 'Strong no'];
@@ -36,70 +21,70 @@ export function Interviews(_: NavProps) {
   const next = items.find((i) => i.status === 'Upcoming');
 
   return (
-    <div className="nova-page">
+    <div className="page">
       <PageHeader
         title="Interviews"
         subtitle={next ? `Next: ${next.candidate}, ${dayLabel(next.dayOffset).toLowerCase()} at ${next.time}` : 'Nothing scheduled'}
       />
 
-      <div className="nova-filters">
-        <Dropdown
-          id="interview-view"
-          titleText="Show"
-          label="Show"
-          items={VIEWS}
-          itemToString={(v) => (v ? `${v} (${count(v)})` : '')}
-          selectedItem={view}
-          onChange={({ selectedItem }) => selectedItem && setView(selectedItem)}
-        />
+      <div className="filters">
+        <Select label="Show" value={view} options={VIEWS.map((v) => ({ value: v, count: count(v) }))} onChange={setView} />
       </div>
 
       {loading ? (
-        <DataTableSkeleton rowCount={3} columnCount={3} showHeader={false} showToolbar={false} />
+        <TableSkeleton rows={3} />
       ) : visible.length === 0 ? (
-        <div className="nova-empty">{view === 'Feedback due' ? "You're all caught up." : 'Nothing here yet.'}</div>
+        <div className="card empty">{view === 'Feedback due' ? "You're all caught up." : 'Nothing here yet.'}</div>
       ) : (
-        <TableContainer>
-          <Table aria-label={view}>
-            <TableHead>
-              <TableRow>
-                <TableHeader>Candidate</TableHeader>
-                <TableHeader>When</TableHeader>
-                <TableHeader aria-label="Actions" />
-              </TableRow>
-            </TableHead>
-            <TableBody>
+        <div className="card table-wrap">
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Candidate</th>
+                <th>When</th>
+                <th aria-label="Actions" />
+              </tr>
+            </thead>
+            <tbody>
               {visible.map((i) => (
-                <TableRow key={i.id}>
-                  <TableCell>
-                    {i.candidate}
-                    <span className="nova-secondary">
-                      {i.role} · {i.round}
+                <tr key={i.id}>
+                  <td>
+                    <span className="person">
+                      <Initials name={i.candidate} />
+                      <span>
+                        <b>{i.candidate}</b>
+                        <span className="sub">
+                          {i.role} · {i.round}
+                        </span>
+                      </span>
                     </span>
-                  </TableCell>
-                  <TableCell>
+                  </td>
+                  <td>
                     {dayLabel(i.dayOffset)}, {i.time}
                     {i.status === 'Feedback due' && i.dayOffset < 0 && (
-                      <span className="nova-secondary">Feedback overdue</span>
+                      <>
+                        {' '}
+                        <Chip tone="orange">Overdue</Chip>
+                      </>
                     )}
-                  </TableCell>
-                  <TableCell className="nova-end">
+                  </td>
+                  <td className="end">
                     {i.status === 'Feedback due' && (
-                      <Button size="sm" kind="primary" onClick={() => setWriting(i)}>
+                      <Button size="sm" variant="primary" onClick={() => setWriting(i)}>
                         Write feedback
                       </Button>
                     )}
                     {i.status === 'Upcoming' && (
-                      <Button size="sm" kind="ghost" onClick={() => toast({ kind: 'info', title: 'Opening Google Meet', subtitle: `${i.candidate} · ${i.time}` })}>
-                        Join
+                      <Button size="sm" onClick={() => toast({ title: 'Opening Google Meet', subtitle: `${i.candidate} · ${i.time}` })}>
+                        <Video size={14} /> Join
                       </Button>
                     )}
-                  </TableCell>
-                </TableRow>
+                  </td>
+                </tr>
               ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+            </tbody>
+          </table>
+        </div>
       )}
 
       <Feedback
@@ -109,7 +94,7 @@ export function Interviews(_: NavProps) {
           setItems((all) => all.map((x) => (x.id === i.id ? { ...x, status: 'Done' } : x)));
           toast({
             title: 'Feedback signed',
-            subtitle: `${verdict} for ${i.candidate}. You can now see the other panelists' verdicts.`,
+            subtitle: `${verdict} for ${i.candidate}`,
             undo: () => setItems((all) => all.map((x) => (x.id === i.id ? { ...x, status: 'Feedback due' } : x))),
           });
         }}
@@ -126,40 +111,49 @@ function Feedback({ interview, onClose, onSign }: { interview: Interview | null;
   return (
     <Modal
       open={!!interview}
-      modalHeading={interview ? `Feedback for ${interview.candidate}` : ''}
-      modalLabel={interview?.round}
-      primaryButtonText="Sign feedback"
-      secondaryButtonText="Cancel"
-      primaryButtonDisabled={saving || !notes.trim()}
-      loadingStatus={saving ? 'active' : 'inactive'}
-      loadingDescription="Signing…"
-      onRequestClose={onClose}
-      onRequestSubmit={async () => {
-        if (!interview) return;
-        setSaving(true);
-        await settle();
-        setSaving(false);
-        onSign(interview, verdict);
-        onClose();
-      }}
+      title={interview ? `Feedback for ${interview.candidate}` : ''}
+      subtitle={interview ? `${interview.role} · ${interview.round}` : undefined}
+      onClose={onClose}
+      footer={
+        <>
+          <Button onClick={onClose}>Cancel</Button>
+          <Button
+            variant="primary"
+            loading={saving}
+            disabled={!notes.trim()}
+            onClick={async () => {
+              if (!interview) return;
+              setSaving(true);
+              await settle();
+              setSaving(false);
+              onSign(interview, verdict);
+              onClose();
+            }}
+          >
+            Sign feedback
+          </Button>
+        </>
+      }
     >
-      <div className="nova-modal-body">
-        {interview?.draftReady && <p className="nova-muted">Nova drafted this from the recording. Check it before you sign.</p>}
-        <RadioButtonGroup legendText="Recommendation" name="verdict" valueSelected={verdict} onChange={(v) => setVerdict(String(v))}>
+      {interview?.draftReady && (
+        <p className="quote">
+          <Sparkles size={14} color="var(--accent)" style={{ flex: 'none', marginTop: 2 }} aria-hidden />
+          Nova drafted this from the recording. Check it before you sign.
+        </p>
+      )}
+      <div className="field">
+        <label id="verdict-label">Recommendation</label>
+        <div className="segmented" role="group" aria-labelledby="verdict-label">
           {VERDICTS.map((v) => (
-            <RadioButton key={v} id={`verdict-${v}`} labelText={v} value={v} />
+            <button key={v} type="button" aria-pressed={verdict === v} onClick={() => setVerdict(v)}>
+              {v}
+            </button>
           ))}
-        </RadioButtonGroup>
-        <TextArea
-          id="notes"
-          labelText="Notes"
-          rows={4}
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          invalid={!notes.trim()}
-          invalidText="Add a short note so the panel knows why."
-        />
+        </div>
       </div>
+      <Field label="Notes" error={!notes.trim() ? 'Add a short note so the panel knows why.' : undefined}>
+        {(id) => <textarea id={id} className="textarea" rows={4} value={notes} aria-invalid={!notes.trim()} onChange={(e) => setNotes(e.target.value)} />}
+      </Field>
     </Modal>
   );
 }

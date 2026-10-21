@@ -1,26 +1,11 @@
 import { useState } from 'react';
-import {
-  Button,
-  DataTableSkeleton,
-  Dropdown,
-  ProgressBar,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableHeader,
-  TableRow,
-  Tag,
-} from '@carbon/react';
 import type { NavProps } from '../App';
 import { JOINERS, dateIn, type Joiner, type Risk } from '../data/model';
-import { PageHeader, settle, usePageLoad, useToast } from '../ui';
+import { Button, Chip, Initials, PageHeader, Progress, Select, TableSkeleton, settle, usePageLoad, useToast } from '../ui';
 
-const VIEWS = ['Everyone', 'Needs attention'] as const;
-type View = (typeof VIEWS)[number];
+type View = 'Everyone' | 'Needs attention';
 
-const RISK_TAG: Record<Risk, 'gray' | 'warm-gray' | 'red'> = { Low: 'gray', Medium: 'warm-gray', High: 'red' };
+const RISK_TONE: Record<Risk, 'orange' | 'red' | undefined> = { Low: undefined, Medium: 'orange', High: 'red' };
 
 export function Preboarding(_: NavProps) {
   const loading = usePageLoad();
@@ -37,70 +22,75 @@ export function Preboarding(_: NavProps) {
     await settle();
     setNudging(null);
     setNudged((s) => new Set(s).add(j.id));
-    toast({ title: `Nudged ${j.name}`, subtitle: 'Sent on WhatsApp and email.' });
+    toast({ title: `Nudged ${j.name}`, subtitle: 'Sent on WhatsApp and email' });
   };
 
   return (
-    <div className="nova-page">
+    <div className="page">
       <PageHeader title="Preboarding" subtitle={`${JOINERS.length} joiners · next starts ${dateIn(JOINERS[0].startsIn)}`} />
 
-      <div className="nova-filters">
-        <Dropdown
-          id="joiner-view"
-          titleText="Show"
+      <div className="filters">
+        <Select<View>
           label="Show"
-          items={[...VIEWS]}
-          itemToString={(v) => (v ? `${v} (${v === 'Everyone' ? JOINERS.length : attention.length})` : '')}
-          selectedItem={view}
-          onChange={({ selectedItem }) => selectedItem && setView(selectedItem)}
+          value={view}
+          options={[
+            { value: 'Everyone', count: JOINERS.length },
+            { value: 'Needs attention', count: attention.length },
+          ]}
+          onChange={setView}
         />
       </div>
 
       {loading ? (
-        <DataTableSkeleton rowCount={7} columnCount={5} showHeader={false} showToolbar={false} />
+        <TableSkeleton rows={7} />
       ) : (
-        <TableContainer>
-          <Table aria-label="Joiners">
-            <TableHead>
-              <TableRow>
-                <TableHeader>Joiner</TableHeader>
-                <TableHeader>Starts</TableHeader>
-                <TableHeader>Readiness</TableHeader>
-                <TableHeader>Risk</TableHeader>
-                <TableHeader aria-label="Actions" />
-              </TableRow>
-            </TableHead>
-            <TableBody>
+        <div className="card table-wrap">
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Joiner</th>
+                <th>Starts</th>
+                <th>Readiness</th>
+                <th>Risk</th>
+                <th aria-label="Actions" />
+              </tr>
+            </thead>
+            <tbody>
               {visible.map((j) => (
-                <TableRow key={j.id}>
-                  <TableCell>
-                    {j.name}
-                    <span className="nova-secondary">{j.issue ?? j.role}</span>
-                  </TableCell>
-                  <TableCell>
+                <tr key={j.id}>
+                  <td>
+                    <span className="person">
+                      <Initials name={j.name} />
+                      <span>
+                        <b>{j.name}</b>
+                        <span className="sub" style={j.issue ? { color: 'var(--orange)' } : undefined}>
+                          {j.issue ?? j.role}
+                        </span>
+                      </span>
+                    </span>
+                  </td>
+                  <td>
                     {dateIn(j.startsIn)}
-                    <span className="nova-secondary">in {j.startsIn} days</span>
-                  </TableCell>
-                  <TableCell style={{ minWidth: '9rem' }}>
-                    <ProgressBar label={`${j.name} readiness`} hideLabel value={j.progress} size="small" helperText={`${j.progress}%`} />
-                  </TableCell>
-                  <TableCell>
-                    <Tag size="sm" type={RISK_TAG[j.risk]}>
-                      {j.risk}
-                    </Tag>
-                  </TableCell>
-                  <TableCell className="nova-end">
+                    <span className="sub">in {j.startsIn} days</span>
+                  </td>
+                  <td>
+                    <Progress value={j.progress} label={`${j.name} readiness`} />
+                  </td>
+                  <td>
+                    <Chip tone={RISK_TONE[j.risk]}>{j.risk}</Chip>
+                  </td>
+                  <td className="end">
                     {j.progress < 100 && (
-                      <Button kind="ghost" size="sm" disabled={nudging === j.id || nudged.has(j.id)} onClick={() => nudge(j)}>
-                        {nudging === j.id ? 'Sending…' : nudged.has(j.id) ? 'Nudged' : 'Nudge'}
+                      <Button size="sm" loading={nudging === j.id} disabled={nudged.has(j.id)} onClick={() => nudge(j)}>
+                        {nudged.has(j.id) ? 'Nudged' : 'Nudge'}
                       </Button>
                     )}
-                  </TableCell>
-                </TableRow>
+                  </td>
+                </tr>
               ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );

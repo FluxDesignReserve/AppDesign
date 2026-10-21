@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { Dropdown, SkeletonPlaceholder } from '@carbon/react';
 import type { NavProps } from '../App';
-import { PageHeader, usePageLoad } from '../ui';
+import { PageHeader, Select, Skeleton, usePageLoad } from '../ui';
 
 interface Breakdown {
   label: string;
@@ -74,57 +73,55 @@ const KPIS = [
 
 export function Analytics(_: NavProps) {
   const loading = usePageLoad();
-  const [breakdown, setBreakdown] = useState(BREAKDOWNS[0]);
+  const [label, setLabel] = useState(BREAKDOWNS[0].label);
+  const breakdown = BREAKDOWNS.find((b) => b.label === label)!;
   const max = Math.max(...breakdown.bars.map((b) => b.value));
 
   return (
-    <div className="nova-page">
+    <div className="page">
       <PageHeader title="Analytics" subtitle="Last 30 days" />
 
-      {loading ? (
-        <SkeletonPlaceholder style={{ width: '100%', height: '22rem' }} />
-      ) : (
-        <>
-          <div className="nova-kpis">
-            {KPIS.map((k) => (
-              <div key={k.label} className="nova-kpi">
-                <span>{k.label}</span>
-                <strong className="nova-num">{k.value}</strong>
-                <span>{k.note}</span>
-              </div>
+      <div className="kpis">
+        {KPIS.map((k) => (
+          <div key={k.label} className="card kpi">
+            <span>{k.label}</span>
+            {loading ? <Skeleton w={72} h={28} /> : <strong className="num">{k.value}</strong>}
+            <span>{k.note}</span>
+          </div>
+        ))}
+      </div>
+
+      <div className="filters">
+        <Select label="Breakdown" value={label} options={BREAKDOWNS.map((b) => ({ value: b.label }))} onChange={setLabel} />
+      </div>
+
+      <figure className="card chart" style={{ margin: 0 }} aria-label={breakdown.label}>
+        {loading ? (
+          <div style={{ display: 'grid', gap: 14 }}>
+            <Skeleton w="50%" />
+            {[90, 40, 20, 10].map((w) => (
+              <Skeleton key={w} w={`${w}%`} h={8} />
             ))}
           </div>
-
-          <div className="nova-filters">
-            <Dropdown
-              id="breakdown"
-              titleText="Breakdown"
-              label="Breakdown"
-              items={BREAKDOWNS}
-              itemToString={(b) => b?.label ?? ''}
-              selectedItem={breakdown}
-              onChange={({ selectedItem }) => selectedItem && setBreakdown(selectedItem)}
-            />
-          </div>
-
-          <figure className="nova-chart" aria-label={breakdown.label}>
+        ) : (
+          <>
             <p>{breakdown.insight}</p>
             {breakdown.bars.map((b, i) => (
-              <div key={b.label} className="nova-bar">
+              <div key={b.label} className="bar">
                 <span>{b.label}</span>
-                <div className="nova-bar__track" role="presentation">
-                  <div className={`nova-bar__fill${i === breakdown.focus ? ' nova-bar__fill--focus' : ''}`} style={{ width: `${(b.value / max) * 100}%` }} />
+                <div className="bar-track" role="presentation">
+                  <div className={`bar-fill${i === breakdown.focus ? ' bar-fill--focus' : ''}`} style={{ width: `${(b.value / max) * 100}%` }} />
                 </div>
-                <span className="nova-bar__value nova-num">
+                <span className="bar-value num">
                   {b.value}
                   {breakdown.unit ?? ''}
-                  {b.note && <span className="nova-secondary">{b.note}</span>}
+                  {b.note && <span className="muted"> · {b.note}</span>}
                 </span>
               </div>
             ))}
-          </figure>
-        </>
-      )}
+          </>
+        )}
+      </figure>
     </div>
   );
 }

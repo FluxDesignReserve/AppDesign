@@ -1,144 +1,119 @@
 import { useMemo, useState } from 'react';
-import {
-  Button,
-  DataTable,
-  DataTableSkeleton,
-  Dropdown,
-  Modal,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableHeader,
-  TableRow,
-  TableToolbar,
-  TableToolbarContent,
-  TableToolbarSearch,
-  Tag,
-  TextInput,
-} from '@carbon/react';
-import { Add } from '@carbon/icons-react';
+import { ArrowDown, ArrowUp, Plus, Search } from 'lucide-react';
 import type { NavProps } from '../App';
 import { CANDIDATES, JOBS, type Job, type JobStatus } from '../data/model';
-import { PageHeader, Wait, settle, usePageLoad, useToast } from '../ui';
+import { Button, Chip, Field, Initials, Modal, PageHeader, Select, TableSkeleton, Wait, settle, usePageLoad, useToast } from '../ui';
 
 const STATUSES: JobStatus[] = ['Open', 'Draft', 'On hold', 'Closed'];
 
-const HEADERS = [
-  { key: 'title', header: 'Role' },
-  { key: 'priority', header: 'Priority' },
-  { key: 'pipeline', header: 'In pipeline' },
-  { key: 'hired', header: 'Hired' },
-  { key: 'wait', header: 'Oldest wait' },
-  { key: 'owner', header: 'Owner' },
-  { key: 'action', header: '' },
-];
-
 const inPipeline = (title: string) => CANDIDATES.filter((c) => c.role === title).length;
 const inScreening = (title: string) => CANDIDATES.filter((c) => c.role === title && c.stage === 'Screening').length;
+
+type SortKey = 'pipeline' | 'wait';
 
 export function Jobs({ go }: NavProps) {
   const loading = usePageLoad();
   const toast = useToast();
   const [jobs, setJobs] = useState<Job[]>(JOBS);
   const [status, setStatus] = useState<JobStatus>('Open');
+  const [query, setQuery] = useState('');
+  const [sort, setSort] = useState<{ key: SortKey; desc: boolean }>({ key: 'pipeline', desc: true });
   const [creating, setCreating] = useState(false);
 
   const counts = useMemo(() => Object.fromEntries(STATUSES.map((s) => [s, jobs.filter((j) => j.status === s).length])), [jobs]);
-  const visible = jobs.filter((j) => j.status === status);
-  const rows = visible.map((j) => ({ id: j.id, title: j.title, priority: j.priority, pipeline: inPipeline(j.title), hired: j.hired, wait: j.oldestWait, owner: j.owner ?? '', action: '' }));
-  const byId = new Map(jobs.map((j) => [j.id, j]));
+  const q = query.trim().toLowerCase();
+  const visible = jobs
+    .filter((j) => j.status === status && (!q || j.title.toLowerCase().includes(q)))
+    .sort((a, b) => {
+      const v = (j: Job) => (sort.key === 'pipeline' ? inPipeline(j.title) : j.oldestWait);
+      return (v(a) - v(b)) * (sort.desc ? -1 : 1);
+    });
   const total = jobs.filter((j) => j.status === 'Open').reduce((n, j) => n + inPipeline(j.title), 0);
 
+  const sortable = (key: SortKey, label: string) => (
+    <th aria-sort={sort.key === key ? (sort.desc ? 'descending' : 'ascending') : undefined}>
+      <button onClick={() => setSort({ key, desc: sort.key === key ? !sort.desc : true })}>
+        {label}
+        {sort.key === key && (sort.desc ? <ArrowDown size={12} /> : <ArrowUp size={12} />)}
+      </button>
+    </th>
+  );
+
   return (
-    <div className="nova-page">
+    <div className="page">
       <PageHeader
         title="Jobs"
         subtitle={`${counts.Open} open · ${total} people in the pipeline`}
         action={
-          <Button renderIcon={Add} onClick={() => setCreating(true)}>
-            New job
+          <Button variant="primary" onClick={() => setCreating(true)}>
+            <Plus size={16} /> New job
           </Button>
         }
       />
 
+      <div className="filters">
+        <Select label="Status" value={status} options={STATUSES.map((s) => ({ value: s, count: counts[s] }))} onChange={setStatus} />
+        <span className="spacer" />
+        <div className="search">
+          <Search size={14} aria-hidden />
+          <input className="input" type="search" placeholder="Search jobs" aria-label="Search jobs" value={query} onChange={(e) => setQuery(e.target.value)} />
+        </div>
+      </div>
+
       {loading ? (
-        <DataTableSkeleton headers={HEADERS} rowCount={5} columnCount={HEADERS.length} showHeader={false} />
+        <TableSkeleton rows={5} />
       ) : (
-        <DataTable rows={rows} headers={HEADERS} isSortable>
-          {({ rows, headers, getTableProps, getHeaderProps, getRowProps, onInputChange }) => (
-            <TableContainer>
-              <TableToolbar aria-label="Job filters">
-                <TableToolbarContent>
-                  <TableToolbarSearch onChange={(e) => onInputChange(e as React.ChangeEvent<HTMLInputElement>)} placeholder="Search jobs" persistent />
-                  <Dropdown
-                    id="job-status"
-                    titleText="Status"
-                    hideLabel
-                    label="Status"
-                    type="inline"
-                    items={STATUSES}
-                    itemToString={(s) => (s ? `${s} (${counts[s]})` : '')}
-                    selectedItem={status}
-                    onChange={({ selectedItem }) => selectedItem && setStatus(selectedItem)}
-                  />
-                </TableToolbarContent>
-              </TableToolbar>
-              <Table {...getTableProps()} aria-label="Jobs">
-                <TableHead>
-                  <TableRow>
-                    {headers.map((h) => {
-                      const { key, ...props } = getHeaderProps({ header: h, isSortable: h.key !== 'action' });
-                      return (
-                        <TableHeader key={key} {...props}>
-                          {h.header}
-                        </TableHeader>
-                      );
-                    })}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {rows.map((row) => {
-                    const job = byId.get(row.id);
-                    // DataTable syncs rows a render after props change.
-                    if (!job) return null;
-                    const { key, ...props } = getRowProps({ row });
-                    return (
-                      <TableRow key={key} {...props}>
-                        <TableCell>
-                          {job.title}
-                          <span className="nova-secondary">
-                            {job.id} · {job.location}
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <Tag size="sm" type={job.priority === 'P0' ? 'red' : 'gray'}>
-                            {job.priority}
-                          </Tag>
-                        </TableCell>
-                        <TableCell className="nova-num">{inPipeline(job.title)}</TableCell>
-                        <TableCell className="nova-num">
-                          {job.hired}/{job.openings}
-                        </TableCell>
-                        <TableCell>
-                          <Wait days={job.oldestWait} />
-                        </TableCell>
-                        <TableCell>{job.owner ?? <span className="nova-muted">Unassigned</span>}</TableCell>
-                        <TableCell className="nova-end">
-                          <Button kind="ghost" size="sm" onClick={() => go('candidates', { role: job.title, stage: 'Screening' })}>
-                            Review {inScreening(job.title)}
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-              {rows.length === 0 && <div className="nova-empty">No {status.toLowerCase()} jobs.</div>}
-            </TableContainer>
-          )}
-        </DataTable>
+        <div className="card table-wrap">
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Role</th>
+                <th>Priority</th>
+                {sortable('pipeline', 'In pipeline')}
+                <th>Hired</th>
+                {sortable('wait', 'Oldest wait')}
+                <th>Owner</th>
+                <th aria-label="Actions" />
+              </tr>
+            </thead>
+            <tbody>
+              {visible.map((job) => (
+                <tr key={job.id}>
+                  <td>
+                    <b style={{ fontWeight: 500 }}>{job.title}</b>
+                    <span className="sub">
+                      {job.id} · {job.location}
+                    </span>
+                  </td>
+                  <td>{job.priority === 'P0' ? <Chip tone="red">P0</Chip> : <Chip>{job.priority}</Chip>}</td>
+                  <td className="num">{inPipeline(job.title)}</td>
+                  <td className="num">
+                    {job.hired}/{job.openings}
+                  </td>
+                  <td>
+                    <Wait days={job.oldestWait} />
+                  </td>
+                  <td>
+                    {job.owner ? (
+                      <span className="person" style={{ minWidth: 0 }}>
+                        <Initials name={job.owner} size="sm" />
+                        {job.owner}
+                      </span>
+                    ) : (
+                      <span className="muted">Unassigned</span>
+                    )}
+                  </td>
+                  <td className="end">
+                    <Button size="sm" onClick={() => go('candidates', { role: job.title, stage: 'Screening' })}>
+                      Review {inScreening(job.title)}
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {visible.length === 0 && <div className="empty">{q ? 'No jobs match your search.' : `No ${status.toLowerCase()} jobs.`}</div>}
+        </div>
       )}
 
       <NewJob
@@ -166,50 +141,52 @@ function NewJob({ open, onClose, onCreate }: { open: boolean; onClose: () => voi
   const [touched, setTouched] = useState(false);
   const invalid = touched && !title.trim();
 
-  const reset = () => {
+  const close = () => {
     setTitle('');
     setTouched(false);
     setSaving(false);
+    onClose();
+  };
+
+  const save = async () => {
+    setTouched(true);
+    if (!title.trim()) return;
+    setSaving(true);
+    await settle();
+    onCreate(title.trim(), location.trim() || 'Noida');
+    close();
   };
 
   return (
     <Modal
       open={open}
-      modalHeading="New job"
-      primaryButtonText="Save as draft"
-      secondaryButtonText="Cancel"
-      primaryButtonDisabled={saving}
-      loadingStatus={saving ? 'active' : 'inactive'}
-      loadingDescription="Saving…"
-      onRequestClose={() => {
-        reset();
-        onClose();
-      }}
-      onRequestSubmit={async () => {
-        setTouched(true);
-        if (!title.trim()) return;
-        setSaving(true);
-        await settle();
-        onCreate(title.trim(), location.trim() || 'Noida');
-        reset();
-        onClose();
-      }}
-      size="sm"
+      title="New job"
+      subtitle="Drafts stay private until you publish them."
+      onClose={close}
+      footer={
+        <>
+          <Button onClick={close}>Cancel</Button>
+          <Button variant="primary" loading={saving} onClick={save}>
+            Save as draft
+          </Button>
+        </>
+      }
     >
-      <div className="nova-modal-body">
-        <p className="nova-muted">Drafts stay private until you publish them.</p>
-        <TextInput
-          id="job-title"
-          labelText="Job title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          onBlur={() => setTouched(true)}
-          invalid={invalid}
-          invalidText="Add a job title."
-          data-modal-primary-focus
-        />
-        <TextInput id="job-location" labelText="Location" value={location} onChange={(e) => setLocation(e.target.value)} />
-      </div>
+      <Field label="Job title" error={invalid ? 'Add a job title.' : undefined}>
+        {(id) => (
+          <input
+            id={id}
+            className="input"
+            value={title}
+            autoFocus
+            aria-invalid={invalid}
+            onChange={(e) => setTitle(e.target.value)}
+            onBlur={() => setTouched(true)}
+            onKeyDown={(e) => e.key === 'Enter' && save()}
+          />
+        )}
+      </Field>
+      <Field label="Location">{(id) => <input id={id} className="input" value={location} onChange={(e) => setLocation(e.target.value)} />}</Field>
     </Modal>
   );
 }

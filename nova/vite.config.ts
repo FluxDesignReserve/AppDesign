@@ -9,5 +9,4 @@ export default defineConfig({
   base: './',
   plugins: [react(), ...(single ? [viteSingleFile()] : [])],
   build: { outDir: single ? 'dist-single' : 'dist', chunkSizeWarningLimit: 2000 },
-  css: { preprocessorOptions: { scss: { api: 'modern-compiler', quietDeps: true, silenceDeprecations: ['mixed-decls'] } } },
 });
