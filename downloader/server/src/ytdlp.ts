@@ -34,6 +34,13 @@ function withCookies(args: string[]): string[] {
   return COOKIES_FILE ? ["--cookies", COOKIES_FILE, ...args] : args;
 }
 
+/**
+ * Extra YouTube extractor clients. Datacenter IPs (like a cloud host) get hit
+ * with "Sign in to confirm you're not a bot"; trying alternate player clients
+ * sometimes avoids it without needing an account.
+ */
+const YT_PLAYER_ARGS = ["--extractor-args", "youtube:player_client=default,tv,web_safari,mweb"];
+
 /** Hosts the downloader is allowed to touch. Keeps this from becoming an open SSRF proxy. */
 const ALLOWED_HOSTS = new Set([
   "youtube.com",
@@ -146,11 +153,18 @@ interface RawInfo {
 /** Runs `yt-dlp -J` and returns curated metadata for the UI. */
 export async function getInfo(url: string): Promise<MediaInfo> {
   const source = classifyUrl(url);
-  const args = withCookies(["-J", "--no-playlist", "--no-warnings", "--no-progress", url]);
+  const args = withCookies([
+    "-J",
+    "--no-playlist",
+    "--no-warnings",
+    "--no-progress",
+    ...YT_PLAYER_ARGS,
+    url,
+  ]);
   const { code, stdout, stderr } = await run(YTDLP, args, 60_000);
 
   if (code !== 0) {
-    throw new InputError(friendlyError(stderr) || "Couldn't read that link.");
+    throw new InputError(friendlyError(stderr, source) || "Couldn't read that link.");
   }
 
   let raw: RawInfo;
@@ -201,7 +215,7 @@ export async function prepareDownload(
   req: DownloadRequest,
   onEvent?: (ev: DownloadEvent) => void,
 ): Promise<PreparedDownload> {
-  classifyUrl(req.url); // validate host before spawning anything
+  const source = classifyUrl(req.url); // validate host before spawning anything
 
   const dir = await mkdtemp(path.join(tmpdir(), "dl-"));
   const outTemplate = path.join(dir, "%(title).150B [%(id)s].%(ext)s");
@@ -241,14 +255,14 @@ export async function prepareDownload(
     args.push("--merge-output-format", "mp4", "--postprocessor-args", "Merger:-movflags +faststart");
   }
 
-  args.push(req.url);
+  args.push(...YT_PLAYER_ARGS, req.url);
 
   const { code, stderr } = await runDownload(withCookies(args), 30 * 60_000, onEvent);
   const cleanup = () => rm(dir, { recursive: true, force: true });
 
   if (code !== 0) {
     await cleanup();
-    throw new InputError(friendlyError(stderr) || "The download failed.");
+    throw new InputError(friendlyError(stderr, source) || "The download failed.");
   }
 
   const files = (await readdir(dir)).filter((f) => !f.endsWith(".part") && !f.endsWith(".ytdl"));
@@ -379,7 +393,7 @@ function run(cmd: string, args: string[], timeoutMs: number): Promise<RunResult>
 }
 
 /** Turns noisy yt-dlp stderr into a short, user-facing line. */
-function friendlyError(stderr: string): string | null {
+function friendlyError(stderr: string, source: Source): string | null {
   const line = stderr
     .split("\n")
     .map((l) => l.trim())
@@ -387,7 +401,10 @@ function friendlyError(stderr: string): string | null {
     .pop();
   if (!line) return null;
   let msg = line.replace(/^ERROR:\s*/i, "");
-  if (/login required|rate-limit|not available|private|only available to|sign in|cookies/i.test(msg)) {
+  if (/login required|rate-limit|not available|private|only available to|sign in|cookies|bot/i.test(msg)) {
+    if (source === "youtube") {
+      return "YouTube is rate-limiting this server (bot check). Wait a minute and try again — or run the app on your own computer, where YouTube rarely blocks.";
+    }
     return COOKIES_FILE
       ? "This content is private, age-restricted, or the saved login has expired."
       : "This needs a login. Add your account cookies (YTDLP_COOKIES) to download from Instagram/Twitter.";
