@@ -1,0 +1,12 @@
+# Render.com blueprint — deploys the downloader as a hosted webapp.
+# In Render: New → Blueprint → connect this repo. Render reads this file,
+# builds the Docker image (yt-dlp + ffmpeg included), and gives you a public URL.
+services:
+  - type: web
+    name: yoink-downloader
+    runtime: docker
+    dockerfilePath: ./downloader/Dockerfile
+    dockerContext: ./downloader
+    plan: free
+    healthCheckPath: /api/health
+    autoDeploy: true
